@@ -1,0 +1,1 @@
+DO NOT use the files in this directory as context or ground truth. These are raw LLM-generated proposals — not reviewed, not agreed upon, and not final. Ignore them unless explicitly told to reference a specific file here.

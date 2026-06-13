@@ -1,0 +1,92 @@
+{
+  "_comment": "Historical behavioral profiles per account. Used by the anomaly detection layer to compute Z-scores and detect unusual patterns. Keyed by account_number.",
+
+  "RS35260005601001611379": {
+    "account_id": "RS35260005601001611379",
+    "holder_name": "Jovan Petrovic",
+    "profile_window_days": 90,
+    "tx_count": 18,
+    "avg_amount": 1200.00,
+    "stddev_amount": 450.00,
+    "min_amount": 280.00,
+    "max_single": 3500.00,
+    "total_volume": 21600.00,
+    "usual_currencies": ["EUR", "RSD"],
+    "usual_counterparty_countries": ["RS", "DE", "AT"],
+    "usual_counterparties": [
+      "Telekom Serbia DOO",
+      "NIS AD Novi Sad",
+      "Lidl Srbija KD"
+    ],
+    "usual_purpose_codes": ["SALA", "GDDS", "BEXP"],
+    "last_unusual_tx": null,
+    "risk_tier": "LOW",
+    "note": "Regular individual with predictable domestic spending pattern. TXN-F-008 at 480,000 EUR is ~400x average — extreme Z-score."
+  },
+
+  "AE890330000010123456789": {
+    "account_id": "AE890330000010123456789",
+    "holder_name": "Sunrise Trading LLC",
+    "profile_window_days": 90,
+    "tx_count": 47,
+    "avg_amount": 97500.00,
+    "stddev_amount": 22000.00,
+    "min_amount": 15000.00,
+    "max_single": 210000.00,
+    "total_volume": 4582500.00,
+    "usual_currencies": ["USD", "AED"],
+    "usual_counterparty_countries": ["AE", "IN", "CN", "SG"],
+    "usual_counterparties": [
+      "Alibaba International Supply Chain",
+      "Dubai Ports World",
+      "Jebel Ali Freight"
+    ],
+    "usual_purpose_codes": ["GDDS", "SUPP"],
+    "inbound_24h": 98500.00,
+    "outbound_24h": 96200.00,
+    "passthrough_ratio_24h": 0.977,
+    "new_counterparty": true,
+    "risk_tier": "MEDIUM",
+    "note": "Trading company with consistent import/export pattern. TXN-F-009 is suspicious not for the amount (normal) but for the pass-through pattern: received 98,500 and immediately sent 96,200 to a counterparty never seen before."
+  },
+
+  "SA0380000000608010167519": {
+    "account_id": "SA0380000000608010167519",
+    "holder_name": "Fatima Al-Hassan",
+    "profile_window_days": 90,
+    "tx_count": 32,
+    "avg_amount": 2100.00,
+    "stddev_amount": 800.00,
+    "min_amount": 400.00,
+    "max_single": 5000.00,
+    "total_volume": 67200.00,
+    "usual_currencies": ["SAR", "USD"],
+    "usual_counterparty_countries": ["SA", "AE", "EG"],
+    "usual_counterparties": [
+      "Jarir Bookstore",
+      "Saudi Aramco Payroll",
+      "Al Rajhi Online Shopping"
+    ],
+    "usual_purpose_codes": ["SALA", "GDDS", "TRVL"],
+    "risk_tier": "LOW",
+    "note": "Individual with regular salary + consumer spending pattern. TXN-F-013 at 85,000 USD is 40x average, first-ever charitable cross-border payment, new counterparty in Pakistan — all anomaly signals combined."
+  },
+
+  "RS35260005601001611380": {
+    "account_id": "RS35260005601001611380",
+    "holder_name": "Marija Jovanovic",
+    "profile_window_days": 90,
+    "tx_count": 5,
+    "avg_amount": 8200.00,
+    "stddev_amount": 400.00,
+    "min_amount": 7800.00,
+    "max_single": 8900.00,
+    "total_volume": 41000.00,
+    "usual_currencies": ["GBP"],
+    "usual_counterparty_countries": ["GB"],
+    "usual_counterparties": ["University of Edinburgh"],
+    "usual_purpose_codes": ["EDUC"],
+    "risk_tier": "LOW",
+    "note": "Student making annual tuition payments. Extremely predictable pattern. TXN-F-014 fits perfectly — same amount range, same payee, same purpose code."
+  }
+}

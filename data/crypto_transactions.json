@@ -1,0 +1,356 @@
+[
+  {
+    "_comment": "=== MATCH CASES — direct OFAC wallet hit ===",
+    "transaction_id": "TXN-C-001",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xa1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "originator": {
+      "wallet_address": "0x7F367cC41522cE07553e823bf3be79A889DEBE1B",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Unknown",
+      "vasp_name": null
+    },
+    "beneficiary": {
+      "wallet_address": "0x098B716B8Aaf21512996dC57EB0615e2383E2f96",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "vasp_name": "Binance deposit"
+    },
+    "amount": 4.82,
+    "asset": "ETH",
+    "usd_equivalent": 14460.00,
+    "submitted_at": "2026-06-13T09:14:22Z",
+    "expected_verdict": "MATCH",
+    "test_category": "DIRECT_OFAC_WALLET",
+    "test_notes": "0x7F367cC41522cE07553e823bf3be79A889DEBE1B is a real OFAC-designated address (Lazarus Group, DPRK). Originator wallet is on the OFAC SDN list. Bloom filter catches this at Layer 1, sub-millisecond."
+  },
+  {
+    "transaction_id": "TXN-C-002",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xb2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+    "originator": {
+      "wallet_address": "0xA2B73FC4c9e9d2D0c4e8e6e4F87B3F19Dc35aE2c",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Techno Capital FX",
+      "vasp_name": null
+    },
+    "beneficiary": {
+      "wallet_address": "0x1da5821544e25c636c1417Ba96Ade4Cf6D2f9B5A",
+      "chain": "ETHEREUM",
+      "address_type": "CONTRACT",
+      "vasp_name": null
+    },
+    "amount": 125.00,
+    "asset": "ETH",
+    "usd_equivalent": 375000.00,
+    "submitted_at": "2026-06-13T10:22:11Z",
+    "expected_verdict": "MATCH",
+    "test_category": "DIRECT_OFAC_WALLET_BENEFICIARY",
+    "test_notes": "0x1da5821544e25c636c1417Ba96Ade4Cf6D2f9B5A is a designated OFAC address (Tornado Cash mixer, CYBER2 program). Beneficiary wallet is on the SDN list. Bloom filter hits on the destination address."
+  },
+  {
+    "transaction_id": "TXN-C-003",
+    "payment_type": "CRYPTO",
+    "tx_hash": "3VGMoHp9aN4rH8Z2pLkTuFqKhBmZs8cKsm7T2sE6nDabcxyz",
+    "originator": {
+      "wallet_address": "1PzXoH27HE7keTxFfgm3MEWPcFgMF8JgxR",
+      "chain": "BITCOIN",
+      "address_type": "P2PKH",
+      "owner_name": null,
+      "vasp_name": "Coinbase withdrawal"
+    },
+    "beneficiary": {
+      "wallet_address": "149w62rY42aZBox8fGcmqNsXUzSStKeq8C",
+      "chain": "BITCOIN",
+      "address_type": "P2PKH",
+      "vasp_name": null
+    },
+    "amount": 3.5,
+    "asset": "BTC",
+    "usd_equivalent": 245000.00,
+    "submitted_at": "2026-06-13T11:05:44Z",
+    "expected_verdict": "MATCH",
+    "test_category": "DIRECT_OFAC_WALLET_BTC",
+    "test_notes": "149w62rY42aZBox8fGcmqNsXUzSStKeq8C is a OFAC-designated Bitcoin address (Iran-related sanctions). Beneficiary is on the BTC SDN wallet list. Large amount — $245K in BTC."
+  },
+
+  {
+    "_comment": "=== REVIEW CASES — indirect/graph exposure or Travel Rule gaps ===",
+    "transaction_id": "TXN-C-004",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xc3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+    "originator": {
+      "wallet_address": "0x3C5F12b4F8e1D9A2b7C4E6F8A0B1D3E5C7A9F2E4",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "GlobalTech Investments Ltd",
+      "vasp_name": "Kraken"
+    },
+    "beneficiary": {
+      "wallet_address": "0xD4F82c1A9E7B3C5F2A8D6E4C2B0A8F6E4C2B0A8F",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "vasp_name": null
+    },
+    "amount": 12.0,
+    "asset": "ETH",
+    "usd_equivalent": 36000.00,
+    "submitted_at": "2026-06-13T12:14:33Z",
+    "graph_analysis": {
+      "hop_1_hits": [],
+      "hop_2_hits": [
+        {
+          "address": "0x098B716B8Aaf21512996dC57EB0615e2383E2f96",
+          "distance": 2,
+          "risk_weight": 0.5,
+          "list": "OFAC_SDN",
+          "program": "CYBER2"
+        }
+      ],
+      "max_risk_score": 0.5
+    },
+    "expected_verdict": "REVIEW",
+    "test_category": "GRAPH_2HOP_EXPOSURE",
+    "test_notes": "No direct OFAC match. 1-hop check clean. BUT: 2-hop graph traversal finds that this wallet sent funds to 0x...E2f96 (OFAC SDN, Lazarus Group) two hops away. Risk weight 0.5 at hop-2. Not certain enough for auto-block but too risky to release — route to analyst with graph visualization."
+  },
+  {
+    "transaction_id": "TXN-C-005",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xd4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
+    "originator": {
+      "wallet_address": "0xE8F1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": null,
+      "vasp_name": null
+    },
+    "beneficiary": {
+      "wallet_address": "0x9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "vasp_name": "Binance deposit"
+    },
+    "amount": 850000.00,
+    "asset": "USDC",
+    "usd_equivalent": 850000.00,
+    "submitted_at": "2026-06-13T13:02:17Z",
+    "graph_analysis": {
+      "hop_1_hits": [
+        {
+          "address": "0x7F367cC41522cE07553e823bf3be79A889DEBE1B",
+          "distance": 1,
+          "risk_weight": 1.0,
+          "list": "OFAC_SDN",
+          "program": "DPRK"
+        }
+      ],
+      "max_risk_score": 1.0
+    },
+    "expected_verdict": "REVIEW",
+    "test_category": "GRAPH_1HOP_EXPOSURE_LARGE",
+    "test_notes": "Originator wallet received funds directly from an OFAC-sanctioned Lazarus Group address 6 hours ago (1-hop exposure, risk weight 1.0). $850K USDC transfer size. 1-hop is not an automatic MATCH (the funds may have been received unknowingly), but with this amount and direct exposure it demands analyst escalation. Different handling from a confirmed direct match."
+  },
+  {
+    "transaction_id": "TXN-C-006",
+    "payment_type": "CRYPTO",
+    "tx_hash": "5ZUFXsL8kKP3R7gNvWxYqH2mD9fTbCjEeA4uiMrQopBVGsW",
+    "originator": {
+      "wallet_address": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+      "chain": "BITCOIN",
+      "address_type": "P2WPKH",
+      "owner_name": "Anonymous",
+      "vasp_name": null
+    },
+    "beneficiary": {
+      "wallet_address": "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
+      "chain": "BITCOIN",
+      "address_type": "P2SH",
+      "vasp_name": "LocalBitcoins"
+    },
+    "amount": 2.1,
+    "asset": "BTC",
+    "usd_equivalent": 147000.00,
+    "submitted_at": "2026-06-13T13:44:09Z",
+    "travel_rule": {
+      "originator_name_provided": false,
+      "originator_vasp_known": false,
+      "threshold_exceeded": true,
+      "threshold_usd": 1000
+    },
+    "expected_verdict": "REVIEW",
+    "test_category": "TRAVEL_RULE_GAP",
+    "test_notes": "No direct OFAC wallet match. BUT: transaction exceeds $1,000 FATF Travel Rule threshold and originator identity is completely unknown (self-custodied wallet, no VASP). Destination is LocalBitcoins, a peer-to-peer exchange with known compliance issues. Cannot release a $147K transaction with zero originator identity data. REVIEW required to gather Travel Rule information."
+  },
+  {
+    "transaction_id": "TXN-C-007",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xe5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6",
+    "originator": {
+      "wallet_address": "0xF1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "DeFi Liquidity Pool #4421",
+      "vasp_name": null
+    },
+    "beneficiary": {
+      "wallet_address": "0xA0B1C2D3E4F5A6B7C8D9E0F1A2B3C4D5E6F7A8B9",
+      "chain": "ETHEREUM",
+      "address_type": "CONTRACT",
+      "vasp_name": null
+    },
+    "amount": 500000.00,
+    "asset": "USDT",
+    "usd_equivalent": 500000.00,
+    "submitted_at": "2026-06-13T14:17:52Z",
+    "behavioral": {
+      "wallet_age_days": 3,
+      "total_historical_volume_usd": 500000.00,
+      "counterparty_count": 1,
+      "note": "Wallet created 3 days ago, first and only transaction is this $500K USDT transfer"
+    },
+    "expected_verdict": "REVIEW",
+    "test_category": "BEHAVIORAL_NEW_WALLET_HIGH_VALUE",
+    "test_notes": "No direct OFAC match. BUT: this Ethereum wallet is 3 days old and this is its first and only transaction — moving $500K USDT immediately. Brand-new wallets with immediate high-value transfers are a known money laundering pattern (wallet created specifically for this transfer). Analyst must investigate source of funds."
+  },
+
+  {
+    "_comment": "=== NO_MATCH CASES — clean crypto transactions ===",
+    "transaction_id": "TXN-C-008",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xf6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1",
+    "originator": {
+      "wallet_address": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Pavle Prodanovic",
+      "vasp_name": "Coinbase",
+      "owner_national_id": "RS123456789"
+    },
+    "beneficiary": {
+      "wallet_address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "chain": "ETHEREUM",
+      "address_type": "CONTRACT",
+      "vasp_name": "Uniswap v3 Pool"
+    },
+    "amount": 0.5,
+    "asset": "ETH",
+    "usd_equivalent": 1500.00,
+    "submitted_at": "2026-06-13T09:30:00Z",
+    "expected_verdict": "NO_MATCH",
+    "test_category": "CLEAN_DEFI_SMALL",
+    "test_notes": "Small ETH interaction with a well-known DeFi protocol (Uniswap). KYC'd Coinbase originator. No OFAC wallet matches at any hop. Routine DeFi usage."
+  },
+  {
+    "transaction_id": "TXN-C-009",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xa7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8",
+    "originator": {
+      "wallet_address": "0xB2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0C1",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Sokin Payments Ltd",
+      "vasp_name": "Sokin",
+      "owner_national_id": "UK-REG-09876543"
+    },
+    "beneficiary": {
+      "wallet_address": "0xC3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0C1D2",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Maria Santos",
+      "vasp_name": "Sokin",
+      "owner_national_id": "BR-CPF-12345678901"
+    },
+    "amount": 500.00,
+    "asset": "USDC",
+    "usd_equivalent": 500.00,
+    "submitted_at": "2026-06-13T10:00:00Z",
+    "expected_verdict": "NO_MATCH",
+    "test_category": "CLEAN_STABLECOIN_REMITTANCE",
+    "test_notes": "USDC remittance between two Sokin KYC'd customers. Originator UK-registered fintech, both parties verified. Clean wallets with no OFAC exposure at any hop. This is the core Sokin use case — cross-border stablecoin payments."
+  },
+  {
+    "transaction_id": "TXN-C-010",
+    "payment_type": "CRYPTO",
+    "tx_hash": "4xR9kLmPQsN7WbJfTyHgVcEuAzXiOdKw3rMnYpB5sFlG8hjD",
+    "originator": {
+      "wallet_address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf",
+      "chain": "BITCOIN",
+      "address_type": "P2PKH",
+      "owner_name": "Kraken Exchange Hot Wallet",
+      "vasp_name": "Kraken",
+      "owner_national_id": "US-REG-KRAKEN-LLC"
+    },
+    "beneficiary": {
+      "wallet_address": "bc1qcyw64fxnr7tvnw2rrtc8hh8nrxz4d3rzrtxnrq",
+      "chain": "BITCOIN",
+      "address_type": "P2WPKH",
+      "owner_name": "Dositej Cvetkovic",
+      "vasp_name": "Kraken",
+      "owner_national_id": "RS-ID-8801121234567"
+    },
+    "amount": 0.08,
+    "asset": "BTC",
+    "usd_equivalent": 5600.00,
+    "submitted_at": "2026-06-13T15:20:00Z",
+    "expected_verdict": "NO_MATCH",
+    "test_category": "CLEAN_EXCHANGE_WITHDRAWAL",
+    "test_notes": "Standard Bitcoin withdrawal from Kraken (regulated US exchange) to a KYC'd customer wallet. Small amount. No OFAC matches. Exchange-to-self-custody — a normal, high-frequency transaction type."
+  },
+  {
+    "transaction_id": "TXN-C-011",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xb8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9",
+    "originator": {
+      "wallet_address": "0xD4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0C1D2E3",
+      "chain": "ETHEREUM",
+      "address_type": "CONTRACT",
+      "owner_name": "Lido Staking Protocol",
+      "vasp_name": "Lido Finance"
+    },
+    "beneficiary": {
+      "wallet_address": "0xE5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0C1D2E3F4",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Igor Antonijevic",
+      "vasp_name": "Self-custody",
+      "owner_national_id": "RS-ID-9901151234567"
+    },
+    "amount": 1.2,
+    "asset": "stETH",
+    "usd_equivalent": 3600.00,
+    "submitted_at": "2026-06-13T16:00:00Z",
+    "expected_verdict": "NO_MATCH",
+    "test_category": "CLEAN_DEFI_STAKING_REWARD",
+    "test_notes": "Lido staking reward payout. Lido is a well-known, legitimate DeFi protocol. Recipient is a known, KYC'd individual. No OFAC exposure. Staking rewards are routine DeFi activity."
+  },
+  {
+    "transaction_id": "TXN-C-012",
+    "payment_type": "CRYPTO",
+    "tx_hash": "0xc9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0",
+    "originator": {
+      "wallet_address": "0xF6A7B8C9D0E1F2A3B4C5D6E7F8A9B0C1D2E3F4A5",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "Binance Cold Storage 14",
+      "vasp_name": "Binance",
+      "owner_national_id": "CAYMAN-REG-BINANCE"
+    },
+    "beneficiary": {
+      "wallet_address": "0xA7B8C9D0E1F2A3B4C5D6E7F8A9B0C1D2E3F4A5B6",
+      "chain": "ETHEREUM",
+      "address_type": "EOA",
+      "owner_name": "TechVentures Capital GmbH",
+      "vasp_name": "Binance",
+      "owner_national_id": "DE-HRB-12345"
+    },
+    "amount": 50.0,
+    "asset": "ETH",
+    "usd_equivalent": 150000.00,
+    "submitted_at": "2026-06-13T16:45:00Z",
+    "expected_verdict": "NO_MATCH",
+    "test_category": "CLEAN_INSTITUTIONAL_LARGE",
+    "test_notes": "Institutional withdrawal from Binance cold storage to a German GmbH wallet. Both parties are KYC'd on Binance. No OFAC matches at any hop. $150K is large but routine for institutional trading."
+  }
+]
