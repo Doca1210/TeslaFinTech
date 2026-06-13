@@ -1,0 +1,43 @@
+Money in money out
+Counterparties
+RISK PROFILES - depending on the regional area things you need to care about and monitor - sanction lists, exposed people (politicans etc. dorectprs)
+IN european area - terrorist financing / rate how risky is the payment going out
+B2B
+Clients work in the global market they want to be able to pay in other currecnies not their local ones.
+AS consumers we miss the complexities Millions move around. NO transaction fee for small scale.
+AML
+MOney going out - do our initial checks, can we make a payment, does the beneficiary names match, the data look correct you got the funds, we flag to the comliance team can we go ahead
+Compliance engine for AML, stop and wait world CURRENTLY. There is a RISK based approach, with the human in the loop.
+Manual work currently: decent percentage of transactions automated.
+There is a difference between members of the public and business straight forward to do. Companies on the other hand who is behind it? What companies behind the company making the transaction?
+3-rd world countries - Payments in Africa - it takes 3 days for the payment ot go through. Solution - Stablecoin
+there aren't large liquidity pools, balance the transactions currency to currency, or gold to currency
+You need money locally
+KYB?
+Remove friction from global payments like Africa. Interest in keeping money in certain currencies
+Funding round - they give you money to grow the business
+System
+If something gets flagged, manual checking if the owners are on the board, where the payment was instructed from: if you are a US based company and you instruct from China/Russia raise the RISK
+Certain partners will not involve with businesses involved with crypto or gambling for ethical reasons.
+Internal and External business, while we do check where the money comes from, if the company is earing 10mil a year and a payment is incoming with 20mil.
+AML System - trend of payments over time, amount of payments over time, payments in and payments out time diff.
+Who the payments actually comefrom / sokin made the payment for you due to regulations.
+AWS -> Azure / sharding architecture for background processes. UAE processing has to be local. Multi shard on a relationalDB.
+For UAE two systems bad solution,
+Problems currently
+easier to build on top of the platform
+DO LESS, less polished feature  to the customer get data from the usage and make a new version
+
+Push notification Great, because of the mobile app, better contact for the users, better services on the side
+Finding other vendors, who have a large balancesheet of their customers
+4i or 6i checks, someone signs it off
+
+NO banks are utilising crypto, fx rates high
+when you do a fx trade, if you have enough money -> real-time.
+
+Getting banking licences to get regulated in each of the regions.
+
+Verification services of the payee
+Horisontally scaled and was 0% faster
+
+Short feedback loop

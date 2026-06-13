@@ -1,0 +1,50 @@
+[
+  {
+    "transaction_id": "txn-1001",
+    "counterparty_name": "Vladimir Poutine",
+    "counterparty_country": "RU",
+    "amount": 25000.0,
+    "currency": "EUR",
+    "direction": "outbound"
+  },
+  {
+    "transaction_id": "txn-1002",
+    "counterparty_name": "Sergey Shoygu",
+    "counterparty_country": "RU",
+    "amount": 1200.0,
+    "currency": "USD",
+    "direction": "outbound"
+  },
+  {
+    "transaction_id": "txn-1003",
+    "counterparty_name": "John Smith",
+    "counterparty_country": "GB",
+    "amount": 500.0,
+    "currency": "GBP",
+    "direction": "outbound"
+  },
+  {
+    "transaction_id": "txn-1004",
+    "counterparty_name": "Kim Lee",
+    "counterparty_country": "KR",
+    "amount": 800.0,
+    "currency": "USD",
+    "direction": "outbound"
+  },
+  {
+    "transaction_id": "txn-1005",
+    "counterparty_name": "North Horizon Trading",
+    "counterparty_country": "AE",
+    "amount": 50000.0,
+    "currency": "USD",
+    "direction": "outbound"
+  },
+  {
+    "transaction_id": "txn-1006",
+    "counterparty_name": "Muammar al Qadhafi",
+    "counterparty_country": "LY",
+    "amount": 10000.0,
+    "currency": "EUR",
+    "direction": "outbound"
+  }
+]
