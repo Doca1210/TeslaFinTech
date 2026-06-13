@@ -1,0 +1,431 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "mentor_questions.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "specs_mentor_questions",
+      "community": 1,
+      "norm_label": "mentor_questions.md"
+    },
+    {
+      "label": "Mentor Questions \u2014 Sokin VP of Engineering",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "community": 1,
+      "norm_label": "mentor questions \u2014 sokin vp of engineering"
+    },
+    {
+      "label": "The Decision This Conversation Must Answer",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_the_decision_this_conversation_must_answer",
+      "community": 1,
+      "norm_label": "the decision this conversation must answer"
+    },
+    {
+      "label": "How to Open",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_how_to_open",
+      "community": 1,
+      "norm_label": "how to open"
+    },
+    {
+      "label": "Questions \u2014 In Priority Order",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_questions_in_priority_order",
+      "community": 0,
+      "norm_label": "questions \u2014 in priority order"
+    },
+    {
+      "label": "Block 1: Find the Pain (Most Important)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_block_1_find_the_pain_most_important",
+      "community": 0,
+      "norm_label": "block 1: find the pain (most important)"
+    },
+    {
+      "label": "Block 2: Understand the Crypto Gap",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_block_2_understand_the_crypto_gap",
+      "community": 0,
+      "norm_label": "block 2: understand the crypto gap"
+    },
+    {
+      "label": "Block 3: Understand Operational Pain",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L62",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_block_3_understand_operational_pain",
+      "community": 0,
+      "norm_label": "block 3: understand operational pain"
+    },
+    {
+      "label": "Block 4: Understand Regulatory/Explainability Requirements",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_block_4_understand_regulatory_explainability_requirements",
+      "community": 0,
+      "norm_label": "block 4: understand regulatory/explainability requirements"
+    },
+    {
+      "label": "Block 5: Find the Dream Feature",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_block_5_find_the_dream_feature",
+      "community": 0,
+      "norm_label": "block 5: find the dream feature"
+    },
+    {
+      "label": "Closing Ask (Important)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L89",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_closing_ask_important",
+      "community": 0,
+      "norm_label": "closing ask (important)"
+    },
+    {
+      "label": "The Single Most Valuable Thing to Get",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_the_single_most_valuable_thing_to_get",
+      "community": 1,
+      "norm_label": "the single most valuable thing to get"
+    },
+    {
+      "label": "What You Should Know When You Walk Out",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L102",
+      "_origin": "ast",
+      "id": "specs_mentor_questions_what_you_should_know_when_you_walk_out",
+      "community": 1,
+      "norm_label": "what you should know when you walk out"
+    },
+    {
+      "label": "user_landscape_and_mentor_questions.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions",
+      "community": 3,
+      "norm_label": "user_landscape_and_mentor_questions.md"
+    },
+    {
+      "label": "Sanctions Screening \u2014 User Landscape",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_sanctions_screening_user_landscape",
+      "community": 3,
+      "norm_label": "sanctions screening \u2014 user landscape"
+    },
+    {
+      "label": "Who Actually Uses a Sanctions Screening System",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "community": 2,
+      "norm_label": "who actually uses a sanctions screening system"
+    },
+    {
+      "label": "Type 1: AML Analyst",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_type_1_aml_analyst",
+      "community": 2,
+      "norm_label": "type 1: aml analyst"
+    },
+    {
+      "label": "Type 2: Compliance Officer",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_type_2_compliance_officer",
+      "community": 2,
+      "norm_label": "type 2: compliance officer"
+    },
+    {
+      "label": "Type 3: Fintech Engineer (the Sokin VP)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_type_3_fintech_engineer_the_sokin_vp",
+      "community": 2,
+      "norm_label": "type 3: fintech engineer (the sokin vp)"
+    },
+    {
+      "label": "Type 4: Payment Operations / Customer Service",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L60",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_type_4_payment_operations_customer_service",
+      "community": 2,
+      "norm_label": "type 4: payment operations / customer service"
+    },
+    {
+      "label": "Type 5: Crypto Compliance Specialist",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L69",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_type_5_crypto_compliance_specialist",
+      "community": 2,
+      "norm_label": "type 5: crypto compliance specialist"
+    },
+    {
+      "label": "What the VP Can and Cannot Tell You",
+      "file_type": "document",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L78",
+      "_origin": "ast",
+      "id": "specs_user_landscape_and_mentor_questions_what_the_vp_can_and_cannot_tell_you",
+      "community": 3,
+      "norm_label": "what the vp can and cannot tell you"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "specs_mentor_questions",
+      "target": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "target": "specs_mentor_questions_how_to_open",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "target": "specs_mentor_questions_questions_in_priority_order",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "target": "specs_mentor_questions_the_decision_this_conversation_must_answer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "target": "specs_mentor_questions_the_single_most_valuable_thing_to_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_mentor_questions_sokin_vp_of_engineering",
+      "target": "specs_mentor_questions_what_you_should_know_when_you_walk_out",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_questions_in_priority_order",
+      "target": "specs_mentor_questions_block_1_find_the_pain_most_important",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_questions_in_priority_order",
+      "target": "specs_mentor_questions_block_2_understand_the_crypto_gap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_questions_in_priority_order",
+      "target": "specs_mentor_questions_block_3_understand_operational_pain",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_questions_in_priority_order",
+      "target": "specs_mentor_questions_block_4_understand_regulatory_explainability_requirements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_questions_in_priority_order",
+      "target": "specs_mentor_questions_block_5_find_the_dream_feature",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/mentor_questions.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "specs_mentor_questions_questions_in_priority_order",
+      "target": "specs_mentor_questions_closing_ask_important",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions",
+      "target": "specs_user_landscape_and_mentor_questions_sanctions_screening_user_landscape",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_sanctions_screening_user_landscape",
+      "target": "specs_user_landscape_and_mentor_questions_what_the_vp_can_and_cannot_tell_you",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_sanctions_screening_user_landscape",
+      "target": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "target": "specs_user_landscape_and_mentor_questions_type_1_aml_analyst",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "target": "specs_user_landscape_and_mentor_questions_type_2_compliance_officer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "target": "specs_user_landscape_and_mentor_questions_type_3_fintech_engineer_the_sokin_vp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "target": "specs_user_landscape_and_mentor_questions_type_4_payment_operations_customer_service",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/specs/user_landscape_and_mentor_questions.md",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "specs_user_landscape_and_mentor_questions_who_actually_uses_a_sanctions_screening_system",
+      "target": "specs_user_landscape_and_mentor_questions_type_5_crypto_compliance_specialist",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "555953e94d7331b4581483bef1c09d879f365412"
+}
