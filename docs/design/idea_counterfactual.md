@@ -1,0 +1,2 @@
+Strong pairing: Counterfactual explanations
+For every REVIEW case, alongside "why this matched," generate "what would change the verdict": "This would be NO_MATCH if date of birth differed by >5 years" or "...if country didn't match RU." This is cheap to compute (you already have per-signal scores in MatchSignal) but is the single most-requested feature by actual AML analysts — it turns a 2-minute decision into a 20-second one, directly hitting the "200 cases by 4pm Friday" pain point.
