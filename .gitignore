@@ -1,7 +1,13 @@
 .DS_Store
 .venv/
-venv
+venv/
 __pycache__/
 .pytest_cache/
 *.pyc
 .idea/
+
+# generated graph
+graphify-out/
+
+# generated reports
+reports/
