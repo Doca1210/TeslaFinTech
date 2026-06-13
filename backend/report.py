@@ -483,7 +483,7 @@ def build_html_report(report_dict: dict) -> str:
     .badge.amber { background: #fef9c3; color: #854d0e; }
     .badge.red   { background: #fee2e2; color: #991b1b; }
     .comparison { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: #fff;
-                  border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+                  border: 1px solid #e2e8f0; border-radius: 12px; }
     .comparison th { background: #0f172a; color: #f8fafc; padding: 10px 14px; text-align: left; font-size: 0.8rem; }
     .comparison td { padding: 9px 14px; border-bottom: 1px solid #f1f5f9; }
     .comparison tr:last-child td { border-bottom: none; }
@@ -513,43 +513,24 @@ def build_html_report(report_dict: dict) -> str:
     footer { text-align: center; color: #94a3b8; font-size: 0.75rem; margin-top: 48px; }
 
     /* ── tooltips ── */
-    .tip { position: relative; cursor: help; white-space: nowrap; }
+    .tip { cursor: help; white-space: nowrap; }
     .tip sup { font-size: 0.6rem; color: #94a3b8; margin-left: 1px; }
-    .tip::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
+    #tt {
+      position: fixed;
+      z-index: 9999;
       background: #1e293b;
       color: #f8fafc;
       font-size: 0.75rem;
-      font-weight: 400;
       line-height: 1.5;
       padding: 8px 12px;
       border-radius: 8px;
       width: 260px;
       white-space: normal;
-      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
       pointer-events: none;
-      opacity: 0;
-      transition: opacity .15s ease;
-      z-index: 100;
+      display: none;
     }
-    .tip::before {
-      content: '';
-      position: absolute;
-      bottom: calc(100% + 2px);
-      left: 50%;
-      transform: translateX(-50%);
-      border: 6px solid transparent;
-      border-top-color: #1e293b;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .15s ease;
-      z-index: 100;
-    }
-    .tip:hover::after, .tip:hover::before { opacity: 1; }
+    #tt.visible { display: block; }
     """
 
     return f"""<!DOCTYPE html>
@@ -582,6 +563,36 @@ def build_html_report(report_dict: dict) -> str:
 
   <footer>TeslaFinTech Sanctions Screening &nbsp;·&nbsp; {generated}</footer>
 </body>
+<div id="tt"></div>
+<script>
+  const tt = document.getElementById('tt');
+  const PAD = 12;
+
+  document.querySelectorAll('.tip').forEach(el => {{
+    el.addEventListener('mouseenter', e => {{
+      tt.textContent = el.dataset.tip;
+      tt.classList.add('visible');
+      position(e);
+    }});
+    el.addEventListener('mousemove', position);
+    el.addEventListener('mouseleave', () => tt.classList.remove('visible'));
+  }});
+
+  function position(e) {{
+    const W = tt.offsetWidth, H = tt.offsetHeight;
+    let x = e.clientX - W / 2;
+    let y = e.clientY - H - 14;
+
+    // flip below cursor if too close to top
+    if (y < PAD) y = e.clientY + 20;
+
+    // clamp horizontally so it never leaves the viewport
+    x = Math.max(PAD, Math.min(x, window.innerWidth - W - PAD));
+
+    tt.style.left = x + 'px';
+    tt.style.top  = y + 'px';
+  }}
+</script>
 </html>"""
 
 
