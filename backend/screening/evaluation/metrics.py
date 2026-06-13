@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 from screening.evaluation.models import ClassificationMetrics
 from screening.models import ScreeningVerdict
 
@@ -33,9 +35,18 @@ def compute_metrics(
     recall = _safe_div(tp, tp + fn)
     f1_score = _safe_div(2 * precision * recall, precision + recall)
 
+    # F2: weights recall twice as heavily as precision.
+    # Standard in AML/sanctions where missing a hit (FN) is far costlier than a false alarm.
+    f2_score = _safe_div(5 * precision * recall, 4 * precision + recall)
+
+    # MCC: robust single-number quality score for imbalanced datasets (range -1 to +1).
+    mcc_denom = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    mcc = _safe_div(tp * tn - fp * fn, mcc_denom)
+
     specificity = _safe_div(tn, tn + fp)
     false_positive_rate = _safe_div(fp, fp + tn)
     false_negative_rate = _safe_div(fn, fn + tp)
+    alert_rate = _safe_div(tp + fp, total)
 
     return ClassificationMetrics(
         true_positives=tp,
@@ -46,9 +57,12 @@ def compute_metrics(
         precision=round(precision, 4),
         recall=round(recall, 4),
         f1_score=round(f1_score, 4),
+        f2_score=round(f2_score, 4),
+        mcc=round(mcc, 4),
         specificity=round(specificity, 4),
         false_positive_rate=round(false_positive_rate, 4),
         false_negative_rate=round(false_negative_rate, 4),
+        alert_rate=round(alert_rate, 4),
         support_positive=tp + fn,
         support_negative=tn + fp,
     )
@@ -128,9 +142,12 @@ def _empty_metrics() -> ClassificationMetrics:
         precision=0.0,
         recall=0.0,
         f1_score=0.0,
+        f2_score=0.0,
+        mcc=0.0,
         specificity=0.0,
         false_positive_rate=0.0,
         false_negative_rate=0.0,
+        alert_rate=0.0,
         support_positive=0,
         support_negative=0,
     )

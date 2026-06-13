@@ -104,35 +104,98 @@ def cmd_evaluate(args: argparse.Namespace) -> None:
 
 
 def _print_evaluate_summary(report: dict) -> None:
-    print(f"Benchmark : {report['benchmark_path']} ({report['case_count']} cases)")
-    print(f"Watchlist : {report['watchlist_path']}")
+    _W = 56
+    _LINE = "─" * _W
+
     print()
-    header = (
-        f"{'Variant':<22} {'Flag F1':>8} {'Precision':>10} {'Recall':>8} "
-        f"{'Block F1':>9} {'Accuracy':>10} {'Entity Hit':>11} {'ms/case':>8}"
-    )
-    print(header)
-    print("-" * len(header))
+    print(f"  Benchmark : {report['benchmark_path']}")
+    print(f"  Watchlist : {report['watchlist_path']}")
+    print(f"  Cases     : {report['case_count']}")
+
     for v in report["variants"]:
         flag = v["flag_metrics"]
         block = v["block_metrics"]
-        entity = v.get("entity_hit_rate")
-        entity_text = f"{entity * 100:.1f}%" if entity is not None else "n/a"
-        print(
-            f"{v['variant_name']:<22} "
-            f"{flag['f1_score']:>8.3f} "
-            f"{flag['precision']:>10.3f} "
-            f"{flag['recall']:>8.3f} "
-            f"{block['f1_score']:>9.3f} "
-            f"{flag['accuracy']:>10.3f} "
-            f"{entity_text:>11} "
-            f"{v['avg_latency_ms']:>8.2f}"
-        )
+        entity_hit = v.get("entity_hit_rate")
+        entity_cases = v.get("entity_cases", 0)
+
+        print()
+        print(_LINE)
+        print(f"  {v['variant_name']}  ·  {v['variant_description']}")
+        print(_LINE)
+
+        # ── Detection ────────────────────────────────────────────
+        print()
+        print("  DETECTION  (did we catch every real hit?)")
+        _row("Detection Rate",   flag["recall"],            pct=True,
+             note="of real sanctioned entities correctly flagged")
+        _row("Miss Rate",        flag["false_negative_rate"], pct=True,
+             note="hits that slipped through  ← compliance risk", warn=flag["false_negative_rate"] > 0.05)
+        _row("False Alarm Rate", flag["false_positive_rate"], pct=True,
+             note="clean payments wrongly flagged  ← analyst workload")
+        _row("Alert Precision",  flag["precision"],          pct=True,
+             note="of raised alerts that are genuine hits")
+
+        # ── Quality scores ────────────────────────────────────────
+        print()
+        print("  QUALITY SCORES")
+        _row("F1 Score",  flag["f1_score"],  note="balanced precision / recall  (0–1, higher is better)")
+        _row("F2 Score",  flag["f2_score"],  note="recall-weighted  (penalises misses 2× more than false alarms)")
+        _row("MCC",       flag["mcc"],       note="overall quality on imbalanced data  (0–1, higher is better)")
+        _row("Accuracy",  flag["accuracy"],  pct=True, note="correct decisions across all cases")
+
+        # ── Auto-block quality ────────────────────────────────────
+        print()
+        print("  AUTO-BLOCK QUALITY  (MATCH verdict only)")
+        _row("Block Precision", block["precision"], pct=True,
+             note="of hard-blocked payments that are confirmed hits")
+        _row("Block Recall",    block["recall"],    pct=True,
+             note="of highest-confidence hits that were auto-blocked")
+        _row("Block F1",        block["f1_score"],  note="balanced score for auto-block decisions")
+
+        # ── Operational ──────────────────────────────────────────
+        print()
+        print("  OPERATIONAL")
+        _row("Alert Rate",      flag["alert_rate"],  pct=True,
+             note="transactions routed to the review queue")
+        _row("Auto-Block Rate", block["alert_rate"], pct=True,
+             note="transactions hard-blocked without analyst review")
+        if entity_hit is not None:
+            _row("Entity Hit Rate", entity_hit, pct=True,
+                 note=f"correct entity identified ({entity_cases} cases with known target)")
+        _row("Speed", v["avg_latency_ms"], unit=" ms", note="average screening latency per transaction")
+
+        # ── Confusion matrix ─────────────────────────────────────
+        tp = flag["true_positives"]
+        tn = flag["true_negatives"]
+        fp = flag["false_positives"]
+        fn = flag["false_negatives"]
+        print()
+        print("  CONFUSION MATRIX")
+        print(f"    {'Correct Alerts (TP)':<24} {tp:>5}    {'Missed Hits (FN)':<24} {fn:>5}  ← compliance risk")
+        print(f"    {'False Alarms (FP)':<24} {fp:>5}    {'Clean Passes (TN)':<24} {tn:>5}")
+
+    # ── Winner summary ───────────────────────────────────────────
     print()
-    print(f"Best Flag F1  : {report['winner_by_flag_f1']}")
-    print(f"Best Block F1 : {report['winner_by_block_f1']}")
+    print(_LINE)
+    print("  RECOMMENDED VARIANT")
+    print(f"    Best overall (F2)   : {report['winner_by_flag_f1']}")
+    print(f"    Best auto-block     : {report['winner_by_block_f1']}")
     if report.get("winner_by_verdict_macro_f1"):
-        print(f"Best Verdict F1: {report['winner_by_verdict_macro_f1']}")
+        print(f"    Best 3-way verdict  : {report['winner_by_verdict_macro_f1']}")
+    print(_LINE)
+    print()
+
+
+def _row(label: str, value: float, *, pct: bool = False, unit: str = "", note: str = "", warn: bool = False) -> None:
+    if pct:
+        value_str = f"{value * 100:>6.1f}%"
+    elif unit:
+        value_str = f"{value:>6.1f}{unit}"
+    else:
+        value_str = f"{value:>7.4f}"
+    flag_str = "  !" if warn else ""
+    note_str = f"  {note}" if note else ""
+    print(f"    {label:<22} {value_str}{flag_str}{note_str}")
 
 
 def _print_evaluate_failures(report: dict) -> None:

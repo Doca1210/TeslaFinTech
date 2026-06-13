@@ -61,9 +61,12 @@ class ClassificationMetrics(BaseModel):
     precision: float
     recall: float
     f1_score: float
+    f2_score: float        # recall-weighted F score (standard in high-stakes screening)
+    mcc: float             # Matthews Correlation Coefficient — robust for imbalanced data
     specificity: float
     false_positive_rate: float
     false_negative_rate: float
+    alert_rate: float      # fraction of cases flagged (MATCH + REVIEW)
     support_positive: int
     support_negative: int
 
