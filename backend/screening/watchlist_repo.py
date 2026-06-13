@@ -66,4 +66,4 @@ def load_watchlist_from_db(db_path: Path | str) -> list[WatchlistEntity]:
 
 
 def default_db_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "aml.db"
+    return Path(__file__).resolve().parent.parent / "data" / "aml.db"

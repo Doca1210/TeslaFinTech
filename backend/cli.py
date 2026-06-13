@@ -6,18 +6,18 @@ from pathlib import Path
 
 from screening.engine import ScreeningEngine
 from screening.models import Transaction
-from screening.pep_loader import default_watchlist_path, load_watchlist
+from screening.watchlist_repo import default_db_path, load_watchlist_from_db
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Screen transactions against PEP / suspicious-name watchlists."
+        description="Screen transactions against OFAC / sanctions watchlists."
     )
     parser.add_argument(
-        "--watchlist",
+        "--db",
         type=Path,
-        default=default_watchlist_path(),
-        help="Path to watchlist JSON file.",
+        default=default_db_path(),
+        help="Path to AML SQLite database (default: backend/aml.db).",
     )
     parser.add_argument(
         "--transactions",
@@ -80,7 +80,7 @@ def print_result(result_dict: dict, *, as_json: bool) -> None:
 
 def main() -> None:
     args = parse_args()
-    watchlist = load_watchlist(args.watchlist)
+    watchlist = load_watchlist_from_db(args.db)
     engine = ScreeningEngine(watchlist)
     transactions = load_transactions(args)
 

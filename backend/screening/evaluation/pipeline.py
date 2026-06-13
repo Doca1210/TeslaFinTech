@@ -19,7 +19,7 @@ from screening.evaluation.models import (
 )
 from screening.evaluation.variants import AlgorithmVariant, default_variants
 from screening.models import ScreeningResult, ScreeningVerdict, WatchlistEntity
-from screening.pep_loader import default_watchlist_path, load_watchlist
+from screening.watchlist_repo import default_db_path, load_watchlist_from_db
 
 
 class ABTestPipeline:
@@ -36,21 +36,21 @@ class ABTestPipeline:
         self.watchlist = watchlist
         self.cases = cases
         self.benchmark_path = str(benchmark_path or default_benchmark_path())
-        self.watchlist_path = str(watchlist_path or default_watchlist_path())
+        self.watchlist_path = str(watchlist_path or default_db_path())
 
     @classmethod
-    def from_paths(
+    def from_db(
         cls,
         benchmark_path: Path | str | None = None,
-        watchlist_path: Path | str | None = None,
+        db_path: Path | str | None = None,
     ) -> "ABTestPipeline":
+        db = Path(db_path or default_db_path())
         bench_path = Path(benchmark_path or default_benchmark_path())
-        list_path = Path(watchlist_path or default_watchlist_path())
         return cls(
-            watchlist=load_watchlist(list_path),
+            watchlist=load_watchlist_from_db(db),
             cases=load_benchmark(bench_path),
             benchmark_path=bench_path,
-            watchlist_path=list_path,
+            watchlist_path=db,
         )
 
     def evaluate_variant(self, variant: AlgorithmVariant) -> VariantEvaluation:

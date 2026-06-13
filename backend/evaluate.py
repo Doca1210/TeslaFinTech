@@ -19,10 +19,10 @@ def parse_args() -> argparse.Namespace:
         help="Path to labeled benchmark JSON.",
     )
     parser.add_argument(
-        "--watchlist",
+        "--db",
         type=Path,
         default=None,
-        help="Path to watchlist JSON.",
+        help="Path to AML SQLite database (default: backend/aml.db).",
     )
     parser.add_argument(
         "--variants",
@@ -106,7 +106,7 @@ def print_failures(report_dict: dict) -> None:
 
 def main() -> None:
     args = parse_args()
-    pipeline = ABTestPipeline.from_paths(args.benchmark, args.watchlist)
+    pipeline = ABTestPipeline.from_db(args.benchmark, args.db)
 
     if args.variants:
         variants = [get_variant(name) for name in args.variants]
