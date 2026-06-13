@@ -1,25 +1,55 @@
-from fastapi import FastAPI
+import logging
+import time
+
+from fastapi import FastAPI, Request
 from sqlalchemy import select
 
 from app.database import Base, SessionLocal, engine
 from app.ingestion.ofac_sdn import run_ingestion
+from app.logging_config import configure_logging
 from app.models import Entity, EntityName
 from app.schemas import EntitySearchResult, IngestionResult
+
+configure_logging()
+logger = logging.getLogger("app")
 
 app = FastAPI(title="AML Sanctions Screening")
 
 Base.metadata.create_all(bind=engine)
 
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start = time.perf_counter()
+    logger.info("--> %s %s params=%s", request.method, request.url.path, dict(request.query_params))
+    response = await call_next(request)
+    duration_ms = (time.perf_counter() - start) * 1000
+    logger.info(
+        "<-- %s %s status=%s duration=%.1fms",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+    )
+    return response
+
+
 @app.post("/ingest/ofac-sdn", response_model=IngestionResult)
 def ingest_ofac_sdn() -> IngestionResult:
+    logger.info("Starting OFAC SDN ingestion")
     result = run_ingestion()
+    logger.info(
+        "Finished OFAC SDN ingestion: %s entries, published %s",
+        result["entries_processed"],
+        result["publish_date"],
+    )
     return IngestionResult(**result)
 
 
 @app.get("/entities/search", response_model=list[EntitySearchResult])
 def search_entities(name: str, limit: int = 20) -> list[EntitySearchResult]:
     """Placeholder substring search until the fuzzy/embedding matcher exists."""
+    logger.info("Searching entities for name=%r limit=%s", name, limit)
     session = SessionLocal()
     try:
         pattern = f"%{name.lower()}%"
@@ -56,6 +86,7 @@ def search_entities(name: str, limit: int = 20) -> list[EntitySearchResult]:
                     ],
                 )
             )
+        logger.info("Search for name=%r matched %s entities", name, len(results))
         return results
     finally:
         session.close()

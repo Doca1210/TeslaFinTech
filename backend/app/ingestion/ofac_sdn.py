@@ -9,6 +9,8 @@ and the upsert/soft-delete strategy.
 
 from __future__ import annotations
 
+import logging
+import time
 from datetime import datetime, timezone
 
 import httpx
@@ -30,6 +32,8 @@ from app.models import (
 SDN_XML_URL = "https://www.treasury.gov/ofac/downloads/sdn.xml"
 SOURCE_LIST_CODE = "OFAC_SDN"
 SOURCE_LIST_NAME = "OFAC Specially Designated Nationals (SDN) List"
+
+logger = logging.getLogger("app.ingestion.ofac_sdn")
 
 ENTITY_TYPE_MAP = {
     "individual": "individual",
@@ -65,8 +69,10 @@ def local_find_text(elem: etree._Element, path: str) -> str | None:
 
 
 def fetch_sdn_xml(url: str = SDN_XML_URL) -> bytes:
+    logger.info("Fetching SDN XML from %s", url)
     response = httpx.get(url, timeout=60.0, follow_redirects=True)
     response.raise_for_status()
+    logger.info("Fetched SDN XML (%d bytes)", len(response.content))
     return response.content
 
 
@@ -182,6 +188,7 @@ def parse_sdn_xml(xml_bytes: bytes) -> tuple[str | None, list[dict]]:
         for entry in root
         if strip_ns(entry.tag) == "sdnEntry"
     ]
+    logger.info("Parsed %d SDN entries (publish_date=%s)", len(entries), publish_date)
     return publish_date, entries
 
 
@@ -207,8 +214,9 @@ def upsert_entries(session: Session, source_list: SourceList, entries: list[dict
         entity.source_uid: entity
         for entity in session.query(Entity).filter_by(source_list_id=source_list.id)
     }
+    logger.info("Loaded %d existing entities for source list %s", len(existing), source_list.code)
 
-    for record in entries:
+    for index, record in enumerate(entries, start=1):
         uid = record["source_uid"]
         if not uid:
             continue
@@ -254,13 +262,20 @@ def upsert_entries(session: Session, source_list: SourceList, entries: list[dict
         for nationality in record["nationalities"]:
             entity.nationalities.append(EntityNationality(**nationality))
 
+        if index % 2000 == 0:
+            logger.info("Upserted %d/%d entities", index, len(entries))
+
     # Soft-delete anything no longer present in the refreshed feed.
+    deactivated = 0
     for uid, entity in existing.items():
         if uid not in seen_uids:
             entity.is_active = False
+            deactivated += 1
+    logger.info("Upsert complete: %d processed, %d deactivated", len(entries), deactivated)
 
 
 def run_ingestion() -> dict:
+    start = time.perf_counter()
     Base.metadata.create_all(bind=engine)
 
     xml_bytes = fetch_sdn_xml()
@@ -274,12 +289,18 @@ def run_ingestion() -> dict:
         source_list.last_fetched_at = datetime.now(timezone.utc)
         source_list.last_published_at = publish_date
 
+        logger.info("Committing changes to database")
         session.commit()
+        duration = time.perf_counter() - start
+        logger.info("Ingestion finished in %.1fs", duration)
         return {"source_list": source_list.code, "entries_processed": len(entries), "publish_date": publish_date}
     finally:
         session.close()
 
 
 if __name__ == "__main__":
+    from app.logging_config import configure_logging
+
+    configure_logging()
     result = run_ingestion()
     print(result)
