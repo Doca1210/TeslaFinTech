@@ -7,12 +7,11 @@ from fastapi import FastAPI, HTTPException
 
 from screening.engine import ScreeningEngine
 from screening.models import ScreeningResult, Transaction
-from screening.pep_loader import default_watchlist_path, load_watchlist
+from screening.watchlist_repo import default_db_path, load_watchlist_from_db
 
 
-def build_engine(watchlist_path: Path | None = None) -> ScreeningEngine:
-    path = watchlist_path or default_watchlist_path()
-    watchlist = load_watchlist(path)
+def build_engine(db_path: Path | None = None) -> ScreeningEngine:
+    watchlist = load_watchlist_from_db(db_path or default_db_path())
     return ScreeningEngine(watchlist)
 
 
