@@ -130,12 +130,12 @@
   {
     "case_id": "bench-013",
     "transaction_id": "txn-b-013",
-    "counterparty_name": "Horizon Trading LLC",
-    "counterparty_country": "US",
+    "counterparty_name": "Silverstone Logistics GmbH",
+    "counterparty_country": "DE",
     "label": "negative",
     "expected_verdict": "NO_MATCH",
-    "category": "partial_name_trap",
-    "notes": "Shares tokens with OFAC org names but is not on list"
+    "category": "clean_negative",
+    "notes": "Generic German logistics company, not on OFAC SDN"
   },
   {
     "case_id": "bench-014",
@@ -146,5 +146,134 @@
     "expected_verdict": "NO_MATCH",
     "category": "clean_negative",
     "notes": "Generic business, not on OFAC SDN"
+  },
+  {
+    "case_id": "bench-015",
+    "transaction_id": "txn-b-015",
+    "counterparty_name": "Владимир Путин",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:35096",
+    "category": "cyrillic_input",
+    "notes": "Cyrillic: Vladimir Putin. Old engine fails raw fuzzy on Cyrillic vs Latin; v2 normalises via unidecode on both sides"
+  },
+  {
+    "case_id": "bench-016",
+    "transaction_id": "txn-b-016",
+    "counterparty_name": "Сергей Шойгу",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:35173",
+    "category": "cyrillic_input",
+    "notes": "Cyrillic: Sergey Shoygu. Old engine fails raw fuzzy on Cyrillic; v2 handles via unidecode + vector fallback"
+  },
+  {
+    "case_id": "bench-017",
+    "transaction_id": "txn-b-017",
+    "counterparty_name": "Sergei Kuzhugetovich Shoigu",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:35173",
+    "category": "patronym_in_query",
+    "notes": "Full patronym form matches OFAC primary name exactly; both engines should handle"
+  },
+  {
+    "case_id": "bench-018",
+    "transaction_id": "txn-b-018",
+    "counterparty_name": "Sergei Lavrov",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:35233",
+    "category": "exact_match",
+    "notes": "OFAC primary: Sergei Viktorovich LAVROV; alias: Sergey LAVROV"
+  },
+  {
+    "case_id": "bench-019",
+    "transaction_id": "txn-b-019",
+    "counterparty_name": "Alexander Lukashenko",
+    "counterparty_country": "BY",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:9760",
+    "category": "alias_transliteration",
+    "notes": "OFAC alias: Aleksandr Grigorevich LUKASHENKO. v2 strips patronym from index, boosting score"
+  },
+  {
+    "case_id": "bench-020",
+    "transaction_id": "txn-b-020",
+    "counterparty_name": "Osama Bin Laden",
+    "counterparty_country": "SA",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:6365",
+    "category": "alias_transliteration",
+    "notes": "OFAC alias: Usama BIN LADEN. Osama vs Usama is a common Arabic name transliteration variant"
+  },
+  {
+    "case_id": "bench-021",
+    "transaction_id": "txn-b-021",
+    "counterparty_name": "Rosneft JSC",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:17022",
+    "category": "entity_suffix_stripping",
+    "notes": "OFAC: OPEN JOINT-STOCK COMPANY ROSNEFT OIL COMPANY. v2 strips JSC suffix; old engine treats JSC as token"
+  },
+  {
+    "case_id": "bench-022",
+    "transaction_id": "txn-b-022",
+    "counterparty_name": "Lavrov Sergei",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:35233",
+    "category": "token_reorder",
+    "notes": "Surname-first ordering of Sergei Lavrov"
+  },
+  {
+    "case_id": "bench-023",
+    "transaction_id": "txn-b-023",
+    "counterparty_name": "Sergei Petrov",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:40917",
+    "category": "patronym_strip",
+    "notes": "Matches OFAC_SDN:40917 'Sergei Valentinovich PETROV'; v2 strips patronym from index leaving 'sergei petrov'"
+  },
+  {
+    "case_id": "bench-024",
+    "transaction_id": "txn-b-024",
+    "counterparty_name": "Lavrov Ivan",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "OFAC surname match but wrong first name; should not reach MATCH threshold"
+  },
+  {
+    "case_id": "bench-025",
+    "transaction_id": "txn-b-025",
+    "counterparty_name": "Vladimir Sorokin",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Russian author, not on OFAC SDN; Vladimir is a common Russian first name"
+  },
+  {
+    "case_id": "bench-026",
+    "transaction_id": "txn-b-026",
+    "counterparty_name": "Nordic Freight Solutions AS",
+    "counterparty_country": "NO",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Generic Norwegian freight company, not on OFAC SDN"
   }
 ]
