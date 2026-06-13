@@ -8,7 +8,7 @@ from app.database import Base, SessionLocal, engine
 from app.ingestion.ofac_sdn import run_ingestion
 from app.logging_config import configure_logging
 from app.models import Entity, EntityName
-from app.schemas import EntitySearchResult, IngestionResult
+from app.schemas import EntityNameOut, EntitySearchResult, IngestionResult
 
 configure_logging()
 logger = logging.getLogger("app")
