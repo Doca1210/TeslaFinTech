@@ -153,3 +153,56 @@ class NameMatcher:
                 jellyfish.nysiis(token),
             }
         )
+
+
+class TokenSetMatcher:
+    """Baseline matcher for A/B testing: token-set fuzzy ratio only."""
+
+    def __init__(
+        self,
+        *,
+        match_threshold: float = 92.0,
+        review_threshold: float = 78.0,
+        country_boost: float = 5.0,
+        common_name_penalty: float = 12.0,
+    ) -> None:
+        self.match_threshold = match_threshold
+        self.review_threshold = review_threshold
+        self.country_boost = country_boost
+        self.common_name_penalty = common_name_penalty
+
+    def compare(
+        self,
+        query_name: str,
+        entity: WatchlistEntity,
+        query_country: str | None = None,
+    ) -> tuple[float, list[MatchSignal]]:
+        candidate_names = [entity.full_name, *entity.aliases]
+        best_score = 0.0
+        best_signals: list[MatchSignal] = []
+
+        for candidate in candidate_names:
+            if normalize_text(query_name) == normalize_text(candidate):
+                score = 100.0
+            else:
+                score = float(fuzz.token_set_ratio(query_name, candidate))
+
+            if query_country and entity.country:
+                if query_country.upper() == entity.country.upper():
+                    score = min(100.0, score + self.country_boost)
+
+            if score > best_score:
+                best_score = score
+                best_signals = [
+                    MatchSignal(
+                        name=candidate,
+                        score=score,
+                        method="token_set_only",
+                        detail="Token set ratio (baseline matcher)",
+                    )
+                ]
+
+        if is_common_name(query_name) and best_score < 98.0:
+            best_score = max(0.0, best_score - self.common_name_penalty)
+
+        return round(best_score, 2), best_signals

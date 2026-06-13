@@ -17,12 +17,13 @@ class ScreeningEngine:
         self,
         watchlist: list[WatchlistEntity],
         *,
+        matcher: NameMatcher | None = None,
         match_threshold: float = 92.0,
         review_threshold: float = 78.0,
         max_results: int = 5,
     ) -> None:
         self.watchlist = watchlist
-        self.matcher = NameMatcher(
+        self.matcher = matcher or NameMatcher(
             match_threshold=match_threshold,
             review_threshold=review_threshold,
         )
