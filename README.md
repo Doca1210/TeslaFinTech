@@ -114,6 +114,59 @@ Tune via constructor args for your false-positive / false-negative tradeoff.
 pytest -q
 ```
 
+## Evaluation & A/B testing
+
+Compare algorithm variants against a labeled benchmark with precision, recall, F1, and accuracy.
+
+```bash
+# Compare all built-in variants
+python evaluate.py
+
+# Compare specific arms
+python evaluate.py --variants hybrid_default token_set_baseline
+
+# Full JSON report + misclassified cases
+python evaluate.py --json --show-failures --output reports/ab_report.json
+```
+
+### Built-in variants
+
+| Variant | Description |
+|---------|-------------|
+| `hybrid_default` | Fuzzy + phonetic matcher (production default) |
+| `hybrid_strict` | Higher thresholds, fewer false positives |
+| `hybrid_sensitive` | Lower thresholds, catches more edge cases |
+| `token_set_baseline` | Token-set only baseline for A/B comparison |
+
+### Metrics reported
+
+**Flag metrics** (primary): treats MATCH and REVIEW as positive (should flag). Reports TP/TN/FP/FN, accuracy, precision, recall, F1, specificity, FPR, FNR.
+
+**Block metrics**: treats only MATCH as positive (hard block). Useful when REVIEW is acceptable overhead but auto-blocks must be precise.
+
+**Entity hit rate**: fraction of cases where the top matched entity ID equals the labeled target.
+
+**Verdict metrics**: macro/weighted precision, recall, F1 across MATCH / REVIEW / NO_MATCH.
+
+### Benchmark format
+
+Add cases to `data/benchmark.json`:
+
+```json
+{
+  "case_id": "bench-001",
+  "transaction_id": "txn-b-001",
+  "counterparty_name": "Vladimir Poutine",
+  "counterparty_country": "RU",
+  "label": "positive",
+  "expected_verdict": "MATCH",
+  "expected_entity_id": "pep-001",
+  "category": "alias_transliteration"
+}
+```
+
+Labels: `positive` (should flag) or `negative` (should not). Extend the benchmark as you tune algorithms.
+
 ## Hackathon context
 
 Built for sanctions/PEP screening against incoming fiat payment instructions. The problem brief emphasizes transliteration, aliases, false positives, speed, and explainability — this MVP focuses on the name-matching core with a path to extend into crypto wallet screening, adverse media, and analyst review queues.

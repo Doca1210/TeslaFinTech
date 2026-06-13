@@ -1,0 +1,194 @@
+[
+  {
+    "case_id": "bench-001",
+    "transaction_id": "txn-b-001",
+    "counterparty_name": "Vladimir Putin",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-001",
+    "category": "exact_match",
+    "notes": "Exact canonical PEP name"
+  },
+  {
+    "case_id": "bench-002",
+    "transaction_id": "txn-b-002",
+    "counterparty_name": "Vladimir Poutine",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-001",
+    "category": "alias_transliteration",
+    "notes": "French transliteration alias"
+  },
+  {
+    "case_id": "bench-003",
+    "transaction_id": "txn-b-003",
+    "counterparty_name": "Sergey Shoygu",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-005",
+    "category": "alias_transliteration",
+    "notes": "Alternate spelling of Sergei Shoigu"
+  },
+  {
+    "case_id": "bench-004",
+    "transaction_id": "txn-b-004",
+    "counterparty_name": "Shoigu Sergei",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-005",
+    "category": "token_reorder",
+    "notes": "Same tokens, reversed order"
+  },
+  {
+    "case_id": "bench-005",
+    "transaction_id": "txn-b-005",
+    "counterparty_name": "Muammar al Qadhafi",
+    "counterparty_country": "LY",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-004",
+    "category": "alias_transliteration",
+    "notes": "Official list transliteration variant"
+  },
+  {
+    "case_id": "bench-006",
+    "transaction_id": "txn-b-006",
+    "counterparty_name": "Moammar Gadhafi",
+    "counterparty_country": "LY",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-004",
+    "category": "alias_transliteration",
+    "notes": "Common US spelling variant"
+  },
+  {
+    "case_id": "bench-007",
+    "transaction_id": "txn-b-007",
+    "counterparty_name": "North Horizon Trading",
+    "counterparty_country": "AE",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-010",
+    "category": "organization_partial",
+    "notes": "Shell company without legal suffix"
+  },
+  {
+    "case_id": "bench-008",
+    "transaction_id": "txn-b-008",
+    "counterparty_name": "Recep Tayyip Erdoğan",
+    "counterparty_country": "TR",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-003",
+    "category": "diacritics",
+    "notes": "Name with diacritics"
+  },
+  {
+    "case_id": "bench-009",
+    "transaction_id": "txn-b-009",
+    "counterparty_name": "Xi Jin Ping",
+    "counterparty_country": "CN",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-002",
+    "category": "alias_transliteration",
+    "notes": "Spaced transliteration variant"
+  },
+  {
+    "case_id": "bench-010",
+    "transaction_id": "txn-b-010",
+    "counterparty_name": "John Smith",
+    "counterparty_country": "GB",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Common Western name, not on list"
+  },
+  {
+    "case_id": "bench-011",
+    "transaction_id": "txn-b-011",
+    "counterparty_name": "Kim Lee",
+    "counterparty_country": "KR",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "common_name_trap",
+    "notes": "Common tokens that partially overlap Kim Jong Un"
+  },
+  {
+    "case_id": "bench-012",
+    "transaction_id": "txn-b-012",
+    "counterparty_name": "Anna Petrova",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Russian-sounding but not on list"
+  },
+  {
+    "case_id": "bench-013",
+    "transaction_id": "txn-b-013",
+    "counterparty_name": "Horizon Trading LLC",
+    "counterparty_country": "US",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares tokens with North Horizon Trading but different entity"
+  },
+  {
+    "case_id": "bench-014",
+    "transaction_id": "txn-b-014",
+    "counterparty_name": "Vladimir Petrov",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares first name with Putin but different person"
+  },
+  {
+    "case_id": "bench-015",
+    "transaction_id": "txn-b-015",
+    "counterparty_name": "Olaf Scholz",
+    "counterparty_country": "DE",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-012",
+    "category": "exact_match",
+    "notes": "Exact PEP match EU head of government"
+  },
+  {
+    "case_id": "bench-016",
+    "transaction_id": "txn-b-016",
+    "counterparty_name": "Emmanuel Jean-Michel Frederic Macron",
+    "counterparty_country": "FR",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-008",
+    "category": "alias_match",
+    "notes": "Full formal alias of Emmanuel Macron"
+  },
+  {
+    "case_id": "bench-017",
+    "transaction_id": "txn-b-017",
+    "counterparty_name": "Maria Shoigu",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "pep-006",
+    "category": "pep_family",
+    "notes": "PEP family member"
+  },
+  {
+    "case_id": "bench-018",
+    "transaction_id": "txn-b-018",
+    "counterparty_name": "Acme Supplies GmbH",
+    "counterparty_country": "DE",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Generic business, not on list"
+  }
+]
