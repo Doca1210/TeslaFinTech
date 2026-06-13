@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "evaluate.py": {
-    "mtime": 1781361118.186553,
-    "ast_hash": "3afba4a734cf214ed8c6d797ac9f1aca",
+    "mtime": 1781362042.3490162,
+    "ast_hash": "df235a8be167d0d0a37a62162fe78ffc",
     "semantic_hash": ""
   },
   "screening/__init__.py": {
@@ -232,6 +232,56 @@
   "requirements.txt": {
     "mtime": 1781360364.263887,
     "ast_hash": "8f465c4f577712b9e48ea5f785268d09",
+    "semantic_hash": ""
+  },
+  "backend/app/__init__.py": {
+    "mtime": 1781362143.0879428,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/database.py": {
+    "mtime": 1781362143.0892513,
+    "ast_hash": "4c87ef08db8fd02a1e75aaa0a2e077b3",
+    "semantic_hash": ""
+  },
+  "backend/app/ingestion/__init__.py": {
+    "mtime": 1781362143.089359,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/app/ingestion/ofac_sdn.py": {
+    "mtime": 1781362143.089617,
+    "ast_hash": "390b16ab28f766840b0f6ad3d9dd84fb",
+    "semantic_hash": ""
+  },
+  "backend/app/logging_config.py": {
+    "mtime": 1781362143.08978,
+    "ast_hash": "f978e0a129da5022281ad7bf983aa055",
+    "semantic_hash": ""
+  },
+  "backend/app/main.py": {
+    "mtime": 1781362143.0899515,
+    "ast_hash": "3d7f1f3ce44531539bd7c7809d998401",
+    "semantic_hash": ""
+  },
+  "backend/app/models.py": {
+    "mtime": 1781362143.0903592,
+    "ast_hash": "75b5f8c8a944e4ecb653f8181773d5ee",
+    "semantic_hash": ""
+  },
+  "backend/app/schemas.py": {
+    "mtime": 1781362143.0906847,
+    "ast_hash": "ddf35b4254472f0fadb4a715ba87c61d",
+    "semantic_hash": ""
+  },
+  "backend/requirements.txt": {
+    "mtime": 1781362143.0909832,
+    "ast_hash": "d879934a9315744236fd6bd4e4c0e0b6",
+    "semantic_hash": ""
+  },
+  "docs/design/data_model_and_ofac_ingestion.md": {
+    "mtime": 1781362143.09128,
+    "ast_hash": "3da72cd8375efc0d60885f39de407d7e",
     "semantic_hash": ""
   }
 }
