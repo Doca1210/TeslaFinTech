@@ -64,7 +64,9 @@ def default_variants() -> list[AlgorithmVariant]:
             config={
                 "normal_block_threshold": 55,
                 "high_confidence": 0.85,
-                "low_confidence": 0.60,
+                "low_confidence": 0.72,
+                "vector_min_fuzzy": 0.62,
+                "vector_token_match_threshold": 0.82,
                 "vector_model": "paraphrase-multilingual-MiniLM-L12-v2",
                 "top_k_vector": 50,
             },

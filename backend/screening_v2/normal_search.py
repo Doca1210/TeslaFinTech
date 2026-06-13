@@ -5,12 +5,13 @@ import jellyfish
 from .models import NormalizedInput, MatchCandidate, ScoreBreakdown
 from .normalizer import Normalizer
 from .db_helpers import fetch_entity_profiles_by_pks
+from .scoring import apply_entity_coverage_penalty, reorder_resistant_similarity
 
 logger = logging.getLogger(__name__)
 
 BLOCK_THRESHOLD = 55       # token_set_ratio (0–100 scale) to enter candidate pool
 HIGH_CONFIDENCE = 0.85
-LOW_CONFIDENCE = 0.60
+LOW_CONFIDENCE = 0.72
 TOP_N = 5
 
 
@@ -73,7 +74,7 @@ class NormalSearcher:
         for entity_pk, (_, list_code, source_uid, raw_name, entity_type) in best_per_entity.items():
             norm_name_clean = self._normalizer.normalize(raw_name, entity_type).cleaned
             tsr = token_set_ratio(normalized.cleaned, norm_name_clean) / 100.0
-            jw = jellyfish.jaro_winkler_similarity(normalized.cleaned, norm_name_clean)
+            jw = reorder_resistant_similarity(normalized.cleaned, norm_name_clean)
 
             if normalized.phonetic and normalized.entity_type == "individual":
                 candidate_phonetic = jellyfish.nysiis(norm_name_clean) if norm_name_clean else ""
@@ -84,6 +85,9 @@ class NormalSearcher:
                 phonetic_score = None
                 final = tsr * 0.53 + jw * 0.47
                 weights = [0.53, 0.47]
+                final = apply_entity_coverage_penalty(
+                    final, normalized.cleaned, norm_name_clean
+                )
 
             scored.append((final, entity_pk, list_code, source_uid, raw_name, tsr, jw, phonetic_score, weights))
 
