@@ -13,7 +13,7 @@ separate pipeline.
 
 Run standalone (in-memory SQLite demo)::
 
-    python -m backend.app.aml_detect
+    python -m app.aml_detect
 """
 
 from collections import defaultdict
@@ -24,8 +24,8 @@ from typing import Iterable
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.database import Base
-from backend.app import models as tm
+from app.database import Base
+from app import models as tm
 
 
 # --------------------------------------------------------------------------- #
