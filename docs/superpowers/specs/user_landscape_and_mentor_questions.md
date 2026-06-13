@@ -1,7 +1,6 @@
-# Sanctions Screening — User Landscape & Mentor Questions
+# Sanctions Screening — User Landscape
 
 **Event:** Garaža FinTech AI Hackathon, June 13–14, 2026
-**Contact available:** Sokin VP of Engineering
 
 ---
 
@@ -89,51 +88,3 @@ If Sokin handles crypto, the VP may cover this. If not, it's an open space.
 | What regulators actually ask for | Partially |
 | What the false positive rate is | Maybe (if they measure it) |
 | What makes a REVIEW queue usable | Unlikely |
-
----
-
-## Questions to Ask the VP
-
-### Uncover the biggest pain first
-- "What's the thing in your screening pipeline you're most worried about right now?"
-- "If your current system fails, how does it fail? What does failure look like?"
-- "What have you tried to improve that didn't work?"
-
-### Understand the operational reality
-- "Walk me through how a list update happens. Who does it, how long does it take, what can go wrong?"
-- "What's your P99 screening latency today? What's the SLA you need to hit?"
-- "How many REVIEW cases do you generate per day? Per hour at peak?"
-- "Who clears REVIEW cases? What tools do they use? How long does a case take?"
-
-### Understand the false positive problem
-- "Do you measure your false positive rate? What is it?"
-- "What names or patterns cause the most noise in your current system?"
-- "Have you ever had to block a payment you later found out was legitimate? What happened?"
-
-### Understand the crypto situation
-- "Do you screen crypto payments today? If yes, how? If no, is that coming?"
-- "Is the wallet-address-to-sanctioned-entity link something you currently have a solution for?"
-
-### Understand the regulatory/explainability requirement
-- "If a regulator asked you to explain a specific screening decision from 18 months ago, could you do it? What would you show them?"
-- "What does your audit trail look like today?"
-
-### Find the gap between what exists and what's needed
-- "What would you build if you had 6 months and unlimited engineers?"
-- "Is there a feature in a vendor tool or competitor you've always wished you had?"
-- "What does your compliance officer complain about most?"
-
-### Ask them to connect you
-- "Is there an AML analyst or compliance officer we could speak to for even 10 minutes? The engineering view is incredibly useful but we want to understand the end-user workflow too."
-
----
-
-## The Single Most Valuable Thing to Get From This Conversation
-
-Ask him to show you what a REVIEW case looks like in their current system. A screenshot, a walkthrough, anything. The gap between "this is what an analyst actually sees" and "this is what good tooling would look like" is often enormous and visible in 2 minutes.
-
----
-
-## Who to Also Try to Reach (Even Briefly)
-
-If anyone in the hackathon room is or was an AML analyst or compliance officer, 15 minutes with them is worth more than most of the coding in the first 4 hours. The mentors might include someone from Sokin's compliance team. Ask explicitly.
