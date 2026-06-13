@@ -88,5 +88,15 @@
     "mtime": 1781352774.9262314,
     "ast_hash": "1e779fc78885190638df6e5e53f3e07b",
     "semantic_hash": ""
+  },
+  "docs/design/iterations/iteration1.md": {
+    "mtime": 1781359284.8045158,
+    "ast_hash": "56522714f25a86c650277e8225d3aa1e",
+    "semantic_hash": ""
+  },
+  "docs/design/mentor_answers.md": {
+    "mtime": 1781359242.1221168,
+    "ast_hash": "187560c0c41aaf7bc6eb211b42515e90",
+    "semantic_hash": ""
   }
 }
