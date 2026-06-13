@@ -1,6 +1,6 @@
-# TeslaFinTech — PEP / Suspicious Name Screening
+# TeslaFinTech — Sanctions & PEP Screening
 
-Python screening engine for the Garaža FinTech AI Hackathon. Matches incoming payment counterparties against PEP and suspicious-name watchlists, then returns one of three verdicts:
+Python screening engine for the Garaža FinTech AI Hackathon. Screens incoming payment counterparties against live OFAC SDN and PEP watchlists, returning one of three verdicts:
 
 - **MATCH** — high-confidence hit; block and escalate
 - **REVIEW** — plausible hit; send to analyst queue
@@ -8,54 +8,89 @@ Python screening engine for the Garaža FinTech AI Hackathon. Matches incoming p
 
 ## Features
 
+- Live OFAC SDN ingestion from the US Treasury XML feed into SQLite
 - Hybrid fuzzy + phonetic name matching (RapidFuzz + Soundex/Metaphone/NYSIIS)
 - Transliteration and alias handling (`Vladimir Poutine` → `Vladimir Putin`)
 - Token reordering support (`Shoigu Sergei` vs `Sergei Shoigu`)
 - Country-aware confidence boost
 - Common-name penalty to reduce false positives (`Kim Lee`, `John Smith`)
 - Audit trail on every decision
-- REST API (FastAPI) and CLI
+- REST API (FastAPI) and unified management CLI
 
 ## Quick start
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate        # Windows
+cd backend
+python -m venv ../venv
+source ../venv/bin/activate   # Windows: ..\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### CLI
-
-Screen a single name:
+Populate the database with the live OFAC SDN list:
 
 ```bash
-python cli.py --name "Sergey Shoygu" --country RU
+python manage.py fetch
 ```
 
-Screen sample transactions:
+## Management CLI
+
+All commands run from the `backend/` directory via `manage.py`.
+
+### fetch
+
+Download and ingest the OFAC SDN list from the US Treasury feed:
 
 ```bash
-python cli.py --transactions data/sample_transactions.json
+python manage.py fetch
+```
+
+### screen
+
+Screen a single counterparty name:
+
+```bash
+python manage.py screen --name "Sergey Shoygu" --country RU
+```
+
+Screen a batch from a JSON file:
+
+```bash
+python manage.py screen --transactions data/sample_transactions.json
 ```
 
 JSON output:
 
 ```bash
-python cli.py --name "Vladimir Poutine" --country RU --json
+python manage.py screen --name "Vladimir Poutine" --country RU --json
 ```
 
-### API
+### evaluate
+
+Compare algorithm variants against a labeled benchmark:
 
 ```bash
-uvicorn app:app --reload
+# All built-in variants
+python manage.py evaluate
+
+# Specific variants with failure details
+python manage.py evaluate --variants hybrid_default token_set_baseline --show-failures
+
+# Full JSON report written to disk
+python manage.py evaluate --output reports/ab_report.json
 ```
 
-Then:
+## REST API
 
 ```bash
-curl -X POST http://127.0.0.1:8000/screen ^
-  -H "Content-Type: application/json" ^
-  -d "{\"transaction_id\":\"demo-1\",\"counterparty_name\":\"Muammar al Qadhafi\",\"counterparty_country\":\"LY\"}"
+uvicorn app.main:app --reload
+```
+
+Screen a transaction:
+
+```bash
+curl -X POST http://127.0.0.1:8000/screen \
+  -H "Content-Type: application/json" \
+  -d '{"transaction_id":"demo-1","counterparty_name":"Muammar al Qadhafi","counterparty_country":"LY"}'
 ```
 
 Interactive docs: `http://127.0.0.1:8000/docs`
@@ -63,38 +98,33 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 ## Project layout
 
 ```
-app.py                     FastAPI service
-cli.py                     Command-line screener
-screening/
-  engine.py                Orchestrates watchlist screening
-  matcher.py               Fuzzy + phonetic scoring
-  normalizer.py            Name normalization helpers
-  models.py                Pydantic models
-  pep_loader.py            Watchlist loader
-data/
-  pep_list.json            Sample PEP / suspicious entities
-  sample_transactions.json Demo inbound payments
-tests/
-  test_screening.py
+backend/
+  manage.py                  Unified CLI (fetch / screen / evaluate)
+  screening_api.py           FastAPI application factory
+  app/
+    main.py                  FastAPI routes
+    models.py                SQLAlchemy ORM models
+    database.py              DB session / engine setup
+    schemas.py               Pydantic request/response schemas
+    ingestion/
+      ofac_sdn.py            OFAC SDN XML fetch & upsert pipeline
+  screening/
+    engine.py                Orchestrates watchlist screening
+    matcher.py               Fuzzy + phonetic scoring
+    normalizer.py            Name normalisation helpers
+    models.py                Pydantic transaction/result models
+    watchlist_repo.py        Loads watchlist from SQLite
+    pep_loader.py            PEP list loader
+    evaluation/
+      pipeline.py            A/B test runner
+      variants.py            Built-in algorithm variants
+      metrics.py             Precision / recall / F1 helpers
+      benchmark_loader.py    Benchmark JSON loader
+      models.py              Evaluation result models
+  tests/
+    test_screening.py
+    test_evaluation.py
 ```
-
-## Watchlist format
-
-Each entity in `data/pep_list.json`:
-
-```json
-{
-  "id": "pep-001",
-  "full_name": "Vladimir Putin",
-  "entity_type": "individual",
-  "country": "RU",
-  "aliases": ["Vladimir Poutine"],
-  "list_source": "PEP",
-  "risk_category": "Head of State"
-}
-```
-
-Replace or extend this file with real OFAC/OFSI/EU/UN or PEP feeds for production use.
 
 ## Thresholds
 
@@ -116,19 +146,6 @@ pytest -q
 
 ## Evaluation & A/B testing
 
-Compare algorithm variants against a labeled benchmark with precision, recall, F1, and accuracy.
-
-```bash
-# Compare all built-in variants
-python evaluate.py
-
-# Compare specific arms
-python evaluate.py --variants hybrid_default token_set_baseline
-
-# Full JSON report + misclassified cases
-python evaluate.py --json --show-failures --output reports/ab_report.json
-```
-
 ### Built-in variants
 
 | Variant | Description |
@@ -136,21 +153,19 @@ python evaluate.py --json --show-failures --output reports/ab_report.json
 | `hybrid_default` | Fuzzy + phonetic matcher (production default) |
 | `hybrid_strict` | Higher thresholds, fewer false positives |
 | `hybrid_sensitive` | Lower thresholds, catches more edge cases |
-| `token_set_baseline` | Token-set only baseline for A/B comparison |
+| `token_set_baseline` | Token-set only baseline for comparison |
 
 ### Metrics reported
 
-**Flag metrics** (primary): treats MATCH and REVIEW as positive (should flag). Reports TP/TN/FP/FN, accuracy, precision, recall, F1, specificity, FPR, FNR.
+**Flag metrics** (primary): treats MATCH and REVIEW as positive. Reports accuracy, precision, recall, F1, FPR, FNR.
 
-**Block metrics**: treats only MATCH as positive (hard block). Useful when REVIEW is acceptable overhead but auto-blocks must be precise.
+**Block metrics**: treats only MATCH as positive — useful when auto-blocks must be precise.
 
-**Entity hit rate**: fraction of cases where the top matched entity ID equals the labeled target.
+**Entity hit rate**: fraction of cases where the top matched entity equals the labeled target.
 
-**Verdict metrics**: macro/weighted precision, recall, F1 across MATCH / REVIEW / NO_MATCH.
+**Verdict metrics**: macro/weighted F1 across MATCH / REVIEW / NO_MATCH.
 
 ### Benchmark format
-
-Add cases to `data/benchmark.json`:
 
 ```json
 {
@@ -165,8 +180,8 @@ Add cases to `data/benchmark.json`:
 }
 ```
 
-Labels: `positive` (should flag) or `negative` (should not). Extend the benchmark as you tune algorithms.
+Labels: `positive` (should flag) or `negative` (should not).
 
 ## Hackathon context
 
-Built for sanctions/PEP screening against incoming fiat payment instructions. The problem brief emphasizes transliteration, aliases, false positives, speed, and explainability — this MVP focuses on the name-matching core with a path to extend into crypto wallet screening, adverse media, and analyst review queues.
+Built for sanctions/PEP screening against incoming fiat payment instructions. Emphasises transliteration, aliases, false-positive control, speed, and explainability — with a path to extend into crypto wallet screening, adverse media, and analyst review queues.

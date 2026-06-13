@@ -1,21 +1,20 @@
 # Graph Report - TeslaFinTech  (2026-06-13)
 
 ## Corpus Check
-- 55 files · ~32,266 words
+- 51 files · ~27,944 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 474 nodes · 786 edges · 39 communities (34 shown, 5 thin omitted)
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 88 edges (avg confidence: 0.5)
+- 445 nodes · 888 edges · 33 communities (28 shown, 5 thin omitted)
+- Extraction: 81% EXTRACTED · 19% INFERRED · 0% AMBIGUOUS · INFERRED: 168 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9874cb05`
+- Built from commit: `d8db2675`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
 - [[_COMMUNITY_Community 1|Community 1]]
 - [[_COMMUNITY_Community 2|Community 2]]
 - [[_COMMUNITY_Community 3|Community 3]]
@@ -25,8 +24,6 @@
 - [[_COMMUNITY_Community 7|Community 7]]
 - [[_COMMUNITY_Community 8|Community 8]]
 - [[_COMMUNITY_Community 9|Community 9]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
 - [[_COMMUNITY_Community 12|Community 12]]
 - [[_COMMUNITY_Community 13|Community 13]]
 - [[_COMMUNITY_Community 14|Community 14]]
@@ -45,40 +42,37 @@
 - [[_COMMUNITY_Community 30|Community 30]]
 - [[_COMMUNITY_Community 31|Community 31]]
 - [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 39|Community 39]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `ScreeningEngine` - 35 edges
-2. `NameMatcher` - 26 edges
-3. `AE890330000010123456789` - 20 edges
-4. `Base` - 17 edges
-5. `RS35260005601001611379` - 17 edges
-6. `SA0380000000608010167519` - 16 edges
-7. `RS35260005601001611380` - 16 edges
-8. `AlgorithmVariant` - 16 edges
-9. `ABTestPipeline` - 14 edges
-10. `Transaction` - 13 edges
+1. `ScreeningEngine` - 41 edges
+2. `NameMatcher` - 33 edges
+3. `ABTestPipeline` - 21 edges
+4. `Transaction` - 21 edges
+5. `BenchmarkCase` - 20 edges
+6. `AlgorithmVariant` - 18 edges
+7. `Base` - 17 edges
+8. `VerdictMetrics` - 13 edges
+9. `Transaction` - 13 edges
+10. `CasePrediction` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Namespace` --uses--> `ABTestPipeline`  [INFERRED]
+  evaluate.py → backend/screening/evaluation/pipeline.py
+- `Path` --uses--> `ABTestPipeline`  [INFERRED]
+  tests/test_evaluation.py → backend/screening/evaluation/pipeline.py
 - `Path` --uses--> `ScreeningEngine`  [INFERRED]
-  app.py → screening/engine.py
+  app.py → backend/screening/engine.py
 - `ScreeningEngine` --uses--> `ScreeningEngine`  [INFERRED]
-  app.py → screening/engine.py
+  app.py → backend/screening/engine.py
 - `Transaction` --uses--> `ScreeningEngine`  [INFERRED]
-  cli.py → screening/engine.py
-- `FastAPI` --uses--> `ScreeningEngine`  [INFERRED]
-  app.py → screening/engine.py
-- `Transaction` --uses--> `ScreeningEngine`  [INFERRED]
-  app.py → screening/engine.py
+  cli.py → backend/screening/engine.py
 
 ## Import Cycles
-- 1-file cycle: `app.py -> app.py`
 - 1-file cycle: `backend/app/models.py -> backend/app/models.py`
+- 1-file cycle: `backend/screening_api.py -> backend/screening_api.py`
 
-## Communities (39 total, 5 thin omitted)
-
-### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (37): AE890330000010123456789, account_id, avg_amount, holder_name, inbound_24h, max_single, min_amount, new_counterparty (+29 more)
+## Communities (33 total, 5 thin omitted)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.11
@@ -89,16 +83,16 @@ Cohesion: 0.12
 Nodes (40): Base, get_session(), ingest_ofac_sdn(), log_requests(), Placeholder substring search until the fuzzy/embedding matcher exists., search_entities(), Entity, EntityAddress (+32 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.11
-Nodes (28): _build_hybrid_default(), _build_hybrid_sensitive(), _build_hybrid_strict(), _build_token_set_baseline(), MatchedEntity, MatchSignal, NameMatcher, ScreeningResult (+20 more)
+Cohesion: 0.13
+Nodes (35): ScreeningResult, ScreeningVerdict, Transaction, WatchlistEntity, Transaction, ScreeningEngine, WatchlistEntity, WatchlistEntity (+27 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.15
-Nodes (26): BaseModel, Enum, BenchmarkCase, BenchmarkReport, CasePrediction, ExpectedLabel, Whether a transaction should be flagged by screening., Multi-class metrics over MATCH / REVIEW / NO_MATCH. (+18 more)
+Cohesion: 0.14
+Nodes (31): AlgorithmVariant, BenchmarkCase, Path, Path, WatchlistEntity, Path, BaseModel, BenchmarkCase (+23 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.11
-Nodes (23): build_engine(), lifespan(), Path, ScreeningEngine, ScreeningResult, Transaction, screen_batch(), screen_transaction() (+15 more)
+Cohesion: 0.07
+Nodes (47): build_engine(), lifespan(), Path, ScreeningEngine, ScreeningResult, Transaction, screen_batch(), screen_transaction() (+39 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.08
@@ -116,14 +110,6 @@ Nodes (3): Iteracija 1, Taskovi, Tech Stack
 Cohesion: 0.22
 Nodes (8): AML Workflow & Compliance, Business Model & Market Context, Detection & Screening, Emerging Markets & Crypto, KYB & Counterparty Risk, Product Strategy, Sokin Partner Context, Technical Architecture
 
-### Community 10 - "Community 10"
-Cohesion: 0.12
-Nodes (17): RS35260005601001611379, account_id, avg_amount, holder_name, last_unusual_tx, max_single, min_amount, note (+9 more)
-
-### Community 11 - "Community 11"
-Cohesion: 0.12
-Nodes (16): SA0380000000608010167519, account_id, avg_amount, holder_name, max_single, min_amount, note, profile_window_days (+8 more)
-
 ### Community 12 - "Community 12"
 Cohesion: 0.18
 Nodes (10): Crypto Screening, Data Infrastructure, Extended Risk Signals, Feasibility Matrix, Hardest / Most Impressive (High Risk), Product Wrappers, Sanctions Screening — All Possible Options (40h Hackathon), Team Skill Map (+2 more)
@@ -137,8 +123,8 @@ Cohesion: 0.25
 Nodes (7): Crypto Transaction, Fiat Transaction, Key Observations for Screening Design, Screening Request, Screening Verdict, Transaction Model — Sanctions Screening, What Regulatory Lists Publish (Entity Schema)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.09
-Nodes (38): AlgorithmVariant, BenchmarkReport, CasePrediction, ClassificationMetrics, main(), parse_args(), print_failures(), print_summary() (+30 more)
+Cohesion: 0.11
+Nodes (32): main(), parse_args(), print_failures(), print_summary(), Namespace, ScreeningVerdict, ClassificationMetrics, main() (+24 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.13
@@ -176,25 +162,29 @@ Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify refer
 Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
+### Community 39 - "Community 39"
+Cohesion: 0.22
+Nodes (10): WatchlistEntity, MatchSignal, WatchlistEntity, MatchSignal, initials(), is_common_name(), normalize_text(), Lowercase, strip accents, and remove punctuation for comparison. (+2 more)
+
 ## Knowledge Gaps
-- **205 isolated node(s):** `context7@claude-plugins-official`, `claude-mem@thedotmack`, `source`, `repo`, `PreToolUse` (+200 more)
+- **142 isolated node(s):** `Session`, `WatchlistEntity`, `ScreeningEngine`, `WatchlistEntity`, `context7@claude-plugins-official` (+137 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `datetime` connect `Community 2` to `Community 4`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **Why does `ScreeningEngine` connect `Community 3` to `Community 18`, `Community 4`, `Community 5`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **Why does `AlgorithmVariant` connect `Community 18` to `Community 3`, `Community 4`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Are the 12 inferred relationships involving `ScreeningEngine` (e.g. with `Path` and `ScreeningEngine`) actually correct?**
-  _`ScreeningEngine` has 12 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 11 inferred relationships involving `NameMatcher` (e.g. with `AlgorithmVariant` and `MatchedEntity`) actually correct?**
-  _`NameMatcher` has 11 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 15 inferred relationships involving `Base` (e.g. with `Entity` and `EntityAddress`) actually correct?**
-  _`Base` has 15 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `context7@claude-plugins-official`, `claude-mem@thedotmack`, `source` to the rest of the system?**
-  _217 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `ScreeningEngine` connect `Community 3` to `Community 4`, `Community 5`?**
+  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+- **Why does `datetime` connect `Community 2` to `Community 5`?**
+  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+- **Why does `NameMatcher` connect `Community 3` to `Community 4`, `Community 5`, `Community 39`?**
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Are the 18 inferred relationships involving `ScreeningEngine` (e.g. with `Path` and `ScreeningEngine`) actually correct?**
+  _`ScreeningEngine` has 18 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 18 inferred relationships involving `NameMatcher` (e.g. with `ScreeningResult` and `ScreeningVerdict`) actually correct?**
+  _`NameMatcher` has 18 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 10 inferred relationships involving `ABTestPipeline` (e.g. with `Namespace` and `Path`) actually correct?**
+  _`ABTestPipeline` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 19 inferred relationships involving `Transaction` (e.g. with `Namespace` and `Path`) actually correct?**
+  _`Transaction` has 19 INFERRED edges - model-reasoned connections that need verification._
