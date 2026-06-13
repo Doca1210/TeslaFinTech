@@ -4,14 +4,16 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Float,
     JSON,
+    Index,
     String,
     Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from backend.app.database import Base
 
 
 def utcnow() -> datetime:
@@ -134,3 +136,74 @@ class EntityNationality(Base):
     country: Mapped[str] = mapped_column(Text)
 
     entity: Mapped[Entity] = relationship(back_populates="nationalities")
+
+
+class EntityTransaction(Base):
+    """A single ledger movement for an entity (client).
+
+    ``direction`` is ``"in"`` or ``"out"`` from the entity's perspective.
+    ``counterparty_country`` is an ISO-3166 alpha-2 code when known.
+    """
+
+    __tablename__ = "entity_transactions"
+    __table_args__ = (
+        Index("ix_entity_transactions_entity_occurred", "entity_id", "occurred_at"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    entity_id: Mapped[int] = mapped_column(ForeignKey("entities.id"), index=True)
+
+    external_id: Mapped[str | None] = mapped_column(String(128), unique=True, nullable=True)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+
+    amount: Mapped[float] = mapped_column(Float)
+    currency: Mapped[str] = mapped_column(String(8), default="USD")
+    direction: Mapped[str] = mapped_column(String(4))  # "in" | "out"
+    channel: Mapped[str | None] = mapped_column(String(32), nullable=True)  # wire | card | ach | cash | crypto
+
+    counterparty_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    counterparty_account: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    counterparty_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+
+    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending | cleared | flagged
+    raw: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
+    entity: Mapped["Entity"] = relationship()
+
+
+# --------------------------------------------------------------------------- #
+# Decisions produced by the detection engine
+# --------------------------------------------------------------------------- #
+class TransactionDecision(Base):
+    __tablename__ = "transaction_decisions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    transaction_id: Mapped[int] = mapped_column(
+        ForeignKey("entity_transactions.id"), unique=True, index=True
+    )
+    entity_id: Mapped[int] = mapped_column(ForeignKey("entities.id"), index=True)
+
+    score: Mapped[float] = mapped_column(Float, default=0.0)
+    outcome: Mapped[str] = mapped_column(String(24))  # approve | review | decline | block_and_review
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    reviewed: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    transaction: Mapped[EntityTransaction] = relationship()
+    hits: Mapped[list["TransactionRuleHit"]] = relationship(
+        back_populates="decision", cascade="all, delete-orphan"
+    )
+
+
+class TransactionRuleHit(Base):
+    __tablename__ = "transaction_rule_hits"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    decision_id: Mapped[int] = mapped_column(ForeignKey("transaction_decisions.id"), index=True)
+    rule_id: Mapped[str] = mapped_column(String(64))
+    severity: Mapped[str] = mapped_column(String(16))  # low | medium | high | critical
+    score: Mapped[float] = mapped_column(Float, default=0.0)
+    reason: Mapped[str] = mapped_column(Text)  # short, machine-style summary
+    explanation: Mapped[str] = mapped_column(Text)  # human-readable narrative for analysts
+    evidence: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
+    decision: Mapped[TransactionDecision] = relationship(back_populates="hits")
