@@ -55,8 +55,8 @@ def print_summary(report_dict: dict) -> None:
     print()
 
     header = (
-        f"{'Variant':<22} {'Flag F1':>8} {'Flag P':>8} {'Flag R':>8} "
-        f"{'Block F1':>9} {'Acc':>8} {'Entity%':>8} {'ms/case':>8}"
+        f"{'Variant':<22} {'Flag F1':>8} {'Precision':>10} {'Recall':>8} "
+        f"{'Block F1':>9} {'Accuracy':>10} {'Entity Hit':>11} {'ms/case':>8}"
     )
     print(header)
     print("-" * len(header))
@@ -65,23 +65,23 @@ def print_summary(report_dict: dict) -> None:
         flag = variant["flag_metrics"]
         block = variant["block_metrics"]
         entity = variant.get("entity_hit_rate")
-        entity_text = f"{entity * 100:.1f}" if entity is not None else "n/a"
+        entity_text = f"{entity * 100:.1f}%" if entity is not None else "n/a"
         print(
             f"{variant['variant_name']:<22} "
             f"{flag['f1_score']:>8.3f} "
-            f"{flag['precision']:>8.3f} "
+            f"{flag['precision']:>10.3f} "
             f"{flag['recall']:>8.3f} "
             f"{block['f1_score']:>9.3f} "
-            f"{flag['accuracy']:>8.3f} "
-            f"{entity_text:>7}% "
+            f"{flag['accuracy']:>10.3f} "
+            f"{entity_text:>11} "
             f"{variant['avg_latency_ms']:>8.2f}"
         )
 
     print()
-    print(f"Winner (flag F1):   {report_dict['winner_by_flag_f1']}")
-    print(f"Winner (block F1):  {report_dict['winner_by_block_f1']}")
+    print(f"Best Flag F1:    {report_dict['winner_by_flag_f1']}")
+    print(f"Best Block F1:   {report_dict['winner_by_block_f1']}")
     if report_dict.get("winner_by_verdict_macro_f1"):
-        print(f"Winner (verdict F1): {report_dict['winner_by_verdict_macro_f1']}")
+        print(f"Best Verdict F1: {report_dict['winner_by_verdict_macro_f1']}")
 
 
 def print_failures(report_dict: dict) -> None:
