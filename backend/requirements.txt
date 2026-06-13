@@ -1,6 +1,10 @@
-fastapi
-uvicorn[standard]
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
 sqlalchemy>=2.0
-httpx
+httpx>=0.27.0
 lxml
-pydantic
+pydantic>=2.9.0
+rapidfuzz>=3.10.0
+jellyfish>=1.1.0
+unidecode>=1.3.8
+pytest>=8.3.0
