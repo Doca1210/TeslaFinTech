@@ -15,19 +15,9 @@ from datetime import datetime, timezone
 
 import httpx
 from lxml import etree
-from sqlalchemy.orm import Session
 
 from app.database import Base, SessionLocal, engine
-from app.models import (
-    Entity,
-    EntityAddress,
-    EntityDateOfBirth,
-    EntityIdentification,
-    EntityName,
-    EntityNationality,
-    EntityProgram,
-    SourceList,
-)
+from app.ingestion.common import get_or_create_source_list, upsert_entries
 
 SDN_XML_URL = "https://www.treasury.gov/ofac/downloads/sdn.xml"
 SOURCE_LIST_CODE = "OFAC_SDN"
@@ -192,88 +182,6 @@ def parse_sdn_xml(xml_bytes: bytes) -> tuple[str | None, list[dict]]:
     return publish_date, entries
 
 
-def get_or_create_source_list(session: Session) -> SourceList:
-    source_list = session.query(SourceList).filter_by(code=SOURCE_LIST_CODE).one_or_none()
-    if source_list is None:
-        source_list = SourceList(
-            code=SOURCE_LIST_CODE,
-            name=SOURCE_LIST_NAME,
-            list_type="sanctions",
-            url=SDN_XML_URL,
-        )
-        session.add(source_list)
-        session.flush()
-    return source_list
-
-
-def upsert_entries(session: Session, source_list: SourceList, entries: list[dict]) -> None:
-    now = datetime.now(timezone.utc)
-    seen_uids: set[str] = set()
-
-    existing = {
-        entity.source_uid: entity
-        for entity in session.query(Entity).filter_by(source_list_id=source_list.id)
-    }
-    logger.info("Loaded %d existing entities for source list %s", len(existing), source_list.code)
-
-    for index, record in enumerate(entries, start=1):
-        uid = record["source_uid"]
-        if not uid:
-            continue
-        seen_uids.add(uid)
-
-        entity = existing.get(uid)
-        if entity is None:
-            entity = Entity(
-                source_list_id=source_list.id,
-                source_uid=uid,
-                first_seen_at=now,
-                raw={},
-            )
-            session.add(entity)
-            existing[uid] = entity
-
-        entity.entity_type = record["entity_type"]
-        entity.primary_name = record["primary_name"]
-        entity.title = record["title"]
-        entity.remarks = record["remarks"]
-        entity.is_active = True
-        entity.last_seen_at = now
-        entity.raw = record
-
-        # Replace child rows wholesale; the feed is fully replaced on every refresh.
-        entity.names.clear()
-        entity.addresses.clear()
-        entity.identifications.clear()
-        entity.programs.clear()
-        entity.dates_of_birth.clear()
-        entity.nationalities.clear()
-
-        for name in record["names"]:
-            entity.names.append(EntityName(**name))
-        for address in record["addresses"]:
-            entity.addresses.append(EntityAddress(**address))
-        for ident in record["identifications"]:
-            entity.identifications.append(EntityIdentification(**ident))
-        for program_code in record["programs"]:
-            entity.programs.append(EntityProgram(program_code=program_code))
-        for dob in record["dates_of_birth"]:
-            entity.dates_of_birth.append(EntityDateOfBirth(date_of_birth=dob))
-        for nationality in record["nationalities"]:
-            entity.nationalities.append(EntityNationality(**nationality))
-
-        if index % 2000 == 0:
-            logger.info("Upserted %d/%d entities", index, len(entries))
-
-    # Soft-delete anything no longer present in the refreshed feed.
-    deactivated = 0
-    for uid, entity in existing.items():
-        if uid not in seen_uids:
-            entity.is_active = False
-            deactivated += 1
-    logger.info("Upsert complete: %d processed, %d deactivated", len(entries), deactivated)
-
-
 def run_ingestion() -> dict:
     start = time.perf_counter()
     Base.metadata.create_all(bind=engine)
@@ -283,7 +191,13 @@ def run_ingestion() -> dict:
 
     session = SessionLocal()
     try:
-        source_list = get_or_create_source_list(session)
+        source_list = get_or_create_source_list(
+            session,
+            code=SOURCE_LIST_CODE,
+            name=SOURCE_LIST_NAME,
+            list_type="sanctions",
+            url=SDN_XML_URL,
+        )
         upsert_entries(session, source_list, entries)
 
         source_list.last_fetched_at = datetime.now(timezone.utc)
