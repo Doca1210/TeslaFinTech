@@ -22,11 +22,36 @@ from pathlib import Path
 
 def cmd_fetch(args: argparse.Namespace) -> None:
     from app.logging_config import configure_logging
-    from app.ingestion.ofac_sdn import run_ingestion
 
     configure_logging()
-    result = run_ingestion()
+
+    if args.source == "ofac-sdn":
+        from app.ingestion.ofac_sdn import run_ingestion
+
+        result = run_ingestion()
+    elif args.source == "opensanctions-peps":
+        from app.ingestion.opensanctions import run_ingestion
+
+        result = run_ingestion(dataset="peps", limit=args.limit if args.limit > 0 else None)
+    else:
+        from app.ingestion.opensanctions import run_ingestion
+
+        result = run_ingestion(dataset="eu_fsf", limit=None)
+
     print(f"Ingestion complete: {result}")
+
+
+# --------------------------------------------------------------------------- #
+# export
+# --------------------------------------------------------------------------- #
+
+def cmd_export(args: argparse.Namespace) -> None:
+    from app.logging_config import configure_logging
+    from app.export.vectorize_export import export_entities
+
+    configure_logging()
+    result = export_entities(output_path=args.output)
+    print(f"Export complete: {result}")
 
 
 # --------------------------------------------------------------------------- #
@@ -228,7 +253,23 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     # fetch
-    sub.add_parser("fetch", help="Fetch and ingest the OFAC SDN list into the database.")
+    f = sub.add_parser("fetch", help="Fetch and ingest a source list into the database.")
+    f.add_argument(
+        "--source",
+        choices=["ofac-sdn", "opensanctions-peps", "opensanctions-eu"],
+        default="ofac-sdn",
+        help="Which source to ingest (default: ofac-sdn).",
+    )
+    f.add_argument(
+        "--limit",
+        type=int,
+        default=20_000,
+        help="Max rows for opensanctions-peps (0 = full feed, 1M+ rows). Ignored otherwise.",
+    )
+
+    # export
+    x = sub.add_parser("export", help="Export entities to JSONL for vectorization.")
+    x.add_argument("--output", type=Path, default=None, help="Output JSONL path.")
 
     # screen
     s = sub.add_parser("screen", help="Screen one or more transactions against the watchlist.")
@@ -257,6 +298,7 @@ def main() -> None:
 
     dispatch = {
         "fetch": cmd_fetch,
+        "export": cmd_export,
         "screen": cmd_screen,
         "evaluate": cmd_evaluate,
     }
