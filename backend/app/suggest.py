@@ -2,27 +2,35 @@ from __future__ import annotations
 
 import json
 import os
+import re
+from pathlib import Path
 
+import anthropic
 from dotenv import load_dotenv
-from openai import AsyncOpenAI
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent / ".env")
 
-# Fix 3: Module-level singleton — created once at import time.
-_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+_SYSTEM_PROMPT = (
+    "You are a compliance AI assistant helping a human analyst review "
+    "flagged payment transactions. Based on the AML screening data, "
+    "suggest the most appropriate verdict: BLOCK (high risk, prevent payment), "
+    "RELEASE (low risk, allow payment), or ESCALATE (uncertain, needs senior review). "
+    "Be concise and evidence-based. "
+    'Respond with JSON only: {"verdict": "BLOCK"|"RELEASE"|"ESCALATE", "reasoning": "<1-3 sentence rationale>"}'
+)
 
 _VALID_VERDICTS = {"BLOCK", "RELEASE", "ESCALATE"}
 
 
 def _build_prompt(tx: dict) -> str:
-    # Fix 2: Validate required top-level keys.
     for key in ("layer_a", "layer_b", "triggered_layers"):
         if key not in tx:
             raise KeyError(f"Transaction dict is missing required key: '{key}'")
 
     la = tx["layer_a"]
 
-    # Fix 2: Validate layer_a sub-keys.
     for key in ("originator", "beneficiary"):
         if key not in la:
             raise KeyError(f"layer_a is missing required key: '{key}'")
@@ -51,7 +59,6 @@ def _build_prompt(tx: dict) -> str:
         or "  None"
     )
 
-    # Fix 4: Safe access for triggered_layers.
     triggered = tx.get("triggered_layers") or []
 
     return (
@@ -69,40 +76,43 @@ def _build_prompt(tx: dict) -> str:
         f"Layer B — Behavioral AML:\n"
         f"  Score: {lb['score']} → {lb['outcome']}\n"
         f"  Rules fired:\n{rules_text}\n\n"
-        f"System explanation: {tx['explanation']}\n\n"
-        f'Respond with JSON only: {{"verdict": "BLOCK"|"RELEASE"|"ESCALATE", "reasoning": "<1-3 sentence rationale>"}}'
+        f"System explanation: {tx['explanation']}\n"
     )
 
 
 async def get_ai_suggestion(tx: dict) -> dict:
-    response = await _client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a compliance AI assistant helping a human analyst review "
-                    "flagged payment transactions. Based on the AML screening data, "
-                    "suggest the most appropriate verdict: BLOCK (high risk, prevent payment), "
-                    "RELEASE (low risk, allow payment), or ESCALATE (uncertain, needs senior review). "
-                    "Be concise and evidence-based."
-                ),
-            },
-            {"role": "user", "content": _build_prompt(tx)},
-        ],
-        response_format={"type": "json_object"},
-        temperature=0,
+    response = await _client.messages.create(
+        model="claude-opus-4-8",
+        max_tokens=2048,
+        thinking={"type": "adaptive"},
+        system=_SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": _build_prompt(tx)}],
     )
-    result = json.loads(response.choices[0].message.content)
 
-    # Fix 1: Validate the returned JSON structure and verdict value.
+    # Extract text block (adaptive thinking may prepend thinking blocks)
+    text = next(
+        (block.text for block in response.content if block.type == "text"),
+        None,
+    )
+    if text is None:
+        raise ValueError("Claude returned no text content in response")
+
+    # Parse JSON, with fallback extraction in case of surrounding prose
+    try:
+        result = json.loads(text.strip())
+    except json.JSONDecodeError:
+        match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+        if not match:
+            raise ValueError(f"Could not parse JSON from Claude response: {text[:200]}")
+        result = json.loads(match.group())
+
     if "verdict" not in result or "reasoning" not in result:
         raise ValueError(
-            f"OpenAI response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
+            f"Claude response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
         )
     if result["verdict"] not in _VALID_VERDICTS:
         raise ValueError(
-            f"OpenAI returned invalid verdict '{result['verdict']}'. "
+            f"Claude returned invalid verdict '{result['verdict']}'. "
             f"Expected one of: {sorted(_VALID_VERDICTS)}"
         )
 

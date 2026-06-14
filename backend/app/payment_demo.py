@@ -113,7 +113,7 @@ def _to_frontend(idx, s, tx, orig, bene, beh_score, beh_outcome, beh_hits, resul
             "score": beh_score,
             "outcome": beh_outcome,
             "rules_fired": [
-                {"rule_id": h.rule_id, "severity": h.severity, "score": h.score, "reason": h.reason}
+                {"rule_id": h.rule_id, "severity": h.severity, "score": h.score, "reason": h.explanation}
                 for h in beh_hits
             ],
         },

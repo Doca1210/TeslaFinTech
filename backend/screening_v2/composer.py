@@ -107,8 +107,7 @@ class VerdictComposer:
         final_verdict: str,
         ownership: dict | None = None,
     ) -> str:
-        parts = [f"Final verdict: {final_verdict}."]
-        parts.append(f"Layer A (sanctions): {layer_a['explanation']}")
+        parts = [f"Layer A (sanctions): {layer_a['explanation']}"]
         rule_ids = ", ".join(h.rule_id for h in behavioral_hits) if behavioral_hits else "none"
         parts.append(
             f"Layer B (behavioral): outcome={behavioral_outcome}, "
