@@ -86,6 +86,31 @@ def cmd_seed_ownership(args: argparse.Namespace) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# generate-transactions
+# --------------------------------------------------------------------------- #
+
+def cmd_generate_transactions(args: argparse.Namespace) -> None:
+    import json
+    from pathlib import Path
+
+    from app.database import SessionLocal
+    from app.logging_config import configure_logging
+    from app.ownership import OwnershipRiskEngine
+    from app.payment_demo import build_transactions
+    from screening_v2.engine import ScreeningEngine
+
+    configure_logging()
+    print("Building screening engine (encodes the watchlist, may take a minute)…")
+    engine = ScreeningEngine(SessionLocal)
+    ownership = OwnershipRiskEngine(SessionLocal, engine=None)  # seeded Layer C
+    rows = build_transactions(engine, ownership)
+
+    out = Path(args.output) if args.output else Path("data") / "demo_transactions.json"
+    out.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+    print(f"Wrote {len(rows)} demo transactions to {out}")
+
+
+# --------------------------------------------------------------------------- #
 # screen
 # --------------------------------------------------------------------------- #
 
@@ -308,6 +333,10 @@ def build_parser() -> argparse.ArgumentParser:
     so.add_argument("--bulk", action="store_true", help="Also import real OFAC 'Linked To' relationships.")
     so.add_argument("--bulk-limit", type=int, default=0, help="Cap bulk import (0 = no cap).")
 
+    # generate-transactions
+    gt = sub.add_parser("generate-transactions", help="Precompute demo payment screening results for the dashboard.")
+    gt.add_argument("--output", type=Path, default=None, help="Output JSON path (default: data/demo_transactions.json).")
+
     # screen
     s = sub.add_parser("screen", help="Screen one or more transactions against the watchlist.")
     s.add_argument("--db", type=Path, default=None, help="Path to AML SQLite database.")
@@ -337,6 +366,7 @@ def main() -> None:
         "fetch": cmd_fetch,
         "export": cmd_export,
         "seed-ownership": cmd_seed_ownership,
+        "generate-transactions": cmd_generate_transactions,
         "screen": cmd_screen,
         "evaluate": cmd_evaluate,
     }

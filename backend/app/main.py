@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import threading
 import time
 
@@ -166,6 +168,56 @@ def ownership_exposure(name: str, max_depth: int = 2) -> dict:
     result = get_ownership_engine().exposure(name, max_depth=max_depth)
     logger.info("Ownership exposure name=%r -> controls=%s", name, result["controls_count"])
     return result
+
+
+# --------------------------------------------------------------------------- #
+# Payments dashboard feed (Layers A + B + C over demo scenarios)
+# --------------------------------------------------------------------------- #
+_screening_engine = None
+_transactions_cache: list[dict] | None = None
+_TX_CACHE_PATH = os.path.join("data", "demo_transactions.json")
+
+
+def get_screening_engine():
+    """Cached sanctions ScreeningEngine (heavy to build — encodes the watchlist)."""
+    global _screening_engine
+    if _screening_engine is None:
+        with _engine_lock:
+            if _screening_engine is None:
+                from screening_v2.engine import ScreeningEngine
+
+                logger.info("Building ScreeningEngine for /transactions…")
+                _screening_engine = ScreeningEngine(SessionLocal)
+    return _screening_engine
+
+
+@app.get("/transactions")
+def list_transactions() -> list[dict]:
+    """Demo payment screening results for the Payments dashboard.
+
+    Served from a precomputed cache (``data/demo_transactions.json``) so the page
+    loads instantly. Generate it with ``python manage.py generate-transactions``.
+    Falls back to building live (slow first call) if the cache is absent.
+    """
+    global _transactions_cache
+    if _transactions_cache is None:
+        if os.path.exists(_TX_CACHE_PATH):
+            with open(_TX_CACHE_PATH, encoding="utf-8") as f:
+                _transactions_cache = json.load(f)
+            logger.info("Loaded %d demo transactions from cache", len(_transactions_cache))
+        else:
+            logger.warning("No transaction cache; building live (slow first call)…")
+            from app.payment_demo import build_transactions
+
+            _transactions_cache = build_transactions(
+                get_screening_engine(), get_ownership_engine(live=False)
+            )
+            try:
+                with open(_TX_CACHE_PATH, "w", encoding="utf-8") as f:
+                    json.dump(_transactions_cache, f, indent=2)
+            except OSError:
+                logger.exception("Could not persist transaction cache")
+    return _transactions_cache
 
 
 @app.get("/entities/search", response_model=list[EntitySearchResult])
