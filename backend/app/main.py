@@ -17,6 +17,7 @@ from app.logging_config import configure_logging
 from app.models import Entity, EntityName
 from app.ownership import OwnershipRiskEngine
 from app.schemas import EntityNameOut, EntitySearchResult, IngestionResult
+from app.schema_upgrade import ensure_sqlite_schema
 
 configure_logging()
 logger = logging.getLogger("app")
@@ -31,6 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+ensure_sqlite_schema(engine)
 Base.metadata.create_all(bind=engine)
 
 

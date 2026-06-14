@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal demo API for the React UI.
-
-Wraps the same pipeline as demo.py (Layer A sanctions screening via
-screening_v2 + Layer B behavioral AML via app.aml_detect + VerdictComposer)
-and exposes it as JSON over HTTP for a local frontend.
-
-Usage (from backend/):
-    python -m uvicorn demo_api:app --reload --port 8000
-"""
+"""Minimal demo API for the React UI."""
 
 from __future__ import annotations
 
@@ -15,19 +7,21 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
-# Allow imports from backend/ regardless of where the script is invoked
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
-from app.database import SessionLocal
-from app.aml_detect import Context, evaluate, _outcome
-from screening_v2.engine import ScreeningEngine
-from screening_v2.composer import VerdictComposer
+from app.aml_detect import Context, _outcome, evaluate  # noqa: E402
+from app.database import SessionLocal, engine as db_engine  # noqa: E402
+from app.schema_upgrade import ensure_sqlite_schema  # noqa: E402
+from screening_v2.composer import VerdictComposer  # noqa: E402
+from screening_v2.engine import ScreeningEngine  # noqa: E402
+
+ensure_sqlite_schema(db_engine)
 
 
 @dataclass
@@ -36,7 +30,13 @@ class Tx:
     amount: float
     currency: str = "USD"
     direction: str = "out"
+    channel: str = "wire"
+    counterparty_name: str | None = None
+    counterparty_account_name: str | None = None
     counterparty_country: str = "US"
+    initiated_from_country: str | None = None
+    entity_registered_country: str | None = None
+    usual_operating_countries: list[str] | None = None
     occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -47,8 +47,17 @@ SCENARIOS = [
         "id": 1,
         "label": "Clean domestic wire",
         "originator": "Alice Johnson",
-        "beneficiary": "Global Trade LLC",
-        "tx": Tx(entity_id=1, amount=2_500.00, counterparty_country="US"),
+        "beneficiary": "Milan Textile GmbH",
+        "tx": Tx(
+            entity_id=1,
+            amount=2_500.00,
+            counterparty_name="Milan Textile GmbH",
+            counterparty_account_name="Milan Textile GmbH",
+            counterparty_country="DE",
+            initiated_from_country="RS",
+            entity_registered_country="RS",
+            usual_operating_countries=["RS", "DE"],
+        ),
         "history": [],
     },
     {
@@ -56,41 +65,104 @@ SCENARIOS = [
         "label": "Originator name matches OFAC SDN",
         "originator": "Saddam Hussein",
         "beneficiary": "Legitimate Corp",
-        "tx": Tx(entity_id=2, amount=50_000.00, counterparty_country="DE"),
+        "tx": Tx(
+            entity_id=2,
+            amount=50_000.00,
+            counterparty_name="Legitimate Corp",
+            counterparty_account_name="Legitimate Corp",
+            counterparty_country="DE",
+        ),
         "history": [],
     },
     {
         "id": 3,
-        "label": "Structuring (smurfing) — three sub-threshold transfers",
+        "label": "Large payment relative to baseline",
         "originator": "Carlos Mendez",
-        "beneficiary": "FastCash Ltd",
-        "tx": Tx(entity_id=3, amount=9_500.00, counterparty_country="US", occurred_at=NOW),
+        "beneficiary": "Nordic Equipment AB",
+        "tx": Tx(
+            entity_id=3,
+            amount=140_000.00,
+            counterparty_name="Nordic Equipment AB",
+            counterparty_account_name="Nordic Equipment AB",
+            counterparty_country="SE",
+            occurred_at=NOW,
+        ),
         "history": [
-            Tx(entity_id=3, amount=9_500.00, counterparty_country="US",
-               occurred_at=NOW - timedelta(days=2)),
-            Tx(entity_id=3, amount=9_500.00, counterparty_country="US",
-               occurred_at=NOW - timedelta(days=5)),
+            Tx(
+                entity_id=3,
+                amount=18_000.00,
+                counterparty_country="SE",
+                occurred_at=NOW - timedelta(days=12),
+            ),
+            Tx(
+                entity_id=3,
+                amount=22_000.00,
+                counterparty_country="SE",
+                occurred_at=NOW - timedelta(days=35),
+            ),
+            Tx(
+                entity_id=3,
+                amount=20_000.00,
+                counterparty_country="SE",
+                occurred_at=NOW - timedelta(days=62),
+            ),
         ],
     },
     {
         "id": 4,
-        "label": "Large transfer to sanctioned jurisdiction (Iran)",
+        "label": "Money-in / money-out pass-through",
         "originator": "Omar Al-Rashid",
-        "beneficiary": "Tehran Imports Co",
-        "tx": Tx(entity_id=4, amount=15_000.00, counterparty_country="IR"),
-        "history": [],
+        "beneficiary": "Atlas Brokerage Ltd",
+        "tx": Tx(
+            entity_id=4,
+            amount=498_700.00,
+            counterparty_name="Atlas Brokerage Ltd",
+            counterparty_account_name="Atlas Brokerage Ltd",
+            counterparty_country="AE",
+            occurred_at=NOW,
+        ),
+        "history": [
+            Tx(
+                entity_id=4,
+                amount=500_000.00,
+                direction="in",
+                counterparty_country="GB",
+                occurred_at=NOW - timedelta(minutes=42),
+            ),
+        ],
     },
     {
         "id": 5,
-        "label": "Velocity burst — 6 rapid transfers in 24 h",
+        "label": "High-risk initiation country mismatch",
         "originator": "Li Wei",
         "beneficiary": "Apex Brokers",
-        "tx": Tx(entity_id=5, amount=800.00, counterparty_country="SG", occurred_at=NOW),
-        "history": [
-            Tx(entity_id=5, amount=800.00, counterparty_country="SG",
-               occurred_at=NOW - timedelta(hours=i))
-            for i in range(1, 6)
-        ],
+        "tx": Tx(
+            entity_id=5,
+            amount=250_000.00,
+            counterparty_name="Apex Brokers",
+            counterparty_account_name="Apex Brokers",
+            counterparty_country="SG",
+            initiated_from_country="RU",
+            entity_registered_country="US",
+            usual_operating_countries=["US", "SG"],
+            occurred_at=NOW,
+        ),
+        "history": [],
+    },
+    {
+        "id": 6,
+        "label": "Beneficiary account-name mismatch",
+        "originator": "Nora Novak",
+        "beneficiary": "Blue Harbor Logistics",
+        "tx": Tx(
+            entity_id=6,
+            amount=12_000.00,
+            counterparty_name="Blue Harbor Logistics",
+            counterparty_account_name="B H Consulting Services",
+            counterparty_country="NL",
+            occurred_at=NOW,
+        ),
+        "history": [],
     },
 ]
 
@@ -125,57 +197,60 @@ def run_scenarios() -> list[dict]:
     composer = _composer
 
     results = []
-    for s in SCENARIOS:
-        tx = s["tx"]
-        history_by_entity = {tx.entity_id: s["history"] + [tx]}
+    for scenario in SCENARIOS:
+        tx = scenario["tx"]
+        history_by_entity = {tx.entity_id: scenario["history"] + [tx]}
         ctx = Context(history=history_by_entity)
 
-        orig = engine.screen(s["originator"])
-        bene = engine.screen(s["beneficiary"])
+        originator = engine.screen(scenario["originator"])
+        beneficiary = engine.screen(scenario["beneficiary"])
 
-        beh_score, beh_hits = evaluate(tx, ctx)
-        beh_outcome = _outcome(beh_score)
+        behavioral_score, behavioral_hits = evaluate(tx, ctx)
+        behavioral_outcome = _outcome(behavioral_score)
 
         decision = composer.compose_payment(
-            originator=orig,
-            beneficiary=bene,
-            behavioral_score=beh_score,
-            behavioral_outcome=beh_outcome,
-            behavioral_hits=beh_hits,
+            originator=originator,
+            beneficiary=beneficiary,
+            behavioral_score=behavioral_score,
+            behavioral_outcome=behavioral_outcome,
+            behavioral_hits=behavioral_hits,
         )
 
-        results.append({
-            "id": s["id"],
-            "label": s["label"],
-            "originator": s["originator"],
-            "beneficiary": s["beneficiary"],
-            "amount": tx.amount,
-            "currency": tx.currency,
-            "counterparty_country": tx.counterparty_country,
-            "layer_a": {
-                "originator": _party_payload(orig),
-                "beneficiary": _party_payload(bene),
-            },
-            "layer_b": {
-                "score": beh_score,
-                "outcome": beh_outcome,
-                "rules_fired": [
-                    {
-                        "rule_id": h.rule_id,
-                        "severity": h.severity,
-                        "score": h.score,
-                        "reason": h.reason,
-                        "explanation": h.explanation,
-                    }
-                    for h in beh_hits
-                ],
-            },
-            "verdict": decision["verdict"],
-            "confidence": decision["confidence"],
-            "recommended_action": decision["recommended_action"],
-            "triggered_layers": decision["triggered_layers"],
-            "explanation": decision["explanation"],
-        })
+        results.append(
+            {
+                "id": scenario["id"],
+                "label": scenario["label"],
+                "originator": scenario["originator"],
+                "beneficiary": scenario["beneficiary"],
+                "amount": tx.amount,
+                "currency": tx.currency,
+                "counterparty_country": tx.counterparty_country,
+                "layer_a": {
+                    "originator": _party_payload(originator),
+                    "beneficiary": _party_payload(beneficiary),
+                },
+                "layer_b": {
+                    "score": behavioral_score,
+                    "outcome": behavioral_outcome,
+                    "rules_fired": [
+                        {
+                            "rule_id": hit.rule_id,
+                            "severity": hit.severity,
+                            "score": hit.score,
+                            "reason": hit.reason,
+                            "explanation": hit.explanation,
+                            "evidence": hit.evidence,
+                        }
+                        for hit in behavioral_hits
+                    ],
+                },
+                "verdict": decision["verdict"],
+                "confidence": decision["confidence"],
+                "recommended_action": decision["recommended_action"],
+                "triggered_layers": decision["triggered_layers"],
+                "explanation": decision["explanation"],
+            }
+        )
 
     _results_cache = results
     return results
@@ -183,8 +258,6 @@ def run_scenarios() -> list[dict]:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Pre-warm the vector model and pre-compute scenario results so the
-    # first /transactions request doesn't pay the model-load cost.
     run_scenarios()
     yield
 

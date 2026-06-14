@@ -115,42 +115,38 @@ def cmd_generate_transactions(args: argparse.Namespace) -> None:
 # --------------------------------------------------------------------------- #
 
 def cmd_screen(args: argparse.Namespace) -> None:
-    from screening.engine import ScreeningEngine
-    from screening.models import Transaction
-    from screening.watchlist_repo import default_db_path, load_watchlist_from_db
+    import dataclasses
 
-    db_path = args.db or default_db_path()
-    watchlist = load_watchlist_from_db(db_path)
-    engine = ScreeningEngine(watchlist)
+    from app.database import SessionLocal
+    from screening_v2.engine import ScreeningEngine
+
+    engine = ScreeningEngine(SessionLocal)
 
     if args.transactions:
         payload = json.loads(Path(args.transactions).read_text(encoding="utf-8"))
-        transactions = [Transaction.model_validate(item) for item in payload]
-    elif args.name:
-        transactions = [
-            Transaction(
-                transaction_id=args.transaction_id,
-                counterparty_name=args.name,
-                counterparty_country=args.country,
-            )
+        items = [
+            (item.get("transaction_id", f"cli-{i}"), item["counterparty_name"])
+            for i, item in enumerate(payload)
         ]
+    elif args.name:
+        items = [(args.transaction_id, args.name)]
     else:
         sys.exit("Provide --transactions FILE or --name NAME.")
 
-    for txn in transactions:
-        result = engine.screen(txn)
-        d = result.model_dump()
+    for txn_id, name in items:
+        result = engine.screen(name)
         if args.json:
-            print(json.dumps(d, indent=2, default=str))
+            data = {"transaction_id": txn_id, "counterparty_name": name, **dataclasses.asdict(result)}
+            print(json.dumps(data, indent=2, default=str))
         else:
-            print(f"\nTransaction : {d['transaction_id']}")
-            print(f"Counterparty: {d['counterparty_name']}")
-            print(f"Verdict     : {d['verdict']}")
-            print(f"Confidence  : {d['confidence']:.1f}%")
-            print(f"Explanation : {d['explanation']}")
-            for match in (d.get("matched_entities") or [])[:3]:
-                e = match["entity"]
-                print(f"  - {e['full_name']} ({e['list_source']}) @ {match['confidence']:.1f}%")
+            print(f"\nTransaction : {txn_id}")
+            print(f"Counterparty: {name}")
+            print(f"Verdict     : {result.verdict}")
+            print(f"Confidence  : {result.confidence:.1f}%")
+            print(f"Explanation : {result.explanation}")
+            for c in result.candidates[:3]:
+                p = c.entity_profile
+                print(f"  - {p.primary_name} ({p.source_list_code}) @ {c.match_score:.1f}%")
 
 
 # --------------------------------------------------------------------------- #
@@ -158,8 +154,8 @@ def cmd_screen(args: argparse.Namespace) -> None:
 # --------------------------------------------------------------------------- #
 
 def cmd_evaluate(args: argparse.Namespace) -> None:
-    from screening.evaluation.pipeline import ABTestPipeline
-    from screening.evaluation.variants import default_variants, get_variant
+    from evaluation.pipeline import ABTestPipeline
+    from evaluation.variants import default_variants, get_variant
 
     pipeline = ABTestPipeline.from_db(
         Path(args.benchmark) if args.benchmark else None,
@@ -255,16 +251,6 @@ def _print_evaluate_summary(report: dict) -> None:
         print(f"    {'Correct Alerts (TP)':<24} {tp:>5}    {'Missed Hits (FN)':<24} {fn:>5}  ← compliance risk")
         print(f"    {'False Alarms (FP)':<24} {fp:>5}    {'Clean Passes (TN)':<24} {tn:>5}")
 
-    # ── Winner summary ───────────────────────────────────────────
-    print()
-    print(_LINE)
-    print("  RECOMMENDED VARIANT")
-    print(f"    Best overall (F2)   : {report['winner_by_flag_f1']}")
-    print(f"    Best auto-block     : {report['winner_by_block_f1']}")
-    if report.get("winner_by_verdict_macro_f1"):
-        print(f"    Best 3-way verdict  : {report['winner_by_verdict_macro_f1']}")
-    print(_LINE)
-    print()
 
 
 def _row(label: str, value: float, *, pct: bool = False, unit: str = "", note: str = "", warn: bool = False) -> None:

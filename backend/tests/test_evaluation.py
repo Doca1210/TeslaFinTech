@@ -1,11 +1,10 @@
 import json
 from pathlib import Path
 
-from screening.evaluation.metrics import compute_metrics, is_flagged
-from screening.evaluation.models import ExpectedLabel
-from screening.evaluation.pipeline import ABTestPipeline
-from screening.evaluation.variants import default_variants, get_variant
-from screening.models import ScreeningVerdict
+from evaluation.metrics import compute_metrics, is_flagged
+from evaluation.models import BenchmarkCase, ExpectedLabel, ScreeningVerdict
+from evaluation.pipeline import ABTestPipeline
+from evaluation.variants import default_variants, get_variant
 
 
 def test_compute_metrics_perfect_classifier():
@@ -33,13 +32,13 @@ def test_compute_metrics_mixed():
     assert metrics.accuracy == 0.6
 
 
-def test_ab_pipeline_runs_all_variants():
-    pipeline = ABTestPipeline.from_paths()
+def test_v2_pipeline_runs():
+    pipeline = ABTestPipeline.from_db()
     report = pipeline.run_ab_test(default_variants())
 
     assert report.case_count >= 10
-    assert len(report.variants) == 4
-    assert report.winner_by_flag_f1
+    assert len(report.variants) == 1
+    assert report.variants[0].variant_name == "v2_cascade"
 
     for evaluation in report.variants:
         assert evaluation.flag_metrics.support_positive > 0
@@ -47,23 +46,10 @@ def test_ab_pipeline_runs_all_variants():
         assert 0.0 <= evaluation.flag_metrics.f1_score <= 1.0
 
 
-def test_hybrid_default_beats_baseline_on_recall():
-    pipeline = ABTestPipeline.from_paths()
-    report = pipeline.run_ab_test(
-        [get_variant("hybrid_default"), get_variant("token_set_baseline")]
-    )
-
-    by_name = {item.variant_name: item for item in report.variants}
-    hybrid = by_name["hybrid_default"]
-    baseline = by_name["token_set_baseline"]
-
-    assert hybrid.flag_metrics.recall >= baseline.flag_metrics.recall
-
-
 def test_evaluate_cli_output_json(tmp_path: Path):
     output = tmp_path / "report.json"
-    pipeline = ABTestPipeline.from_paths()
-    report = pipeline.run_ab_test([get_variant("hybrid_default")])
+    pipeline = ABTestPipeline.from_db()
+    report = pipeline.run_ab_test([get_variant("v2_cascade")])
     output.write_text(json.dumps(report.model_dump(mode="json"), indent=2), encoding="utf-8")
 
     payload = json.loads(output.read_text(encoding="utf-8"))
@@ -78,8 +64,6 @@ def test_is_flagged_mapping():
 
 
 def test_expected_label_positive():
-    from screening.evaluation.models import BenchmarkCase
-
     case = BenchmarkCase(
         case_id="x",
         transaction_id="t",

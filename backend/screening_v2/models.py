@@ -3,6 +3,17 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 
+@dataclass(slots=True)
+class IndexEntry:
+    norm_name: str
+    phonetic: str | None
+    entity_pk: int
+    list_code: str
+    source_uid: str
+    raw_name: str
+    entity_type: str
+
+
 @dataclass
 class NormalizedInput:
     raw: str
