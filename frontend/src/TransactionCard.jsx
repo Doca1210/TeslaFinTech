@@ -1,3 +1,33 @@
+const RULE_LABELS = {
+  structuring_7d: 'Structuring — 7-day window',
+  structuring_30d: 'Structuring — 30-day window',
+  rapid_movement: 'Rapid Fund Movement',
+  high_value_single: 'High-Value Single Transfer',
+  round_amount: 'Round-Amount Transaction',
+  velocity_24h: 'High Velocity (24h)',
+  dormant_account: 'Dormant Account Activity',
+  cross_border_high: 'High-Risk Cross-Border Transfer',
+  pep_exposure: 'Politically Exposed Person Exposure',
+}
+
+function ruleLabel(id) {
+  if (RULE_LABELS[id]) return RULE_LABELS[id]
+  return id
+    .replace(/_(\d+[a-z]+)/g, ' ($1)')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+const LAYER_LABELS = {
+  layer_a_sanctions: 'Watchlist Screening',
+  layer_b_behavioral: 'Behavioral Analysis',
+  layer_c_ownership: 'Ownership Analysis',
+}
+
+function layerLabel(id) {
+  return LAYER_LABELS[id] ?? id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 const VERDICT_LABEL = {
   MATCH: 'MATCH',
   REVIEW: 'REVIEW',
@@ -33,14 +63,36 @@ function BehavioralRules({ rulesFired }) {
     <ul className="rules-list">
       {rulesFired.map((rule) => (
         <li key={rule.rule_id} className={`rule severity-${rule.severity}`}>
-          <span className="rule-id">{rule.rule_id}</span>
+          <span className="rule-id">{ruleLabel(rule.rule_id)}</span>
           <span className="rule-severity">{rule.severity}</span>
           <span className="rule-score">+{rule.score}</span>
-          <p className="rule-reason">{rule.reason}</p>
+          <p className="rule-reason">{rule.explanation ?? rule.reason}</p>
         </li>
       ))}
     </ul>
   )
+}
+
+const SECTION_LABELS = {
+  'Layer A (sanctions)': 'Watchlist Screening',
+  'Layer B (behavioral)': 'Behavioral Analysis',
+  'Layer C (ownership)': 'Ownership Analysis',
+  'Sanctions screening': 'Watchlist Screening',
+  'Behavioral analysis': 'Behavioral Analysis',
+  'Ownership analysis': 'Ownership Analysis',
+}
+
+function formatBehavioralBody(text) {
+  return text
+    .replace(/outcome=(\w+)/i, (_, v) => `Outcome: ${v.charAt(0).toUpperCase() + v.slice(1)}`)
+    .replace(/,?\s*score=(\d+)/, (_, s) => `  ·  Risk score: ${s}`)
+    .replace(/,?\s*rules fired=\[([^\]]*)\]\.?/, (_, rules) => {
+      const labels = rules
+        .split(',')
+        .map((r) => ruleLabel(r.trim()))
+        .join(', ')
+      return `  ·  Rules triggered: ${labels}`
+    })
 }
 
 function ComposerExplanation({ explanation }) {
@@ -48,9 +100,13 @@ function ComposerExplanation({ explanation }) {
     .replace(/^Route to analyst queue for manual review\.\s*/, '')
     .replace(/^Block this payment and escalate to compliance\.\s*/, '')
     .replace(/^No action required — payment may proceed\.\s*/, '')
+    .replace(/^(PASS|REVIEW|BLOCK)\.\s*/, '')
+    .replace(/Final verdict:\s*\w+\.\s*/i, '')
 
   const parts = normalized
-    .split(/(?=Sanctions screening:|Behavioral analysis:|Ownership analysis:|Layer C \(ownership\):)/)
+    .split(
+      /(?=Layer A \(sanctions\):|Layer B \(behavioral\):|Layer C \(ownership\):|Sanctions screening:|Behavioral analysis:|Ownership analysis:)/
+    )
     .map((part) => part.trim())
     .filter(Boolean)
 
@@ -61,18 +117,26 @@ function ComposerExplanation({ explanation }) {
   return (
     <div className="composer-detail">
       {parts.map((part) => {
-        const [label, ...rest] = part.split(':')
-        const body = rest.join(':').trim()
-        const sanctionsItems =
-          label === 'Sanctions screening'
-            ? body
-                .split(/(?=Beneficiary\s')/)
-                .map((item) => item.trim())
-                .filter(Boolean)
-            : []
+        const colonIdx = part.indexOf(':')
+        if (colonIdx === -1) return <p key={part} className="composer-text">{part}</p>
+
+        const rawLabel = part.slice(0, colonIdx).trim()
+        let body = part.slice(colonIdx + 1).trim()
+        const label = SECTION_LABELS[rawLabel] ?? rawLabel
+
+        const isBehavioral =
+          rawLabel.toLowerCase().includes('behavioral') || rawLabel.toLowerCase().includes('behaviour')
+        if (isBehavioral) body = formatBehavioralBody(body)
+
+        const isWatchlist = label === 'Watchlist Screening'
+        const sanctionsItems = isWatchlist
+          ? body.split(/(?=Beneficiary\s')/).map((i) => i.trim()).filter(Boolean)
+          : []
+
+        const slug = rawLabel.toLowerCase().replace(/[\s()]/g, '-').replace(/-+/g, '-')
 
         return (
-          <div className={`composer-row composer-row-${label.toLowerCase().replaceAll(' ', '-')}`} key={part}>
+          <div className={`composer-row composer-row-${slug}`} key={part}>
             <span className="composer-label">{label}</span>
             {sanctionsItems.length > 1 ? (
               <ul className="composer-list">
@@ -81,7 +145,7 @@ function ComposerExplanation({ explanation }) {
                 ))}
               </ul>
             ) : (
-              <p>{body || part}</p>
+              <p>{body}</p>
             )}
           </div>
         )
@@ -148,25 +212,30 @@ export default function TransactionCard({ tx, decision = null }) {
       </dl>
 
       <section className="tx-section">
-        <h4>Layer A — Sanctions screening</h4>
+        <h4>Watchlist Screening</h4>
         <PartyResult role="Originator" party={tx.layer_a.originator} />
         <PartyResult role="Beneficiary" party={tx.layer_a.beneficiary} />
       </section>
 
       <section className="tx-section">
-        <h4>Layer B — Behavioral AML</h4>
+        <h4>Behavioral Analysis</h4>
         <div className="behavioral-summary">
-          Score <strong>{tx.layer_b.score}</strong> → {tx.layer_b.outcome}
+          Risk score <strong>{tx.layer_b.score}</strong>{' '}
+          <span className={`outcome-pill outcome-${tx.layer_b.outcome}`}>
+            {tx.layer_b.outcome.charAt(0).toUpperCase() + tx.layer_b.outcome.slice(1)}
+          </span>
         </div>
         <BehavioralRules rulesFired={tx.layer_b.rules_fired} />
       </section>
 
       <section className="tx-section composer-section">
-        <h4>Verdict Composer</h4>
+        <h4>Compliance Decision</h4>
         <div className="composer-summary">
           <div className="composer-metric">
-            <span>Triggered layers</span>
-            <strong>{tx.triggered_layers.length ? tx.triggered_layers.join(', ') : 'none'}</strong>
+            <span>Triggered checks</span>
+            <strong>
+              {tx.triggered_layers.length ? tx.triggered_layers.map(layerLabel).join(', ') : 'none'}
+            </strong>
           </div>
           <div className="composer-metric">
             <span>Confidence</span>

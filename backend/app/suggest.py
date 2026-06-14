@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from pathlib import Path
 
-import anthropic
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
-_client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+_client = AsyncOpenAI(
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1",
+)
 
 _SYSTEM_PROMPT = (
     "You are a compliance AI assistant helping a human analyst review "
@@ -81,38 +83,25 @@ def _build_prompt(tx: dict) -> str:
 
 
 async def get_ai_suggestion(tx: dict) -> dict:
-    response = await _client.messages.create(
-        model="claude-opus-4-8",
-        max_tokens=2048,
-        thinking={"type": "adaptive"},
-        system=_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": _build_prompt(tx)}],
+    response = await _client.aio.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=_build_prompt(tx),
+        config=types.GenerateContentConfig(
+            system_instruction=_SYSTEM_PROMPT,
+            response_mime_type="application/json",
+            temperature=0,
+        ),
     )
 
-    # Extract text block (adaptive thinking may prepend thinking blocks)
-    text = next(
-        (block.text for block in response.content if block.type == "text"),
-        None,
-    )
-    if text is None:
-        raise ValueError("Claude returned no text content in response")
-
-    # Parse JSON, with fallback extraction in case of surrounding prose
-    try:
-        result = json.loads(text.strip())
-    except json.JSONDecodeError:
-        match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
-        if not match:
-            raise ValueError(f"Could not parse JSON from Claude response: {text[:200]}")
-        result = json.loads(match.group())
+    result = json.loads(response.text)
 
     if "verdict" not in result or "reasoning" not in result:
         raise ValueError(
-            f"Claude response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
+            f"Gemini response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
         )
     if result["verdict"] not in _VALID_VERDICTS:
         raise ValueError(
-            f"Claude returned invalid verdict '{result['verdict']}'. "
+            f"Gemini returned invalid verdict '{result['verdict']}'. "
             f"Expected one of: {sorted(_VALID_VERDICTS)}"
         )
 
