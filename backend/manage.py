@@ -55,6 +55,31 @@ def cmd_export(args: argparse.Namespace) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# seed-ownership
+# --------------------------------------------------------------------------- #
+
+def cmd_seed_ownership(args: argparse.Namespace) -> None:
+    from app.database import Base, SessionLocal, engine
+    from app.logging_config import configure_logging
+    from app.models import OwnershipLink
+    from app.ownership_fixtures import seed_demo_ownership
+
+    configure_logging()
+    Base.metadata.create_all(bind=engine)
+
+    session = SessionLocal()
+    try:
+        if args.reset:
+            deleted = session.query(OwnershipLink).delete()
+            session.commit()
+            print(f"Cleared {deleted} existing ownership links.")
+        count = seed_demo_ownership(session)
+    finally:
+        session.close()
+    print(f"Seeded {count} demo ownership links. Try: GET /screen/ownership?name=Blue Horizon Trading LLC")
+
+
+# --------------------------------------------------------------------------- #
 # screen
 # --------------------------------------------------------------------------- #
 
@@ -271,6 +296,10 @@ def build_parser() -> argparse.ArgumentParser:
     x = sub.add_parser("export", help="Export entities to JSONL for vectorization.")
     x.add_argument("--output", type=Path, default=None, help="Output JSONL path.")
 
+    # seed-ownership
+    so = sub.add_parser("seed-ownership", help="Seed demo KYB / beneficial-ownership links into the DB.")
+    so.add_argument("--reset", action="store_true", help="Delete existing ownership links before seeding.")
+
     # screen
     s = sub.add_parser("screen", help="Screen one or more transactions against the watchlist.")
     s.add_argument("--db", type=Path, default=None, help="Path to AML SQLite database.")
@@ -299,6 +328,7 @@ def main() -> None:
     dispatch = {
         "fetch": cmd_fetch,
         "export": cmd_export,
+        "seed-ownership": cmd_seed_ownership,
         "screen": cmd_screen,
         "evaluate": cmd_evaluate,
     }
