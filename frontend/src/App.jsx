@@ -244,6 +244,51 @@ function TransactionHistory({ transactions, reviewDrafts }) {
   )
 }
 
+function AISuggestion({ tx }) {
+  const [state, setState] = useState({ status: 'loading', verdict: null, reasoning: null })
+
+  useEffect(() => {
+    setState({ status: 'loading', verdict: null, reasoning: null })
+    fetch(`${API_URL}/transactions/${tx.id}/suggest`, { method: 'POST' })
+      .then((res) => {
+        if (!res.ok) throw new Error('suggest failed')
+        return res.json()
+      })
+      .then((data) =>
+        setState({ status: 'ready', verdict: data.verdict, reasoning: data.reasoning }),
+      )
+      .catch(() => setState({ status: 'error', verdict: null, reasoning: null }))
+  }, [tx.id])
+
+  if (state.status === 'loading') {
+    return (
+      <div className="ai-suggestion ai-suggestion-loading">
+        <span className="ai-suggestion-label">AI Suggestion</span>
+        <p className="ai-suggestion-body">Analyzing transaction…</p>
+      </div>
+    )
+  }
+
+  if (state.status === 'error') {
+    return (
+      <div className="ai-suggestion ai-suggestion-error">
+        <span className="ai-suggestion-label">AI Suggestion</span>
+        <p className="ai-suggestion-body">AI suggestion unavailable.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="ai-suggestion ai-suggestion-ready">
+      <div className="ai-suggestion-header">
+        <span className="ai-suggestion-label">AI Suggestion</span>
+        <span className={`badge ai-verdict-${state.verdict}`}>{state.verdict}</span>
+      </div>
+      <p className="ai-suggestion-body">{state.reasoning}</p>
+    </div>
+  )
+}
+
 function ReviewTool({ transactions, reviewDrafts, onSaveReview }) {
   const reviewTransactions = useMemo(
     () => transactions.filter((tx) => tx.recommended_action === 'MANUAL_REVIEW'),
@@ -287,6 +332,7 @@ function ReviewTool({ transactions, reviewDrafts, onSaveReview }) {
           {activeTx ? (
             <>
               <TransactionCard tx={activeTx} decision={reviewDrafts[activeTx.id] ? manualDecisionFromDraft(reviewDrafts[activeTx.id]) : null} />
+              <AISuggestion tx={activeTx} />
               <ReviewVerdictForm
                 key={activeTx.id}
                 tx={activeTx}
