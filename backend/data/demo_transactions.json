@@ -1,0 +1,314 @@
+[
+  {
+    "id": 1,
+    "label": "Clean domestic wire",
+    "originator": "Alice Johnson",
+    "beneficiary": "Global Trade LLC",
+    "amount": 2500.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "NO_MATCH",
+    "confidence": 0.6677,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Alice Johnson': clean. Beneficiary 'Global Trade LLC': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.6676923076923077,
+        "matched_name": "A. Johnson",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q101168868"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.5759649122807018,
+        "matched_name": "TRADE BRIDGE GLOBAL INC.",
+        "matched_entity_id": "OFAC_SDN:56855"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 2,
+    "label": "Originator matches OFAC SDN",
+    "originator": "Saddam Hussein",
+    "beneficiary": "Legitimate Corp",
+    "amount": 50000.0,
+    "currency": "EUR",
+    "counterparty_country": "DE",
+    "verdict": "REVIEW",
+    "confidence": 0.9402,
+    "recommended_action": "MANUAL_REVIEW",
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
+    "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator flagged \u2014 Input 'Saddam Hussein' matched 'Saddam HOSEIN' (OPENSANCTIONS_PEPS:Q107504675) with 94% confidence using normal search. Subject to: PEP position annotations by OpenSanctions, US CIA World Leaders. List: OPENSANCTIONS_PEPS (pep). Verdict: REVIEW. Beneficiary flagged \u2014 Input 'Legitimate Corp' matched 'LEGIJA' via alias 'LEGIJA' (OFAC_SDN:7726) with 74% confidence using normal search. Subject to: BALKANS. List: OFAC_SDN (sanctions). Verdict: REVIEW. Layer B (behavioral): outcome=review, score=35, rules fired=[amt_large].",
+    "layer_a": {
+      "originator": {
+        "verdict": "REVIEW",
+        "confidence": 0.9401709401709402,
+        "matched_name": "Saddam HOSEIN",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q107504675"
+      },
+      "beneficiary": {
+        "verdict": "REVIEW",
+        "confidence": 0.7385833333333334,
+        "matched_name": "LEGIJA",
+        "matched_entity_id": "OFAC_SDN:7726"
+      }
+    },
+    "layer_b": {
+      "score": 35,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 50000.00 EUR \u2265 10000"
+        }
+      ]
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 3,
+    "label": "Structuring \u2014 three sub-threshold transfers",
+    "originator": "Carlos Mendez",
+    "beneficiary": "FastCash Ltd",
+    "amount": 9500.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "REVIEW",
+    "confidence": 0.7637,
+    "recommended_action": "MANUAL_REVIEW",
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
+    "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator 'Carlos Mendez': clean. Beneficiary flagged \u2014 Input 'FastCash Ltd' matched 'JSC Astais' via alias 'JSC Astais' (EU_FSF:NK-4ukbAtcxFzEQhsdDF7ByZQ) with 76% confidence using normal search. Subject to: EU-UKR. List: EU_FSF (sanctions). Verdict: REVIEW. Layer B (behavioral): outcome=review, score=40, rules fired=[structuring_7d].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.7105686776503968,
+        "matched_name": "ANTONIO CARLOS MENDES THAME",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q10328631"
+      },
+      "beneficiary": {
+        "verdict": "REVIEW",
+        "confidence": 0.7637103174603175,
+        "matched_name": "JSC Astais",
+        "matched_entity_id": "EU_FSF:NK-4ukbAtcxFzEQhsdDF7ByZQ"
+      }
+    },
+    "layer_b": {
+      "score": 40,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "structuring_7d",
+          "severity": "high",
+          "score": 40,
+          "reason": "3 sub-threshold txns in 7d (smurfing)"
+        }
+      ]
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 4,
+    "label": "Large transfer to sanctioned jurisdiction (Iran)",
+    "originator": "Omar Al-Rashid",
+    "beneficiary": "Tehran Imports Co",
+    "amount": 15000.0,
+    "currency": "USD",
+    "counterparty_country": "IR",
+    "verdict": "MATCH",
+    "confidence": 0.7,
+    "recommended_action": "BLOCK",
+    "triggered_layers": [
+      "layer_b_behavioral"
+    ],
+    "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Omar Al-Rashid': clean. Beneficiary 'Tehran Imports Co': clean. Layer B (behavioral): outcome=decline, score=65, rules fired=[amt_large, geo_high_risk].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.7,
+        "matched_name": "OMAR",
+        "matched_entity_id": "OFAC_SDN:7835"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.6288056415548675,
+        "matched_name": "TEHRAN INTERNATIONAL TRANSPORT CO",
+        "matched_entity_id": "OFAC_SDN:30384"
+      }
+    },
+    "layer_b": {
+      "score": 65,
+      "outcome": "decline",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 15000.00 USD \u2265 10000"
+        },
+        {
+          "rule_id": "geo_high_risk",
+          "severity": "high",
+          "score": 30,
+          "reason": "Counterparty in high-risk jurisdiction IR"
+        }
+      ]
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 5,
+    "label": "Velocity burst \u2014 6 rapid transfers in 24h",
+    "originator": "Li Wei",
+    "beneficiary": "Apex Brokers",
+    "amount": 800.0,
+    "currency": "SGD",
+    "counterparty_country": "SG",
+    "verdict": "REVIEW",
+    "confidence": 0.9559,
+    "recommended_action": "MANUAL_REVIEW",
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
+    "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator flagged \u2014 Input 'Li Wei' matched '\u5218\u5dcd' (OPENSANCTIONS_PEPS:Q10897436) with 96% confidence using normal search. Subject to: PEP position annotations by OpenSanctions, Wikidata Persons in Relevant Categories, Wikidata Politically Exposed Persons. List: OPENSANCTIONS_PEPS (pep). Verdict: REVIEW. Beneficiary 'Apex Brokers': clean. Layer B (behavioral): outcome=approve, score=25, rules fired=[velocity_24h].",
+    "layer_a": {
+      "originator": {
+        "verdict": "REVIEW",
+        "confidence": 0.9558974358974359,
+        "matched_name": "\u5218\u5dcd",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q10897436"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.5525,
+        "matched_name": "Asel Roberts",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q106555050"
+      }
+    },
+    "layer_b": {
+      "score": 25,
+      "outcome": "approve",
+      "rules_fired": [
+        {
+          "rule_id": "velocity_24h",
+          "severity": "medium",
+          "score": 25,
+          "reason": "6 txns in 24h (limit 5)"
+        }
+      ]
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 6,
+    "label": "Clean beneficiary, sanctioned owner (KYB)",
+    "originator": "Meridian Exports Ltd",
+    "beneficiary": "Northwind Commodities DMCC",
+    "amount": 20000000.0,
+    "currency": "EUR",
+    "counterparty_country": "AE",
+    "verdict": "MATCH",
+    "confidence": 0.9,
+    "recommended_action": "BLOCK",
+    "triggered_layers": [
+      "layer_b_behavioral",
+      "layer_c_ownership"
+    ],
+    "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Meridian Exports Ltd': clean. Beneficiary 'Northwind Commodities DMCC': clean. Layer B (behavioral): outcome=review, score=35, rules fired=[amt_large]. Layer C (ownership): verdict=MATCH, score=90. Beneficiary is 60% owned by Dmitry Olegovich ROGOZIN, a sanctioned party (seeded KYB record).",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.37323611111111116,
+        "matched_name": "RPF MERIDIAN JSC",
+        "matched_entity_id": "OFAC_SDN:48555"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.6514871794871795,
+        "matched_name": "RWR INTERNATIONAL COMMODITIES",
+        "matched_entity_id": "OFAC_SDN:8416"
+      }
+    },
+    "layer_b": {
+      "score": 35,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 20000000.00 EUR \u2265 10000"
+        }
+      ]
+    },
+    "ownership_risk": {
+      "beneficiary": "Northwind Commodities DMCC",
+      "verdict": "MATCH",
+      "score": 90.0,
+      "reason": "Beneficiary is 60% owned by Dmitry Olegovich ROGOZIN, a sanctioned party (seeded KYB record).",
+      "paths": [
+        {
+          "path": [
+            "Northwind Commodities DMCC",
+            "Dmitry Olegovich ROGOZIN"
+          ],
+          "relation": "beneficial_owner",
+          "ownership_pct": 60.0,
+          "effective_pct": 60.0,
+          "depth": 1,
+          "is_ubo": true,
+          "risk": "SANCTIONS_MATCH",
+          "score": 90.0,
+          "matched_via": "seeded",
+          "source": "OFAC_SDN",
+          "screen_confidence": 0.95,
+          "explanation": "Ownership chain Northwind Commodities DMCC -> Dmitry Olegovich ROGOZIN: Dmitry Olegovich ROGOZIN holds a 60% stake in the beneficial owner role at depth 1 and was flagged as a sanctioned party via a seeded KYB record from OFAC_SDN. Because this risk sits behind the beneficiary rather than on its own name, direct name screening of the beneficiary would not surface it."
+        }
+      ],
+      "graph": {
+        "nodes": [
+          {
+            "id": "Northwind Commodities DMCC",
+            "name": "Northwind Commodities DMCC",
+            "depth": 0,
+            "risk": null,
+            "is_flagged": false,
+            "effective_pct": null
+          },
+          {
+            "id": "Dmitry Olegovich ROGOZIN",
+            "name": "Dmitry Olegovich ROGOZIN",
+            "depth": 1,
+            "risk": "SANCTIONS_MATCH",
+            "is_flagged": true,
+            "effective_pct": 60.0
+          }
+        ],
+        "edges": [
+          {
+            "from": "Dmitry Olegovich ROGOZIN",
+            "to": "Northwind Commodities DMCC",
+            "relation": "beneficial_owner",
+            "ownership_pct": 60.0
+          }
+        ]
+      },
+      "related_parties_traced": 1,
+      "duration_ms": 823
+    }
+  }
+]

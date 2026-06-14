@@ -212,3 +212,61 @@ class TransactionRuleHit(Base):
     evidence: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     decision: Mapped[TransactionDecision] = relationship(back_populates="hits")
+
+
+# --------------------------------------------------------------------------- #
+# KYB / beneficial-ownership graph (Layer C)
+# --------------------------------------------------------------------------- #
+class OwnershipLink(Base):
+    """A single directed ownership/control edge: ``from_party --relation--> to_party``.
+
+    Example: ``Ivan Petrov --beneficial_owner(35%)--> Blue Horizon Trading LLC``.
+    Owners frequently are NOT themselves watchlist entities, so the
+    ``*_entity_id`` columns are nullable and the ``*_name`` columns are the
+    authoritative key used for re-screening and graph resolution. ``seeded_risk``
+    carries a demo/manual-KYB fallback risk used when a live name screen misses.
+    """
+
+    __tablename__ = "ownership_links"
+    __table_args__ = (
+        Index("ix_ownership_links_to_name", "to_name"),
+        Index("ix_ownership_links_from_name", "from_name"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    from_entity_id: Mapped[int | None] = mapped_column(ForeignKey("entities.id"), nullable=True)
+    from_name: Mapped[str] = mapped_column(Text)
+    to_entity_id: Mapped[int | None] = mapped_column(ForeignKey("entities.id"), nullable=True)
+    to_name: Mapped[str] = mapped_column(Text)
+
+    # owner | beneficial_owner | director | ubo | parent_company | subsidiary | intermediary
+    relation_type: Mapped[str] = mapped_column(String(32))
+    ownership_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+    source: Mapped[str] = mapped_column(String(64))  # demo_registry | companies_house_fixture | manual_kyb
+    seeded_risk: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # {"risk": "PEP_MATCH", "source": "...", "confidence": 0.0}
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class OwnershipAssessment(Base):
+    """Persisted Layer-C result for one beneficiary — the audit record of a trace.
+
+    Mirrors how ``TransactionDecision`` captures a behavioral run, so an analyst
+    can defend why a payment was reviewed years later. ``paths`` and ``graph``
+    store the full evidence payload returned by the ownership engine.
+    """
+
+    __tablename__ = "ownership_assessments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    beneficiary_name: Mapped[str] = mapped_column(Text, index=True)
+    verdict: Mapped[str] = mapped_column(String(16))  # MATCH | REVIEW | NO_MATCH
+    score: Mapped[float] = mapped_column(Float, default=0.0)
+    reason: Mapped[str] = mapped_column(Text)
+    related_parties_traced: Mapped[int] = mapped_column(default=0)
+    duration_ms: Mapped[int] = mapped_column(default=0)
+    paths: Mapped[list] = mapped_column(JSON)
+    graph: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

@@ -55,6 +55,62 @@ def cmd_export(args: argparse.Namespace) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# seed-ownership
+# --------------------------------------------------------------------------- #
+
+def cmd_seed_ownership(args: argparse.Namespace) -> None:
+    from app.database import Base, SessionLocal, engine
+    from app.logging_config import configure_logging
+    from app.models import OwnershipLink
+    from app.ownership_fixtures import seed_demo_ownership
+    from app.ownership_ingest import import_linked_to
+
+    configure_logging()
+    Base.metadata.create_all(bind=engine)
+
+    session = SessionLocal()
+    try:
+        if args.reset:
+            deleted = session.query(OwnershipLink).delete()
+            session.commit()
+            print(f"Cleared {deleted} existing ownership links.")
+        count = seed_demo_ownership(session)
+        print(f"Seeded {count} curated demo ownership links.")
+        if args.bulk:
+            print("Importing real OFAC 'Linked To' relationships (this may take a moment)…")
+            bulk = import_linked_to(session, limit=args.bulk_limit if args.bulk_limit > 0 else None)
+            print(f"Imported {bulk} real ownership links from OFAC remarks.")
+    finally:
+        session.close()
+    print("Try: GET /screen/ownership?name=Northwind Commodities DMCC")
+
+
+# --------------------------------------------------------------------------- #
+# generate-transactions
+# --------------------------------------------------------------------------- #
+
+def cmd_generate_transactions(args: argparse.Namespace) -> None:
+    import json
+    from pathlib import Path
+
+    from app.database import SessionLocal
+    from app.logging_config import configure_logging
+    from app.ownership import OwnershipRiskEngine
+    from app.payment_demo import build_transactions
+    from screening_v2.engine import ScreeningEngine
+
+    configure_logging()
+    print("Building screening engine (encodes the watchlist, may take a minute)…")
+    engine = ScreeningEngine(SessionLocal)
+    ownership = OwnershipRiskEngine(SessionLocal, engine=None)  # seeded Layer C
+    rows = build_transactions(engine, ownership)
+
+    out = Path(args.output) if args.output else Path("data") / "demo_transactions.json"
+    out.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+    print(f"Wrote {len(rows)} demo transactions to {out}")
+
+
+# --------------------------------------------------------------------------- #
 # screen
 # --------------------------------------------------------------------------- #
 
@@ -257,6 +313,16 @@ def build_parser() -> argparse.ArgumentParser:
     x = sub.add_parser("export", help="Export entities to JSONL for vectorization.")
     x.add_argument("--output", type=Path, default=None, help="Output JSONL path.")
 
+    # seed-ownership
+    so = sub.add_parser("seed-ownership", help="Seed demo KYB / beneficial-ownership links into the DB.")
+    so.add_argument("--reset", action="store_true", help="Delete existing ownership links before seeding.")
+    so.add_argument("--bulk", action="store_true", help="Also import real OFAC 'Linked To' relationships.")
+    so.add_argument("--bulk-limit", type=int, default=0, help="Cap bulk import (0 = no cap).")
+
+    # generate-transactions
+    gt = sub.add_parser("generate-transactions", help="Precompute demo payment screening results for the dashboard.")
+    gt.add_argument("--output", type=Path, default=None, help="Output JSON path (default: data/demo_transactions.json).")
+
     # screen
     s = sub.add_parser("screen", help="Screen one or more transactions against the watchlist.")
     s.add_argument("--db", type=Path, default=None, help="Path to AML SQLite database.")
@@ -285,6 +351,8 @@ def main() -> None:
     dispatch = {
         "fetch": cmd_fetch,
         "export": cmd_export,
+        "seed-ownership": cmd_seed_ownership,
+        "generate-transactions": cmd_generate_transactions,
         "screen": cmd_screen,
         "evaluate": cmd_evaluate,
     }

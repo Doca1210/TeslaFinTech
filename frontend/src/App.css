@@ -19,6 +19,36 @@
   font-size: 14px;
 }
 
+/* Top-level view switch */
+.view-nav {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.view-btn {
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.view-btn:hover {
+  color: var(--text-h);
+}
+
+.view-btn.active {
+  background: var(--text-h);
+  border-color: var(--text-h);
+  color: #fff;
+}
+
 /* Tabs */
 .tabs {
   display: flex;

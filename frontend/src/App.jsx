@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import TransactionCard from './TransactionCard'
+import OwnershipExplorer from './OwnershipExplorer'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
@@ -10,7 +11,7 @@ const TABS = [
   { action: 'BLOCK', label: 'Blocked', emptyText: 'No blocked transactions.' },
 ]
 
-function App() {
+function PaymentsView() {
   const [transactions, setTransactions] = useState([])
   const [activeTab, setActiveTab] = useState('MANUAL_REVIEW')
   const [loading, setLoading] = useState(true)
@@ -35,12 +36,7 @@ function App() {
   const visible = transactions.filter((t) => t.recommended_action === activeTab)
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <h1>AML Payment Screening</h1>
-        <p className="subtitle">Layer A (sanctions) + Layer B (behavioral) + Verdict Composer</p>
-      </header>
-
+    <>
       <nav className="tabs">
         {TABS.map((tab) => (
           <button
@@ -70,6 +66,38 @@ function App() {
           ))}
         </div>
       </main>
+    </>
+  )
+}
+
+const VIEWS = [
+  { id: 'payments', label: 'Payments' },
+  { id: 'ownership', label: 'Ownership (KYB)' },
+]
+
+function App() {
+  const [view, setView] = useState('payments')
+
+  return (
+    <div className="page">
+      <header className="page-header">
+        <h1>AML Payment Screening</h1>
+        <p className="subtitle">Layer A (sanctions) + Layer B (behavioral) + Layer C (ownership)</p>
+      </header>
+
+      <nav className="view-nav">
+        {VIEWS.map((v) => (
+          <button
+            key={v.id}
+            className={`view-btn ${view === v.id ? 'active' : ''}`}
+            onClick={() => setView(v.id)}
+          >
+            {v.label}
+          </button>
+        ))}
+      </nav>
+
+      {view === 'payments' ? <PaymentsView /> : <OwnershipExplorer />}
     </div>
   )
 }
