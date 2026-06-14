@@ -157,7 +157,7 @@ function ReviewVerdictForm({ tx, draft, onSave }) {
           { value: 'RELEASE', label: 'Release' },
           { value: 'ESCALATE', label: 'Escalate' },
         ].map((option) => (
-          <label key={option.value} className={form.verdict === option.value ? 'selected' : ''}>
+          <label key={option.value} className={`verdict-opt verdict-opt-${option.value}${form.verdict === option.value ? ' selected' : ''}`}>
             <input
               type="radio"
               name="review-verdict"

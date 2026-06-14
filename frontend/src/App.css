@@ -288,7 +288,7 @@
 }
 
 .tx-card.action-PASS { border-top-color: var(--green); }
-.tx-card.action-MANUAL_REVIEW { border-top-color: var(--amber); }
+.tx-card.action-MANUAL_REVIEW { border-top-color: var(--amber); background: var(--card-bg); color: var(--text); }
 .tx-card.action-BLOCK { border-top-color: var(--red); }
 
 .tx-card-header {
@@ -482,14 +482,14 @@
 
 /* Composer */
 .composer-section {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
 }
 
 .composer-section h4 {
-  color: #9a3412;
+  color: var(--text-h);
 }
 
 .composer-summary {
@@ -773,43 +773,47 @@
   padding: 0;
   margin: 0;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .verdict-options legend {
   width: 100%;
-  margin-bottom: 6px;
-  font-size: 12px;
+  margin-bottom: 8px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text);
+  letter-spacing: 0.06em;
+  color: var(--border-strong);
 }
 
 .verdict-options label {
   display: inline-flex;
-  grid-template-columns: none;
-  gap: 7px;
   align-items: center;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 999px;
-  padding: 7px 11px;
-  background: var(--surface);
-  color: var(--text-h);
-  text-transform: none;
-  letter-spacing: 0;
+  padding: 6px 16px;
+  background: #fff;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  user-select: none;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
 
-.verdict-options label.selected {
-  border-color: var(--primary);
-  background: var(--primary-bg);
+.verdict-options label:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
 }
 
-.verdict-options input {
-  width: auto;
+.verdict-options input[type="radio"] {
+  display: none;
 }
+
+.verdict-opt-BLOCK.selected    { background: var(--red);   border-color: var(--red);   color: #fff; }
+.verdict-opt-RELEASE.selected  { background: var(--green); border-color: var(--green); color: #fff; }
+.verdict-opt-ESCALATE.selected { background: var(--amber); border-color: var(--amber); color: #fff; }
 
 .evidence-upload {
   display: flex;

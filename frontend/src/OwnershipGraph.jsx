@@ -3,10 +3,10 @@
 // increasing depth = owners further up the chain). Edges point from an owner
 // to the company it controls, labelled with the direct ownership %.
 
-const COL = 230 // horizontal gap between depth columns
-const ROW = 96 // vertical gap between sibling nodes
-const NODE_W = 178
-const NODE_H = 70
+const COL = 250 // horizontal gap between depth columns
+const ROW = 124 // vertical gap between sibling nodes
+const NODE_W = 196
+const NODE_H = 92
 const PAD = 24
 
 export default function OwnershipGraph({ graph, onNodeClick, selectedName }) {
