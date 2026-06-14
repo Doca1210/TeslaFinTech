@@ -3,9 +3,8 @@ import logging
 import numpy as np
 from rapidfuzz.fuzz import token_set_ratio
 import jellyfish
-from .models import NormalizedInput, MatchCandidate, ScoreBreakdown
+from .models import NormalizedInput, MatchCandidate, ScoreBreakdown, EntityProfile
 from .normalizer import Normalizer
-from .db_helpers import fetch_entity_profiles_by_pks
 from .scoring import (
     VECTOR_MIN_FUZZY,
     all_significant_tokens_match,
@@ -18,16 +17,32 @@ logger = logging.getLogger(__name__)
 MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 TOP_K = 50
 TOP_N = 5
+_EMBED_CACHE_MAX = 1024
+
+# Module-level LRU dict — GIL-protected, safe for concurrent reads/writes
+_embed_cache: dict[str, np.ndarray] = {}
+
+
+def _encode_query(model, text: str) -> np.ndarray:
+    """Encode text with a simple module-level LRU dict. Thread-safe under GIL."""
+    cached = _embed_cache.get(text)
+    if cached is not None:
+        return cached
+    vec = model.encode([text], normalize_embeddings=True, show_progress_bar=False)[0].astype(np.float32)
+    if len(_embed_cache) >= _EMBED_CACHE_MAX:
+        _embed_cache.pop(next(iter(_embed_cache)))
+    _embed_cache[text] = vec
+    return vec
 
 
 class VectorSearcher:
-    def __init__(self, session_factory):
+    def __init__(self, session_factory, profile_cache: dict[int, EntityProfile] | None = None):
         self._session_factory = session_factory
         self._normalizer = Normalizer()
         self._model = None
         self._index = None
-        # Each entry: (full_name, entity_pk, list_code, source_uid, entity_type)
         self._index_map: list[tuple[str, int, str, str, str]] = []
+        self._profile_cache: dict[int, EntityProfile] = profile_cache if profile_cache is not None else {}
         self._build_index()
 
     def _build_index(self) -> None:
@@ -68,10 +83,16 @@ class VectorSearcher:
         logger.info("VectorSearcher: encoding %d names...", len(names))
         vectors = self._model.encode(
             names, normalize_embeddings=True, show_progress_bar=False, batch_size=256
-        )
-        self._index = faiss.IndexFlatIP(vectors.shape[1])
-        self._index.add(vectors.astype(np.float32))
-        logger.info("VectorSearcher: FAISS index built (%d vectors)", self._index.ntotal)
+        ).astype(np.float32)
+
+        dim = vectors.shape[1]
+        nlist = min(100, max(1, len(names) // 10))
+        quantizer = faiss.IndexFlatIP(dim)
+        self._index = faiss.IndexIVFFlat(quantizer, dim, nlist, faiss.METRIC_INNER_PRODUCT)
+        self._index.train(vectors)
+        self._index.add(vectors)
+        self._index.nprobe = min(10, nlist)
+        logger.info("VectorSearcher: IVF index built (%d vectors, nlist=%d)", self._index.ntotal, nlist)
 
     def search(self, normalized: NormalizedInput, normal_candidates: list[MatchCandidate]) -> list[MatchCandidate]:
         if self._index is None or self._model is None:
@@ -79,10 +100,8 @@ class VectorSearcher:
 
         already_found = {c.entity_id for c in normal_candidates}
 
-        query_vector = self._model.encode(
-            [normalized.cleaned], normalize_embeddings=True, show_progress_bar=False
-        )
-        cosine_scores, indices = self._index.search(query_vector.astype(np.float32), TOP_K)
+        query_vector = _encode_query(self._model, normalized.cleaned)
+        cosine_scores, indices = self._index.search(query_vector.reshape(1, -1), TOP_K)
 
         seen_entity_pks: set[int] = set()
         candidates_data = []
@@ -122,12 +141,10 @@ class VectorSearcher:
 
         candidates_data.sort(key=lambda x: x[0], reverse=True)
         candidates_data = candidates_data[:TOP_N]
-        top_pks = [x[1] for x in candidates_data]
-        profiles = fetch_entity_profiles_by_pks(self._session_factory, top_pks)
 
         results: list[MatchCandidate] = []
         for combined, entity_pk, entity_id, full_name, tsr, jw, cosine in candidates_data:
-            profile = profiles.get(entity_pk)
+            profile = self._profile_cache.get(entity_pk)
             if profile is None:
                 continue
             is_primary = full_name == profile.primary_name
@@ -150,8 +167,9 @@ class VectorSearcher:
 
         return results
 
-    def rebuild(self) -> None:
-        """Call after list ingestion to rebuild the FAISS index."""
+    def rebuild(self, profile_cache: dict[int, EntityProfile] | None = None) -> None:
+        if profile_cache is not None:
+            self._profile_cache = profile_cache
         self._index = None
         self._index_map.clear()
         self._build_index()
