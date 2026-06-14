@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import math
 
-from screening.evaluation.models import ClassificationMetrics
-from screening.models import ScreeningVerdict
+from evaluation.models import ClassificationMetrics, ScreeningVerdict
 
 
 def is_flagged(verdict: ScreeningVerdict) -> bool:
@@ -104,7 +103,6 @@ def compute_verdict_metrics(
         f1s.append(f1)
         weights.append(support)
 
-    total = len(y_true)
     weighted_precision = _weighted_average(
         [per_class[label.value]["precision"] for label in labels],
         weights,
@@ -119,6 +117,7 @@ def compute_verdict_metrics(
     )
 
     correct = sum(1 for truth, pred in zip(y_true, y_pred) if truth == pred)
+    total = len(y_true)
 
     return {
         "macro_precision": round(_mean(precisions), 4),

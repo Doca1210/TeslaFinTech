@@ -3,11 +3,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from screening.evaluation.models import BenchmarkCase
+from evaluation.models import BenchmarkCase
 
 
 def default_benchmark_path() -> Path:
-    return Path(__file__).resolve().parent.parent.parent / "data" / "benchmark.json"
+    return Path(__file__).resolve().parent.parent / "data" / "benchmark.json"
+
+
+def default_db_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "data" / "aml.db"
 
 
 def load_benchmark(path: Path | str) -> list[BenchmarkCase]:

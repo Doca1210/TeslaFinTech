@@ -3,23 +3,22 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-from screening.evaluation.benchmark_loader import default_benchmark_path, load_benchmark
-from screening.evaluation.metrics import (
+from evaluation.benchmark_loader import default_benchmark_path, default_db_path, load_benchmark
+from evaluation.metrics import (
     compute_metrics,
     compute_verdict_metrics,
     is_blocked,
     is_flagged,
 )
-from screening.evaluation.models import (
+from evaluation.models import (
     BenchmarkCase,
     BenchmarkReport,
     CasePrediction,
+    ScreeningVerdict,
     VariantEvaluation,
     VerdictMetrics,
 )
-from screening.evaluation.variants import AlgorithmVariant, default_variants
-from screening.models import ScreeningResult, ScreeningVerdict, WatchlistEntity
-from screening.watchlist_repo import default_db_path, load_watchlist_from_db
+from evaluation.variants import AlgorithmVariant, default_variants
 
 
 class ABTestPipeline:
@@ -27,7 +26,7 @@ class ABTestPipeline:
 
     def __init__(
         self,
-        watchlist: list[WatchlistEntity],
+        watchlist: list,
         cases: list[BenchmarkCase],
         *,
         benchmark_path: Path | str | None = None,
@@ -47,7 +46,7 @@ class ABTestPipeline:
         db = Path(db_path or default_db_path())
         bench_path = Path(benchmark_path or default_benchmark_path())
         return cls(
-            watchlist=load_watchlist_from_db(db),
+            watchlist=[],
             cases=load_benchmark(bench_path),
             benchmark_path=bench_path,
             watchlist_path=db,
@@ -128,7 +127,7 @@ class ABTestPipeline:
         return case.should_flag
 
     @staticmethod
-    def _to_prediction(case: BenchmarkCase, result: ScreeningResult) -> CasePrediction:
+    def _to_prediction(case: BenchmarkCase, result) -> CasePrediction:
         predicted_entity_id = (
             result.matched_entities[0].entity.id if result.matched_entities else None
         )

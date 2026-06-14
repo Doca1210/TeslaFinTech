@@ -1,11 +1,45 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
-from screening.models import ScreeningVerdict, Transaction
 
+# --------------------------------------------------------------------------- #
+# Shared verdict / transaction types (previously in screening.models)
+# --------------------------------------------------------------------------- #
+
+class ScreeningVerdict(str, Enum):
+    MATCH = "MATCH"
+    REVIEW = "REVIEW"
+    NO_MATCH = "NO_MATCH"
+
+
+class WatchlistEntity(BaseModel):
+    id: str
+    full_name: str
+    entity_type: str = "individual"
+    country: str | None = None
+    aliases: list[str] = Field(default_factory=list)
+    list_source: str = "PEP"
+    risk_category: str = "PEP"
+    notes: str | None = None
+
+
+class Transaction(BaseModel):
+    transaction_id: str
+    counterparty_name: str
+    counterparty_country: str | None = None
+    amount: float | None = None
+    currency: str | None = None
+    direction: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+# --------------------------------------------------------------------------- #
+# Evaluation models
+# --------------------------------------------------------------------------- #
 
 class ExpectedLabel(str, Enum):
     """Whether a transaction should be flagged by screening."""
@@ -61,12 +95,12 @@ class ClassificationMetrics(BaseModel):
     precision: float
     recall: float
     f1_score: float
-    f2_score: float        # recall-weighted F score (standard in high-stakes screening)
-    mcc: float             # Matthews Correlation Coefficient — robust for imbalanced data
+    f2_score: float
+    mcc: float
     specificity: float
     false_positive_rate: float
     false_negative_rate: float
-    alert_rate: float      # fraction of cases flagged (MATCH + REVIEW)
+    alert_rate: float
     support_positive: int
     support_negative: int
 

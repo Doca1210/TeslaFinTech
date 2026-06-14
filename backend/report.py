@@ -1,4 +1,4 @@
-"""Generate a human-readable variant comparison report.
+"""Generate a human-readable v2 engine performance report.
 
 Usage (from backend/):
     python report.py                          # prints to console + saves .txt and .html
@@ -14,9 +14,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from screening.evaluation.pipeline import ABTestPipeline
-from screening.evaluation.variants import default_variants
-from screening.watchlist_repo import default_db_path
+from evaluation.pipeline import ABTestPipeline
+from evaluation.variants import default_variants
 
 _W = 62  # report width
 
@@ -86,7 +85,7 @@ def _section_header(report: dict) -> list[str]:
 
     lines = [
         _line("═"),
-        "  SANCTIONS SCREENING — VARIANT COMPARISON REPORT",
+        "  SANCTIONS SCREENING — v2 PERFORMANCE REPORT",
         _line("═"),
         f"  Generated : {generated}",
         f"  Benchmark : {bench_label}  ({report['case_count']} test cases)",
@@ -95,182 +94,112 @@ def _section_header(report: dict) -> list[str]:
     return lines
 
 
-def _section_ranking(variants: list[dict], scores: list[float]) -> list[str]:
-    lines = [_header("RANKING  (composite score = 60% F2 + 40% MCC)")]
+def _section_engine(v: dict, score: float) -> list[str]:
+    fm = v["flag_metrics"]
+    bar = _score_bar(score)
+    lines = [_header("SCREENING ENGINE: v2_cascade")]
+    lines.append(f"  {v['variant_description']}")
     lines.append("")
-    lines.append(f"  {'#':<4} {'Variant':<24} {'Score':>6}  {'':20}  Status")
-    lines.append(f"  {_line('-')}")
-
-    ranked = sorted(zip(scores, variants), key=lambda x: x[0], reverse=True)
-    for rank, (score, v) in enumerate(ranked, start=1):
-        bar = _score_bar(score)
-        badge = "★ RECOMMENDED" if rank == 1 else ""
-        lines.append(f"  #{rank:<3} {v['variant_name']:<24} {score:>6.3f}  {bar}  {badge}")
-
-    lines.append("")
-    lines.append("  Composite score: F2 rewards catching real hits;")
-    lines.append("  MCC stays honest when clean payments dominate (99%+ of volume).")
+    lines.append(f"  Composite score : {score:.3f}  {bar}  (60% F2 + 40% MCC)")
+    lines.append(f"  Risk profile    : {_risk_label(fm['false_negative_rate'])}")
+    lines.append(f"  Analyst load    : {_workload_label(fm['alert_rate'])}  ({_pct(fm['alert_rate'])} of payments flagged)")
     return lines
 
 
-def _section_key_metrics(variants: list[dict], scores: list[float]) -> list[str]:
-    ranked = [v for _, v in sorted(zip(scores, variants), key=lambda x: x[0], reverse=True)]
+def _section_metrics(v: dict) -> list[str]:
+    fm = v["flag_metrics"]
+    bm = v["block_metrics"]
+    entity_hit = v.get("entity_hit_rate")
+    entity_cases = v.get("entity_cases", 0)
 
-    col = 14
-    names = [v["variant_name"] for v in ranked]
-    header_row = f"  {'Metric':<26}" + "".join(f"{n[:col]:>{col}}" for n in names)
+    col_l = 26
 
-    lines = [_header("KEY METRICS  (ranked best → worst)")]
+    def row(label: str, val: str, note: str = "") -> str:
+        note_part = f"  {note}" if note else ""
+        return f"  {label:<{col_l}} {val:>10}{note_part}"
+
+    lines = [_header("METRICS")]
     lines.append("")
-    lines.append(header_row)
-    lines.append(f"  {_line('-')}")
-
-    def row(label: str, values: list[str]) -> str:
-        return f"  {label:<26}" + "".join(f"{val:>{col}}" for val in values)
-
-    lines.append(row(
-        "Detection Rate (Recall)",
-        [_pct(v["flag_metrics"]["recall"]) for v in ranked],
-    ))
-    lines.append(row(
-        "Miss Rate  ← risk",
-        [_pct(v["flag_metrics"]["false_negative_rate"]) for v in ranked],
-    ))
-    lines.append(row(
-        "False Alarm Rate",
-        [_pct(v["flag_metrics"]["false_positive_rate"]) for v in ranked],
-    ))
-    lines.append(row(
-        "Alert Precision",
-        [_pct(v["flag_metrics"]["precision"]) for v in ranked],
-    ))
-    lines.append(f"  {_line('-')}")
-    lines.append(row(
-        "F2 Score",
-        [f"{v['flag_metrics']['f2_score']:.3f}" for v in ranked],
-    ))
-    lines.append(row(
-        "MCC",
-        [f"{v['flag_metrics']['mcc']:.3f}" for v in ranked],
-    ))
-    lines.append(row(
-        "F1 Score",
-        [f"{v['flag_metrics']['f1_score']:.3f}" for v in ranked],
-    ))
-    lines.append(f"  {_line('-')}")
-    lines.append(row(
-        "Alert Rate",
-        [_pct(v["flag_metrics"]["alert_rate"]) for v in ranked],
-    ))
-    lines.append(row(
-        "Auto-Block Rate",
-        [_pct(v["block_metrics"]["alert_rate"]) for v in ranked],
-    ))
-    entity_vals = []
-    for v in ranked:
-        hit = v.get("entity_hit_rate")
-        entity_vals.append(_pct(hit) if hit is not None else "  n/a")
-    lines.append(row("Entity Hit Rate", entity_vals))
-    lines.append(row(
-        "Speed (ms / txn)",
-        [f"{v['avg_latency_ms']:.1f} ms" for v in ranked],
-    ))
-
+    lines.append("  DETECTION")
+    lines.append(row("Detection Rate (Recall)", _pct(fm["recall"]), "of sanctioned entities correctly flagged"))
+    lines.append(row("Miss Rate  ← risk",       _pct(fm["false_negative_rate"]), "hits that slipped through"))
+    lines.append(row("False Alarm Rate",         _pct(fm["false_positive_rate"]), "clean payments wrongly flagged"))
+    lines.append(row("Alert Precision",          _pct(fm["precision"]), "of raised alerts that are genuine hits"))
+    lines.append("")
+    lines.append("  QUALITY SCORES")
+    lines.append(row("F2 Score", f"{fm['f2_score']:.3f}", "recall-weighted  (standard in AML)"))
+    lines.append(row("MCC",      f"{fm['mcc']:.3f}",      "robust on imbalanced data"))
+    lines.append(row("F1 Score", f"{fm['f1_score']:.3f}", "balanced precision / recall"))
+    lines.append("")
+    lines.append("  AUTO-BLOCK  (MATCH verdict only)")
+    lines.append(row("Block Precision", _pct(bm["precision"]), "of hard-blocked payments that are confirmed hits"))
+    lines.append(row("Block Recall",    _pct(bm["recall"]),    "of highest-confidence hits auto-blocked"))
+    lines.append(row("Block F1",        f"{bm['f1_score']:.3f}"))
+    lines.append("")
+    lines.append("  OPERATIONAL")
+    lines.append(row("Alert Rate",      _pct(fm["alert_rate"]),  "transactions routed to review queue"))
+    lines.append(row("Auto-Block Rate", _pct(bm["alert_rate"]), "transactions hard-blocked without review"))
+    if entity_hit is not None:
+        lines.append(row("Entity Hit Rate", _pct(entity_hit), f"correct entity identified ({entity_cases} cases)"))
+    lines.append(row("Speed", f"{v['avg_latency_ms']:.1f} ms", "average latency per transaction"))
     return lines
 
 
-def _section_tradeoffs(variants: list[dict], scores: list[float]) -> list[str]:
-    ranked = [v for _, v in sorted(zip(scores, variants), key=lambda x: x[0], reverse=True)]
+def _section_confusion(v: dict) -> list[str]:
+    fm = v["flag_metrics"]
+    tp, tn = fm["true_positives"], fm["true_negatives"]
+    fp, fn = fm["false_positives"], fm["false_negatives"]
 
-    lines = [_header("TRADE-OFF ANALYSIS")]
+    lines = [_header("CONFUSION MATRIX")]
     lines.append("")
-
-    for rank, v in enumerate(ranked, start=1):
-        fm = v["flag_metrics"]
-        fnr = fm["false_negative_rate"]
-        fpr = fm["false_positive_rate"]
-        alert_rate = fm["alert_rate"]
-        score = scores[variants.index(v)]
-
-        risk = _risk_label(fnr)
-        workload = _workload_label(alert_rate)
-        badge = "  ★ top pick" if rank == 1 else ""
-
-        lines.append(f"  #{rank}  {v['variant_name']}{badge}")
-        lines.append(f"      {v['variant_description']}")
-        lines.append(f"      Compliance risk : {risk}  (misses {_pct(fnr)} of real hits)")
-        lines.append(f"      Analyst workload: {workload}  ({_pct(alert_rate)} of payments flagged)")
-        lines.append(f"      False alarms    : {_pct(fpr)} of clean payments wrongly stopped")
-        lines.append(f"      Composite score : {score:.3f}")
-        lines.append("")
-
+    lines.append("  (MATCH + REVIEW both count as flagged)")
+    lines.append("")
+    lines.append(f"    {'Correct Alerts (TP)':<24} {tp:>5}    {'Missed Hits (FN)':<24} {fn:>5}  ← compliance risk")
+    lines.append(f"    {'False Alarms (FP)':<24} {fp:>5}    {'Clean Passes (TN)':<24} {tn:>5}")
+    lines.append("")
     return lines
 
 
-def _section_confusion(variants: list[dict], scores: list[float]) -> list[str]:
-    ranked = [v for _, v in sorted(zip(scores, variants), key=lambda x: x[0], reverse=True)]
+def _section_summary(v: dict, score: float) -> list[str]:
+    fm = v["flag_metrics"]
+    bm = v["block_metrics"]
 
-    lines = [_header("CONFUSION MATRIX PER VARIANT")]
+    lines = [_header("SUMMARY", "═")]
     lines.append("")
-    lines.append("  (flag metrics: MATCH + REVIEW count as 'flagged')")
+    lines.append(f"  Engine  →  v2_cascade")
+    lines.append(f"             {v['variant_description']}")
     lines.append("")
-
-    for v in ranked:
-        fm = v["flag_metrics"]
-        tp, tn = fm["true_positives"], fm["true_negatives"]
-        fp, fn = fm["false_positives"], fm["false_negatives"]
-        lines.append(f"  {v['variant_name']}")
-        lines.append(f"    Correct Alerts  (TP) {tp:>4}  │  Missed Hits    (FN) {fn:>4}  ← compliance risk")
-        lines.append(f"    False Alarms    (FP) {fp:>4}  │  Clean Passes   (TN) {tn:>4}")
-        lines.append("")
-
-    return lines
-
-
-def _section_recommendation(variants: list[dict], scores: list[float]) -> list[str]:
-    ranked = sorted(zip(scores, variants), key=lambda x: x[0], reverse=True)
-    best_score, best = ranked[0]
-    fm = best["flag_metrics"]
-    bm = best["block_metrics"]
-
-    lines = [_header("RECOMMENDATION", "═")]
-    lines.append("")
-    lines.append(f"  Use  →  {best['variant_name']}")
-    lines.append(f"          {best['variant_description']}")
-    lines.append("")
-    lines.append(f"  It catches {_pct(fm['recall'])} of sanctioned entities")
+    lines.append(f"  Catches {_pct(fm['recall'])} of sanctioned entities")
     lines.append(f"  with a miss rate of only {_pct(fm['false_negative_rate'])} (compliance exposure).")
     lines.append(f"  {_pct(fm['false_positive_rate'])} of clean payments are wrongly stopped,")
     lines.append(f"  keeping analyst queue volume at {_pct(fm['alert_rate'])}.")
     if bm["precision"] > 0:
-        lines.append(f"  Auto-blocked payments have {_pct(bm['precision'])} precision —")
-        lines.append(f"  meaning {_pct(bm['precision'])} of hard blocks are confirmed hits.")
+        lines.append(f"  Auto-blocked payments have {_pct(bm['precision'])} precision.")
     lines.append("")
-    config = best.get("config", {})
+    config = v.get("config", {})
     if config:
-        lines.append("  Thresholds:")
+        lines.append("  Configuration:")
         for key, val in config.items():
-            lines.append(f"    {key:<24} {val}")
+            lines.append(f"    {key:<32} {val}")
     lines.append("")
     lines.append(_line("═"))
     return lines
 
 
 # --------------------------------------------------------------------------- #
-# Main
+# Main build
 # --------------------------------------------------------------------------- #
 
 def build_report(report_dict: dict) -> str:
-    variants = report_dict["variants"]
-    scores = [_composite_score(v) for v in variants]
+    v = report_dict["variants"][0]
+    score = _composite_score(v)
 
     sections = [
         _section_header(report_dict),
-        _section_ranking(variants, scores),
-        _section_key_metrics(variants, scores),
-        _section_tradeoffs(variants, scores),
-        _section_confusion(variants, scores),
-        _section_recommendation(variants, scores),
+        _section_engine(v, score),
+        _section_metrics(v),
+        _section_confusion(v),
+        _section_summary(v, score),
     ]
 
     lines: list[str] = []
@@ -297,7 +226,7 @@ _TIPS: dict[str, str] = {
     "Auto-Block Rate": "Fraction of transactions hard-blocked without analyst review (MATCH verdict only). These blocks should be high-precision to avoid stopping legitimate payments.",
     "Entity Hit Rate": "When a real sanctioned entity is caught, how often is the correct entity identified as the top match? Measures identification quality beyond just flagging.",
     "Speed": "Average end-to-end time to screen one transaction. Sub-10 ms is production-grade for real-time payment rails.",
-    "Composite Score": "Ranking score = 60% F2 + 40% MCC. Weights recall-heavy performance and robustness on imbalanced data. Used to pick the recommended variant.",
+    "Composite Score": "Score = 60% F2 + 40% MCC. Weights recall-heavy performance and robustness on imbalanced data.",
     "Correct Alerts (TP)": "True Positives — real sanctioned entities that were correctly flagged. These are the alerts you want.",
     "Missed Hits (FN)": "False Negatives — real sanctioned entities that passed through undetected. Each one is a direct compliance and regulatory risk.",
     "False Alarms (FP)": "False Positives — clean payments wrongly stopped. Each one wastes analyst time and creates payment friction for legitimate customers.",
@@ -309,24 +238,25 @@ _TIPS: dict[str, str] = {
 
 
 def build_html_report(report_dict: dict) -> str:
-    variants = report_dict["variants"]
-    scores = [_composite_score(v) for v in variants]
-    ranked = sorted(zip(scores, variants), key=lambda x: x[0], reverse=True)
+    v = report_dict["variants"][0]
+    score = _composite_score(v)
+    fm = v["flag_metrics"]
+    bm = v["block_metrics"]
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     bench_label = Path(report_dict["benchmark_path"]).name
     db_label = Path(report_dict["watchlist_path"]).name
 
-    def pct(v: float) -> str:
-        return f"{v * 100:.1f}%"
+    def pct(val: float) -> str:
+        return f"{val * 100:.1f}%"
 
-    def bar(score: float) -> str:
-        w = round(score * 100)
-        color = "#22c55e" if score >= 0.8 else "#f59e0b" if score >= 0.6 else "#ef4444"
+    def bar(s: float) -> str:
+        w = round(s * 100)
+        color = "#22c55e" if s >= 0.8 else "#f59e0b" if s >= 0.6 else "#ef4444"
         return (
             f'<div class="bar-wrap">'
             f'<div class="bar" style="width:{w}%;background:{color}"></div>'
-            f'<span class="bar-val">{score:.3f}</span>'
+            f'<span class="bar-val">{s:.3f}</span>'
             f"</div>"
         )
 
@@ -338,120 +268,106 @@ def build_html_report(report_dict: dict) -> str:
         return '<span class="badge red">HIGH RISK</span>'
 
     def tip(label: str, key: str | None = None) -> str:
-        """Wrap a label in a tooltip span. key defaults to label."""
         text = _TIPS.get(key or label, "")
         if not text:
             return label
         safe = text.replace('"', "&quot;")
         return f'<span class="tip" data-tip="{safe}">{label} <sup>?</sup></span>'
 
-    # ── ranking cards ────────────────────────────────────────────
-    ranking_html = ""
-    for rank, (score, v) in enumerate(ranked, start=1):
-        fm = v["flag_metrics"]
-        medal = ["🥇", "🥈", "🥉", ""][min(rank - 1, 3)]
-        best_class = "card best" if rank == 1 else "card"
-        ranking_html += f"""
-        <div class="{best_class}">
-          <div class="card-title">{medal} #{rank} &nbsp; {v['variant_name']}
-            {'<span class="badge green">RECOMMENDED</span>' if rank == 1 else ''}
-          </div>
-          <div class="card-desc">{v['variant_description']}</div>
-          <div class="bar-label">{tip("Composite Score")}</div>
-          {bar(score)}
-          <table class="mini">
-            <tr>
-              <td>{tip("Detection Rate")}</td>
-              <td><strong>{pct(fm['recall'])}</strong></td>
-              <td>{tip("Miss Rate")}</td>
-              <td class="{'red-txt' if fm['false_negative_rate'] > 0.05 else ''}">{pct(fm['false_negative_rate'])}</td>
-            </tr>
-            <tr>
-              <td>{tip("False Alarm Rate")}</td>
-              <td>{pct(fm['false_positive_rate'])}</td>
-              <td>{tip("Alert Precision")}</td>
-              <td>{pct(fm['precision'])}</td>
-            </tr>
-            <tr>
-              <td>{tip("F2 Score")}</td>
-              <td>{fm['f2_score']:.3f}</td>
-              <td>{tip("MCC")}</td>
-              <td>{fm['mcc']:.3f}</td>
-            </tr>
-            <tr>
-              <td>{tip("Alert Rate")}</td>
-              <td>{pct(fm['alert_rate'])}</td>
-              <td>{tip("Speed")}</td>
-              <td>{v['avg_latency_ms']:.1f} ms</td>
-            </tr>
-          </table>
-          {risk_badge(fm['false_negative_rate'])}
-        </div>"""
+    entity_hit = v.get("entity_hit_rate")
 
-    # ── comparison table ─────────────────────────────────────────
-    header_cells = "".join(
-        f"<th>{'★ ' if rank == 1 else ''}#{rank} {v['variant_name']}</th>"
-        for rank, (_, v) in enumerate(ranked, start=1)
-    )
+    # ── overview card ────────────────────────────────────────────
+    overview_html = f"""
+    <div class="card best">
+      <div class="card-title">v2_cascade</div>
+      <div class="card-desc">{v['variant_description']}</div>
+      <div class="bar-label">{tip("Composite Score")} = 60% F2 + 40% MCC</div>
+      {bar(score)}
+      <table class="mini">
+        <tr>
+          <td>{tip("Detection Rate")}</td>
+          <td><strong>{pct(fm['recall'])}</strong></td>
+          <td>{tip("Miss Rate")}</td>
+          <td class="{'red-txt' if fm['false_negative_rate'] > 0.05 else ''}">{pct(fm['false_negative_rate'])}</td>
+        </tr>
+        <tr>
+          <td>{tip("False Alarm Rate")}</td>
+          <td>{pct(fm['false_positive_rate'])}</td>
+          <td>{tip("Alert Precision")}</td>
+          <td>{pct(fm['precision'])}</td>
+        </tr>
+        <tr>
+          <td>{tip("F2 Score")}</td>
+          <td>{fm['f2_score']:.3f}</td>
+          <td>{tip("MCC")}</td>
+          <td>{fm['mcc']:.3f}</td>
+        </tr>
+        <tr>
+          <td>{tip("Alert Rate")}</td>
+          <td>{pct(fm['alert_rate'])}</td>
+          <td>{tip("Speed")}</td>
+          <td>{v['avg_latency_ms']:.1f} ms</td>
+        </tr>
+      </table>
+      {risk_badge(fm['false_negative_rate'])}
+    </div>"""
 
-    def metric_row(label: str, tip_key: str, vals: list[str]) -> str:
-        cells = "".join(f"<td>{val}</td>" for val in vals)
-        return f"<tr><td class='metric-label'>{tip(label, tip_key)}</td>{cells}</tr>"
+    # ── metrics table ─────────────────────────────────────────────
+    def metric_row(label: str, tip_key: str, val: str) -> str:
+        return f"<tr><td class='metric-label'>{tip(label, tip_key)}</td><td>{val}</td></tr>"
 
     table_html = f"""
     <table class="comparison">
-      <thead><tr><th>Metric</th>{header_cells}</tr></thead>
+      <thead><tr><th>Metric</th><th>v2_cascade</th></tr></thead>
       <tbody>
-        {metric_row("Detection Rate (Recall)", "Detection Rate", [pct(v["flag_metrics"]["recall"]) for _, v in ranked])}
-        {metric_row("Miss Rate ← compliance risk", "Miss Rate", [pct(v["flag_metrics"]["false_negative_rate"]) for _, v in ranked])}
-        {metric_row("False Alarm Rate", "False Alarm Rate", [pct(v["flag_metrics"]["false_positive_rate"]) for _, v in ranked])}
-        {metric_row("Alert Precision", "Alert Precision", [pct(v["flag_metrics"]["precision"]) for _, v in ranked])}
-        {metric_row("F2 Score", "F2 Score", [f"{v['flag_metrics']['f2_score']:.3f}" for _, v in ranked])}
-        {metric_row("MCC", "MCC", [f"{v['flag_metrics']['mcc']:.3f}" for _, v in ranked])}
-        {metric_row("F1 Score", "F1 Score", [f"{v['flag_metrics']['f1_score']:.3f}" for _, v in ranked])}
-        {metric_row("Accuracy", "Accuracy", [pct(v["flag_metrics"]["accuracy"]) for _, v in ranked])}
-        {metric_row("Alert Rate", "Alert Rate", [pct(v["flag_metrics"]["alert_rate"]) for _, v in ranked])}
-        {metric_row("Auto-Block Rate", "Auto-Block Rate", [pct(v["block_metrics"]["alert_rate"]) for _, v in ranked])}
-        {metric_row("Entity Hit Rate", "Entity Hit Rate", [pct(v["entity_hit_rate"]) if v.get("entity_hit_rate") is not None else "n/a" for _, v in ranked])}
-        {metric_row("Speed (ms / txn)", "Speed", [f"{v['avg_latency_ms']:.1f} ms" for _, v in ranked])}
+        {metric_row("Detection Rate (Recall)", "Detection Rate", pct(fm["recall"]))}
+        {metric_row("Miss Rate ← compliance risk", "Miss Rate", pct(fm["false_negative_rate"]))}
+        {metric_row("False Alarm Rate", "False Alarm Rate", pct(fm["false_positive_rate"]))}
+        {metric_row("Alert Precision", "Alert Precision", pct(fm["precision"]))}
+        {metric_row("F2 Score", "F2 Score", f"{fm['f2_score']:.3f}")}
+        {metric_row("MCC", "MCC", f"{fm['mcc']:.3f}")}
+        {metric_row("F1 Score", "F1 Score", f"{fm['f1_score']:.3f}")}
+        {metric_row("Accuracy", "Accuracy", pct(fm["accuracy"]))}
+        {metric_row("Alert Rate", "Alert Rate", pct(fm["alert_rate"]))}
+        {metric_row("Auto-Block Rate", "Auto-Block Rate", pct(bm["alert_rate"]))}
+        {metric_row("Entity Hit Rate", "Entity Hit Rate", pct(entity_hit) if entity_hit is not None else "n/a")}
+        {metric_row("Speed (ms / txn)", "Speed", f"{v['avg_latency_ms']:.1f} ms")}
+        {metric_row("Block Precision", "Block Precision", pct(bm["precision"]))}
+        {metric_row("Block Recall", "Block Recall", pct(bm["recall"]))}
+        {metric_row("Block F1", "Block F1", f"{bm['f1_score']:.3f}")}
       </tbody>
     </table>"""
 
-    # ── confusion matrices ───────────────────────────────────────
-    cm_html = ""
-    for rank, (score, v) in enumerate(ranked, start=1):
-        fm = v["flag_metrics"]
-        cm_html += f"""
-        <div class="cm-block">
-          <div class="cm-title">#{rank} {v['variant_name']}</div>
-          <table class="cm">
-            <tr>
-              <td class="tp">{tip("✔ Correct Alerts", "Correct Alerts (TP)")}<br><strong>{fm['true_positives']}</strong><br><small>(TP)</small></td>
-              <td class="fn">{tip("✘ Missed Hits", "Missed Hits (FN)")}<br><strong>{fm['false_negatives']}</strong><br><small>(FN) ← risk</small></td>
-            </tr>
-            <tr>
-              <td class="fp">{tip("⚠ False Alarms", "False Alarms (FP)")}<br><strong>{fm['false_positives']}</strong><br><small>(FP)</small></td>
-              <td class="tn">{tip("✔ Clean Passes", "Clean Passes (TN)")}<br><strong>{fm['true_negatives']}</strong><br><small>(TN)</small></td>
-            </tr>
-          </table>
-        </div>"""
+    # ── confusion matrix ─────────────────────────────────────────
+    cm_html = f"""
+    <div class="cm-block">
+      <div class="cm-title">v2_cascade</div>
+      <table class="cm">
+        <tr>
+          <td class="tp">{tip("✔ Correct Alerts", "Correct Alerts (TP)")}<br><strong>{fm['true_positives']}</strong><br><small>(TP)</small></td>
+          <td class="fn">{tip("✘ Missed Hits", "Missed Hits (FN)")}<br><strong>{fm['false_negatives']}</strong><br><small>(FN) ← risk</small></td>
+        </tr>
+        <tr>
+          <td class="fp">{tip("⚠ False Alarms", "False Alarms (FP)")}<br><strong>{fm['false_positives']}</strong><br><small>(FP)</small></td>
+          <td class="tn">{tip("✔ Clean Passes", "Clean Passes (TN)")}<br><strong>{fm['true_negatives']}</strong><br><small>(TN)</small></td>
+        </tr>
+      </table>
+    </div>"""
 
-    # ── winner box ───────────────────────────────────────────────
-    best_score, best = ranked[0]
-    fm = best["flag_metrics"]
-    winner_html = f"""
+    # ── summary box ───────────────────────────────────────────────
+    summary_html = f"""
     <div class="winner">
-      <div class="winner-title">★ Recommended: {best['variant_name']}</div>
-      <p>{best['variant_description']}</p>
+      <div class="winner-title">Engine: v2_cascade</div>
+      <p>{v['variant_description']}</p>
       <ul>
         <li>Catches <strong>{pct(fm['recall'])}</strong> of sanctioned entities</li>
         <li>Miss rate of <strong>{pct(fm['false_negative_rate'])}</strong> — {risk_badge(fm['false_negative_rate'])}</li>
         <li><strong>{pct(fm['false_positive_rate'])}</strong> of clean payments wrongly flagged</li>
         <li>Alert queue volume: <strong>{pct(fm['alert_rate'])}</strong> of all transactions</li>
-        <li>Composite score: <strong>{best_score:.3f}</strong> (60% F2 + 40% MCC)</li>
+        <li>Composite score: <strong>{score:.3f}</strong> (60% F2 + 40% MCC)</li>
       </ul>
       <div class="config-grid">
-        {''.join(f"<div><span>{k}</span><strong>{val}</strong></div>" for k, val in best.get('config', {}).items())}
+        {''.join(f"<div><span>{k}</span><strong>{val}</strong></div>" for k, val in v.get('config', {}).items())}
       </div>
     </div>"""
 
@@ -538,28 +454,28 @@ def build_html_report(report_dict: dict) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sanctions Screening Report</title>
+  <title>Sanctions Screening — v2 Report</title>
   <style>{css}</style>
 </head>
 <body>
-  <h1>Sanctions Screening — Variant Comparison</h1>
+  <h1>Sanctions Screening — v2 Performance Report</h1>
   <p class="meta">Generated: {generated} &nbsp;|&nbsp; Benchmark: {bench_label} ({report_dict['case_count']} cases) &nbsp;|&nbsp; Watchlist: {db_label}</p>
 
-  <h2>Ranking</h2>
+  <h2>Engine Overview</h2>
   <p style="font-size:0.8rem;color:#64748b;margin-bottom:8px">
     {tip("Composite Score")} = 60% F2 (recall-weighted) + 40% MCC (robust for imbalanced data) &nbsp;·&nbsp; Hover any metric label for a plain-English explanation.
   </p>
-  <div class="cards">{ranking_html}</div>
+  <div class="cards">{overview_html}</div>
 
-  <h2>All Metrics Side by Side</h2>
+  <h2>Metrics</h2>
   {table_html}
 
-  <h2>Confusion Matrices</h2>
+  <h2>Confusion Matrix</h2>
   <p style="font-size:0.8rem;color:#64748b;margin-bottom:12px">Hover each cell label for an explanation. MATCH + REVIEW both count as flagged.</p>
   <div class="cm-grid">{cm_html}</div>
 
-  <h2>Recommendation</h2>
-  {winner_html}
+  <h2>Summary</h2>
+  {summary_html}
 
   <footer>TeslaFinTech Sanctions Screening &nbsp;·&nbsp; {generated}</footer>
 </body>
@@ -601,7 +517,7 @@ def build_html_report(report_dict: dict) -> str:
 # --------------------------------------------------------------------------- #
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate a screening variant comparison report.")
+    parser = argparse.ArgumentParser(description="Generate a v2 screening performance report.")
     parser.add_argument("--benchmark", type=Path, default=None, help="Path to benchmark JSON.")
     parser.add_argument("--db", type=Path, default=None, help="Path to AML SQLite database.")
     parser.add_argument("--output", type=Path, default=None, help="File path for the saved text report.")
