@@ -43,7 +43,33 @@ function BehavioralRules({ rulesFired }) {
   )
 }
 
-export default function TransactionCard({ tx }) {
+function DecisionRecord({ decision }) {
+  if (!decision) return null
+
+  if (decision.type === 'manual') {
+    return (
+      <section className="tx-section decision-record manual-decision">
+        <h4>{decision.title}</h4>
+        <div className="decision-meta">
+          <span>{decision.reviewer}</span>
+          <span>{decision.reviewedAt}</span>
+          <span className={`final-outcome outcome-${decision.outcome}`}>{decision.verdict}</span>
+        </div>
+        <p className="explanation">{decision.reasoning}</p>
+        <div className="document-chip">Evidence: {decision.document}</div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="tx-section decision-record automatic-decision">
+      <h4>{decision.title}</h4>
+      <p className="explanation">{decision.reasoning}</p>
+    </section>
+  )
+}
+
+export default function TransactionCard({ tx, decision = null }) {
   return (
     <article className={`tx-card action-${tx.recommended_action}`}>
       <header className="tx-card-header">
@@ -97,6 +123,8 @@ export default function TransactionCard({ tx }) {
         </div>
         <p className="explanation">{tx.explanation}</p>
       </section>
+
+      <DecisionRecord decision={decision} />
     </article>
   )
 }
