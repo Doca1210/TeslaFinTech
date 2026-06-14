@@ -32,18 +32,23 @@
 
 .kyb-input:focus {
   outline: none;
-  border-color: #94a3b8;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
 }
 
 .kyb-btn {
   padding: 11px 22px;
   border: none;
   border-radius: 8px;
-  background: var(--text-h);
+  background: var(--primary-dark);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.kyb-btn:hover {
+  background: var(--primary);
 }
 
 .kyb-btn:disabled {
@@ -69,7 +74,7 @@
   padding: 5px 12px;
   border: 1px dashed var(--border);
   border-radius: 999px;
-  background: none;
+  background: var(--surface);
   font-size: 13px;
   color: var(--text);
   cursor: pointer;
@@ -77,7 +82,8 @@
 
 .kyb-chip:hover {
   border-style: solid;
-  color: var(--text-h);
+  border-color: var(--primary);
+  color: var(--primary-dark);
 }
 
 /* Verdict card */
@@ -91,8 +97,9 @@
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-left: 5px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 18px 20px;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
 }
 
 .verdict-card-MATCH { border-left-color: var(--red); }
@@ -130,8 +137,9 @@
 .kyb-section {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 16px 20px;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
 }
 
 .kyb-section > h4 {
@@ -156,7 +164,7 @@
 }
 
 .graph-edge {
-  stroke: #94a3b8;
+  stroke: var(--border-strong);
   stroke-width: 1.8;
 }
 
@@ -176,7 +184,7 @@
   box-sizing: border-box;
   height: 100%;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--card-bg);
   padding: 8px 10px;
   cursor: pointer;
@@ -188,7 +196,8 @@
 }
 
 .graph-node:hover {
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  border-color: var(--primary);
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.12);
 }
 
 .graph-node.flagged {
@@ -197,7 +206,7 @@
 }
 
 .graph-node.selected {
-  box-shadow: 0 0 0 2px var(--text-h);
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .graph-node-name {
@@ -240,6 +249,7 @@
   border-left: 3px solid var(--amber);
   border-radius: 8px;
   padding: 12px 14px;
+  background: var(--surface);
 }
 
 .kyb-path.risk-SANCTIONS_MATCH { border-left-color: var(--red); }

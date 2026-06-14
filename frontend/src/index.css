@@ -1,16 +1,24 @@
 :root {
-  --text: #475569;
-  --text-h: #0f172a;
-  --bg: #f8fafc;
+  --text: #344054;
+  --text-h: #101828;
+  --bg: #f5f7fb;
   --card-bg: #ffffff;
-  --border: #e2e8f0;
+  --surface: #f9fafb;
+  --border: #d0d5dd;
+  --border-strong: #667085;
+  --header-bg: linear-gradient(135deg, #7f1d1d 0%, #991b1b 54%, #450a0a 100%);
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-bg: #dbeafe;
+  --focus: #3b82f6;
+  --shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
 
-  --green: #16a34a;
-  --green-bg: #dcfce7;
+  --green: #047857;
+  --green-bg: #d1fae5;
   --amber: #b45309;
   --amber-bg: #fef3c7;
-  --red: #dc2626;
-  --red-bg: #fee2e2;
+  --red: #b42318;
+  --red-bg: #fee4e2;
 
   font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);

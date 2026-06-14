@@ -43,6 +43,53 @@ function BehavioralRules({ rulesFired }) {
   )
 }
 
+function ComposerExplanation({ explanation }) {
+  const normalized = explanation
+    .replace(/^Route to analyst queue for manual review\.\s*/, '')
+    .replace(/^Block this payment and escalate to compliance\.\s*/, '')
+    .replace(/^No action required — payment may proceed\.\s*/, '')
+
+  const parts = normalized
+    .split(/(?=Sanctions screening:|Behavioral analysis:|Ownership analysis:|Layer C \(ownership\):)/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (!parts.length) {
+    return <p className="composer-text">{explanation}</p>
+  }
+
+  return (
+    <div className="composer-detail">
+      {parts.map((part) => {
+        const [label, ...rest] = part.split(':')
+        const body = rest.join(':').trim()
+        const sanctionsItems =
+          label === 'Sanctions screening'
+            ? body
+                .split(/(?=Beneficiary\s')/)
+                .map((item) => item.trim())
+                .filter(Boolean)
+            : []
+
+        return (
+          <div className={`composer-row composer-row-${label.toLowerCase().replaceAll(' ', '-')}`} key={part}>
+            <span className="composer-label">{label}</span>
+            {sanctionsItems.length > 1 ? (
+              <ul className="composer-list">
+                {sanctionsItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{body || part}</p>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function DecisionRecord({ decision }) {
   if (!decision) return null
 
@@ -114,14 +161,20 @@ export default function TransactionCard({ tx, decision = null }) {
         <BehavioralRules rulesFired={tx.layer_b.rules_fired} />
       </section>
 
-      <section className="tx-section">
+      <section className="tx-section composer-section">
         <h4>Verdict Composer</h4>
         <div className="composer-summary">
-          <span>Triggered layers: {tx.triggered_layers.length ? tx.triggered_layers.join(', ') : 'none'}</span>
-          <span>Confidence: {(tx.confidence * 100).toFixed(0)}%</span>
+          <div className="composer-metric">
+            <span>Triggered layers</span>
+            <strong>{tx.triggered_layers.length ? tx.triggered_layers.join(', ') : 'none'}</strong>
+          </div>
+          <div className="composer-metric">
+            <span>Confidence</span>
+            <strong>{(tx.confidence * 100).toFixed(0)}%</strong>
+          </div>
           <VerdictBadge verdict={tx.verdict} />
         </div>
-        <p className="explanation">{tx.explanation}</p>
+        <ComposerExplanation explanation={tx.explanation} />
       </section>
 
       <DecisionRecord decision={decision} />

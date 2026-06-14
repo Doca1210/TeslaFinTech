@@ -6,9 +6,9 @@ import './App.css'
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 const CURRENT_USER = {
-  name: 'Mila Petrovic',
+  name: 'Danijela Ivovic',
   role: 'Senior Compliance Reviewer',
-  initials: 'MP',
+  initials: 'DI',
 }
 
 const HISTORY_TABS = [
@@ -42,6 +42,30 @@ const DEFAULT_REVIEW_FORM = {
   document: SUPPORTING_DOCUMENTS[0],
 }
 
+const LAYER_LABELS = {
+  layer_a_sanctions: 'Sanctions match',
+  layer_b_behavioral: 'Behavioral risk',
+  layer_c_ownership: 'Ownership exposure',
+}
+
+const RULE_LABELS = {
+  amt_large: 'Large payment',
+  geo_high_risk: 'High-risk jurisdiction',
+  structuring_7d: 'Structuring pattern',
+  velocity_24h: 'High velocity',
+  pass_through: 'Pass-through activity',
+  amount_baseline_spike: 'Amount spike',
+  initiation_country_mismatch: 'Country mismatch',
+  beneficiary_account_name_mismatch: 'Name mismatch',
+}
+
+function humanizeTag(value) {
+  return value
+    .replace(/^layer_[abc]_/, '')
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
 function automaticDecision(tx) {
   return {
     type: 'automatic',
@@ -71,8 +95,9 @@ function getHistoryDecision(tx, reviewDrafts) {
 }
 
 function ReviewQueueItem({ tx, active, draft, onSelect }) {
-  const rules = tx.layer_b.rules_fired.map((rule) => rule.rule_id)
-  const triggers = tx.triggered_layers.length ? tx.triggered_layers.join(', ') : 'manual review'
+  const layerTags = tx.triggered_layers.map((layer) => LAYER_LABELS[layer] ?? humanizeTag(layer))
+  const ruleTags = tx.layer_b.rules_fired.map((rule) => RULE_LABELS[rule.rule_id] ?? humanizeTag(rule.rule_id))
+  const tags = [...layerTags, ...ruleTags]
 
   return (
     <button className={`review-case ${active ? 'active' : ''}`} type="button" onClick={onSelect}>
@@ -81,8 +106,7 @@ function ReviewQueueItem({ tx, active, draft, onSelect }) {
         {tx.beneficiary} · {(tx.confidence * 100).toFixed(0)}% confidence
       </span>
       <span className="review-case-tags">
-        <span>{triggers}</span>
-        {rules.length > 0 && <span>{rules.join(', ')}</span>}
+        {tags.length > 0 ? tags.map((tag) => <span key={tag}>{tag}</span>) : <span>Manual review</span>}
         {draft && <span className="draft-tag">draft verdict</span>}
       </span>
     </button>
@@ -358,8 +382,7 @@ function App() {
     <div className="page">
       <header className="page-header">
         <div>
-          <h1>AML Payment Screening</h1>
-          <p className="subtitle">Transaction history and analyst review in one operational workspace.</p>
+          <h1>Veritas Screening</h1>
         </div>
         <div className="user-profile" aria-label="Signed-in reviewer">
           <span className="user-avatar">{CURRENT_USER.initials}</span>
