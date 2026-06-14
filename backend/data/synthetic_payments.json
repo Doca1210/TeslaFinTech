@@ -1,6 +1,5 @@
 [
   {
-    "id": 1,
     "label": "Clean domestic wire",
     "originator": "Alice Johnson",
     "beneficiary": "Global Trade LLC",
@@ -20,7 +19,6 @@
     "ownership_risk": null
   },
   {
-    "id": 3,
     "label": "Sanctioned originator (OFAC SDN)",
     "originator": "Sergey Valeryevich AKSYONOV",
     "beneficiary": "Continental Supplies Inc",
@@ -40,7 +38,6 @@
     "ownership_risk": null
   },
   {
-    "id": 4,
     "label": "Possible OFAC alias match",
     "originator": "Saddam Hussein",
     "beneficiary": "Crescent Holdings",
@@ -60,7 +57,6 @@
     "ownership_risk": null
   },
   {
-    "id": 5,
     "label": "Structuring — three sub-threshold transfers",
     "originator": "Carlos Mendez",
     "beneficiary": "FastCash Ltd",
@@ -80,7 +76,6 @@
     "ownership_risk": null
   },
   {
-    "id": 6,
     "label": "Large transfer to sanctioned jurisdiction (Iran)",
     "originator": "Jonathan Pierce",
     "beneficiary": "Tehran Imports Co",
@@ -100,7 +95,6 @@
     "ownership_risk": null
   },
   {
-    "id": 7,
     "label": "SME supplier invoice",
     "originator": "Northgate Logistics",
     "beneficiary": "Packwell Materials GmbH",
@@ -120,7 +114,6 @@
     "ownership_risk": null
   },
   {
-    "id": 8,
     "label": "PEP originator — government official",
     "originator": "Li Wei",
     "beneficiary": "Apex Brokers",
@@ -140,7 +133,6 @@
     "ownership_risk": null
   },
   {
-    "id": 9,
     "label": "Clean payroll batch",
     "originator": "Vertex Software Inc",
     "beneficiary": "Daniel Okoro",
@@ -160,7 +152,6 @@
     "ownership_risk": null
   },
   {
-    "id": 10,
     "label": "Large transfer to sanctioned jurisdiction (Syria)",
     "originator": "Western Aggregate Co",
     "beneficiary": "Damascus Trading House",
@@ -180,7 +171,6 @@
     "ownership_risk": null
   },
   {
-    "id": 11,
     "label": "Crypto exchange payout",
     "originator": "CoinNova Exchange",
     "beneficiary": "Tomasz Kowalski",
@@ -200,7 +190,6 @@
     "ownership_risk": null
   },
   {
-    "id": 12,
     "label": "Velocity burst — 6 rapid transfers in 24h",
     "originator": "Priya Nair",
     "beneficiary": "QuickRemit Services",
@@ -220,7 +209,6 @@
     "ownership_risk": null
   },
   {
-    "id": 14,
     "label": "Sanctioned entity beneficiary",
     "originator": "Harbor Freight Partners",
     "beneficiary": "Rosoboronexport",
@@ -240,7 +228,6 @@
     "ownership_risk": null
   },
   {
-    "id": 15,
     "label": "Dual-use goods to high-risk buyer",
     "originator": "Precision Instruments Ltd",
     "beneficiary": "Caspian Tech Trading",
@@ -260,7 +247,6 @@
     "ownership_risk": null
   },
   {
-    "id": 16,
     "label": "Sanctioned bank beneficiary",
     "originator": "Atlas Petrochem Trading",
     "beneficiary": "Bank Melli Iran",
@@ -280,7 +266,6 @@
     "ownership_risk": null
   },
   {
-    "id": 17,
     "label": "Transliterated name near-match",
     "originator": "Vladmir Petrov",
     "beneficiary": "Baltic Freight OU",
@@ -300,7 +285,6 @@
     "ownership_risk": null
   },
   {
-    "id": 19,
     "label": "PEP family-member beneficiary",
     "originator": "Westbridge Consulting",
     "beneficiary": "Gulnara Karimova",
@@ -320,7 +304,6 @@
     "ownership_risk": null
   },
   {
-    "id": 18,
     "label": "Clean beneficiary, sanctioned owner (KYB)",
     "originator": "Meridian Exports Ltd",
     "beneficiary": "Northwind Commodities DMCC",
