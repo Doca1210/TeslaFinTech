@@ -83,25 +83,24 @@ def _build_prompt(tx: dict) -> str:
 
 
 async def get_ai_suggestion(tx: dict) -> dict:
-    response = await _client.aio.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=_build_prompt(tx),
-        config=types.GenerateContentConfig(
-            system_instruction=_SYSTEM_PROMPT,
-            response_mime_type="application/json",
-            temperature=0,
-        ),
+    response = await _client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": _SYSTEM_PROMPT},
+            {"role": "user", "content": _build_prompt(tx)},
+        ],
+        response_format={"type": "json_object"},
+        temperature=0,
     )
-
-    result = json.loads(response.text)
+    result = json.loads(response.choices[0].message.content)
 
     if "verdict" not in result or "reasoning" not in result:
         raise ValueError(
-            f"Gemini response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
+            f"Groq response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
         )
     if result["verdict"] not in _VALID_VERDICTS:
         raise ValueError(
-            f"Gemini returned invalid verdict '{result['verdict']}'. "
+            f"Groq returned invalid verdict '{result['verdict']}'. "
             f"Expected one of: {sorted(_VALID_VERDICTS)}"
         )
 
