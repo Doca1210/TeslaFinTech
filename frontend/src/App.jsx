@@ -248,16 +248,25 @@ function AISuggestion({ tx }) {
   const [state, setState] = useState({ status: 'loading', verdict: null, reasoning: null })
 
   useEffect(() => {
+    const controller = new AbortController()
     setState({ status: 'loading', verdict: null, reasoning: null })
-    fetch(`${API_URL}/transactions/${tx.id}/suggest`, { method: 'POST' })
+    fetch(`${API_URL}/transactions/${tx.id}/suggest`, {
+      method: 'POST',
+      signal: controller.signal,
+    })
       .then((res) => {
         if (!res.ok) throw new Error('suggest failed')
         return res.json()
       })
-      .then((data) =>
-        setState({ status: 'ready', verdict: data.verdict, reasoning: data.reasoning }),
-      )
-      .catch(() => setState({ status: 'error', verdict: null, reasoning: null }))
+      .then((data) => {
+        if (!data.verdict || !data.reasoning) throw new Error('incomplete response')
+        setState({ status: 'ready', verdict: data.verdict, reasoning: data.reasoning })
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return
+        setState({ status: 'error', verdict: null, reasoning: null })
+      })
+    return () => controller.abort()
   }, [tx.id])
 
   if (state.status === 'loading') {
