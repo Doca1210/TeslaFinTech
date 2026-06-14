@@ -11,6 +11,25 @@ _BEHAVIORAL_VERDICT = {
     "approve": "NO_MATCH",
 }
 
+_BEHAVIORAL_OUTCOME_LABEL: dict[str, str] = {
+    "approve": "No behavioral flags raised",
+    "review": "Behavioral anomalies detected — manual review recommended",
+    "decline": "Significant behavioral risk — decline recommended",
+    "block_and_review": "High behavioral risk — block and escalate to compliance",
+}
+
+_RULE_LABEL: dict[str, str] = {
+    "amt_large": "Large transaction",
+    "velocity_24h": "High transaction velocity (24 h window)",
+    "structuring_7d": "Structuring / smurfing pattern (7 d window)",
+    "geo_high_risk": "High-risk jurisdiction",
+    "dormant_reawake": "Dormant account reactivation",
+    "amount_vs_baseline": "Anomalous amount vs. 90-day baseline",
+    "pass_through_money_in_out": "Rapid pass-through / layering",
+    "geo_initiation_mismatch": "Geographic initiation anomaly",
+    "beneficiary_account_name_mismatch": "Beneficiary name mismatch",
+}
+
 
 class VerdictComposer:
     def compose(self, originator: ScreeningResult, beneficiary: ScreeningResult) -> dict:
@@ -89,13 +108,13 @@ class VerdictComposer:
     def _build_explanation(orig: ScreeningResult, bene: ScreeningResult) -> str:
         parts = []
         if orig.verdict == "NO_MATCH":
-            parts.append(f"Originator '{orig.input_raw}': clean.")
+            parts.append(f"Originator '{orig.input_raw}': no watchlist match found.")
         else:
-            parts.append(f"Originator flagged — {orig.explanation}")
+            parts.append(f"Originator '{orig.input_raw}' — {orig.verdict}: {orig.explanation}")
         if bene.verdict == "NO_MATCH":
-            parts.append(f"Beneficiary '{bene.input_raw}': clean.")
+            parts.append(f"Beneficiary '{bene.input_raw}': no watchlist match found.")
         else:
-            parts.append(f"Beneficiary flagged — {bene.explanation}")
+            parts.append(f"Beneficiary '{bene.input_raw}' — {bene.verdict}: {bene.explanation}")
         return " ".join(parts)
 
     @staticmethod
@@ -107,18 +126,36 @@ class VerdictComposer:
         final_verdict: str,
         ownership: dict | None = None,
     ) -> str:
-        parts = [f"Final verdict: {final_verdict}."]
-        parts.append(f"Layer A (sanctions): {layer_a['explanation']}")
-        rule_ids = ", ".join(h.rule_id for h in behavioral_hits) if behavioral_hits else "none"
-        parts.append(
-            f"Layer B (behavioral): outcome={behavioral_outcome}, "
-            f"score={behavioral_score:.0f}, rules fired=[{rule_ids}]."
-        )
+        action = _verdict_to_action(final_verdict)
+        action_label = {
+            "BLOCK": "Block this payment and escalate to compliance.",
+            "MANUAL_REVIEW": "Route to analyst queue for manual review.",
+            "PASS": "No action required — payment may proceed.",
+        }.get(action, action)
+
+        parts = [action_label]
+
+        parts.append(f"Sanctions screening: {layer_a['explanation']}")
+
+        outcome_label = _BEHAVIORAL_OUTCOME_LABEL.get(behavioral_outcome, behavioral_outcome)
+        if behavioral_hits:
+            rule_names = "; ".join(
+                _RULE_LABEL.get(h.rule_id, h.rule_id) for h in behavioral_hits
+            )
+            parts.append(
+                f"Behavioral analysis: {outcome_label} "
+                f"(risk score {behavioral_score:.0f}/100). "
+                f"Triggers: {rule_names}."
+            )
+        else:
+            parts.append(f"Behavioral analysis: {outcome_label}.")
+
         if ownership:
             parts.append(
-                f"Layer C (ownership): verdict={ownership['verdict']}, "
-                f"score={ownership['score']:.0f}. {ownership['reason']}"
+                f"Ownership risk: {ownership['verdict']} "
+                f"(score {ownership['score']:.0f}/100). {ownership['reason']}"
             )
+
         return " ".join(parts)
 
 

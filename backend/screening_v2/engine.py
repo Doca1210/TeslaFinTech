@@ -100,21 +100,34 @@ class ScreeningEngine:
         top = candidates[0]
         p = top.entity_profile
         via = f" via alias '{top.alias_hit}'" if top.matched_via_alias else ""
-        programs = ", ".join(p.programs) if p.programs else "unknown program"
-        method = top.match_method
+        method_label = "semantic similarity" if top.match_method == "vector" else "name matching"
+        list_label = "Politically Exposed Person (PEP)" if p.list_type == "pep" else p.source_list_code
 
         if verdict == "NO_MATCH":
             return (
-                f"Input '{normalized.raw}' did not match any watchlist entity "
-                f"(highest score: {top.match_score:.0%} on '{top.matched_name}', below threshold)."
+                f"No watchlist match found for '{normalized.raw}'. "
+                f"The closest candidate was '{top.matched_name}' "
+                f"({top.match_score:.0%} similarity — below the minimum threshold for analyst review)."
             )
+
+        programs = ", ".join(p.programs) if p.programs else None
+        program_note = f" Listed under sanctions program(s): {programs}." if programs else ""
+
+        if verdict == "MATCH":
+            action_note = "Recommend blocking this transaction pending compliance review."
+        elif p.list_type == "pep":
+            action_note = "Politically exposed person — route to analyst for enhanced due diligence."
+        else:
+            action_note = (
+                f"Match confidence ({top.match_score:.0%}) is below the auto-block threshold — "
+                "route to analyst for manual review."
+            )
+
         return (
-            f"Input '{normalized.raw}' matched '{top.matched_name}'{via} "
-            f"({top.entity_id}) with {top.match_score:.0%} confidence "
-            f"using {method} search. "
-            f"Subject to: {programs}. "
-            f"List: {p.source_list_code} ({p.list_type}). "
-            f"Verdict: {verdict}."
+            f"'{normalized.raw}' matched '{top.matched_name}'{via} ({top.entity_id}) "
+            f"with {top.match_score:.0%} confidence via {method_label}. "
+            f"Source: {list_label}.{program_note} "
+            f"{action_note}"
         )
 
     def rebuild_indexes(self) -> None:
