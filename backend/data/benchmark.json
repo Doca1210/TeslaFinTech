@@ -8,7 +8,7 @@
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35096",
     "category": "exact_match",
-    "notes": "Simplified form of OFAC primary name Vladimir Vladimirovich PUTIN"
+    "notes": "Short form of OFAC primary 'Vladimir Vladimirovich PUTIN'"
   },
   {
     "case_id": "bench-002",
@@ -19,7 +19,7 @@
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35096",
     "category": "alias_transliteration",
-    "notes": "French transliteration of Putin"
+    "notes": "French transliteration — matches OFAC alias 'Vladimir Vladimirovich POUTINE'"
   },
   {
     "case_id": "bench-003",
@@ -30,250 +30,377 @@
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35173",
     "category": "exact_match",
-    "notes": "Short form of OFAC primary name Sergei Kuzhugetovich SHOIGU"
+    "notes": "Short form of OFAC primary 'Sergei Kuzhugetovich SHOIGU'"
   },
   {
     "case_id": "bench-004",
     "transaction_id": "txn-b-004",
-    "counterparty_name": "Sergey Shoygu",
-    "counterparty_country": "RU",
-    "label": "positive",
-    "expected_verdict": "MATCH",
-    "expected_entity_id": "OFAC_SDN:35173",
-    "category": "alias_transliteration",
-    "notes": "Matches OFAC alias Sergey Kuzhugetovich SHOYGU"
-  },
-  {
-    "case_id": "bench-005",
-    "transaction_id": "txn-b-005",
     "counterparty_name": "Shoigu Sergei",
     "counterparty_country": "RU",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35173",
     "category": "token_reorder",
-    "notes": "Same tokens as OFAC alias Sergey SHOIGU in reversed order"
+    "notes": "Surname-first ordering of Sergei Shoigu"
   },
   {
-    "case_id": "bench-006",
-    "transaction_id": "txn-b-006",
+    "case_id": "bench-005",
+    "transaction_id": "txn-b-005",
     "counterparty_name": "Muammar al Qadhafi",
     "counterparty_country": "LY",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:12606",
     "category": "alias_transliteration",
-    "notes": "Matches OFAC alias Muammar AL-QADHAFI"
+    "notes": "Matches OFAC alias 'Muammar AL-QADHAFI'"
   },
   {
-    "case_id": "bench-007",
-    "transaction_id": "txn-b-007",
-    "counterparty_name": "Moammar Gadhafi",
-    "counterparty_country": "LY",
-    "label": "positive",
-    "expected_verdict": "MATCH",
-    "expected_entity_id": "OFAC_SDN:12606",
-    "category": "alias_transliteration",
-    "notes": "Common US spelling; matches OFAC alias Muammar GADHAFI"
-  },
-  {
-    "case_id": "bench-008",
-    "transaction_id": "txn-b-008",
-    "counterparty_name": "Muammar Qaddafi",
-    "counterparty_country": "LY",
-    "label": "positive",
-    "expected_verdict": "MATCH",
-    "expected_entity_id": "OFAC_SDN:12606",
-    "category": "alias_transliteration",
-    "notes": "Exact match to OFAC alias Muammar QADDAFI"
-  },
-  {
-    "case_id": "bench-009",
-    "transaction_id": "txn-b-009",
-    "counterparty_name": "John Smith",
-    "counterparty_country": "GB",
-    "label": "negative",
-    "expected_verdict": "NO_MATCH",
-    "category": "clean_negative",
-    "notes": "Common Western name, not on OFAC SDN"
-  },
-  {
-    "case_id": "bench-010",
-    "transaction_id": "txn-b-010",
-    "counterparty_name": "Vladimir Petrov",
-    "counterparty_country": "RU",
-    "label": "negative",
-    "expected_verdict": "NO_MATCH",
-    "category": "partial_name_trap",
-    "notes": "Shares first name with Putin; different person"
-  },
-  {
-    "case_id": "bench-011",
-    "transaction_id": "txn-b-011",
-    "counterparty_name": "Anna Petrova",
-    "counterparty_country": "RU",
-    "label": "negative",
-    "expected_verdict": "NO_MATCH",
-    "category": "clean_negative",
-    "notes": "Russian-sounding name, not on OFAC SDN"
-  },
-  {
-    "case_id": "bench-012",
-    "transaction_id": "txn-b-012",
-    "counterparty_name": "Kim Lee",
-    "counterparty_country": "KR",
-    "label": "negative",
-    "expected_verdict": "NO_MATCH",
-    "category": "common_name_trap",
-    "notes": "Common name tokens, no OFAC match"
-  },
-  {
-    "case_id": "bench-013",
-    "transaction_id": "txn-b-013",
-    "counterparty_name": "Silverstone Logistics GmbH",
-    "counterparty_country": "DE",
-    "label": "negative",
-    "expected_verdict": "NO_MATCH",
-    "category": "clean_negative",
-    "notes": "Generic German logistics company, not on OFAC SDN"
-  },
-  {
-    "case_id": "bench-014",
-    "transaction_id": "txn-b-014",
-    "counterparty_name": "Acme Supplies GmbH",
-    "counterparty_country": "DE",
-    "label": "negative",
-    "expected_verdict": "NO_MATCH",
-    "category": "clean_negative",
-    "notes": "Generic business, not on OFAC SDN"
-  },
-  {
-    "case_id": "bench-015",
-    "transaction_id": "txn-b-015",
+    "case_id": "bench-006",
+    "transaction_id": "txn-b-006",
     "counterparty_name": "Владимир Путин",
     "counterparty_country": "RU",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35096",
     "category": "cyrillic_input",
-    "notes": "Cyrillic: Vladimir Putin. Old engine fails raw fuzzy on Cyrillic vs Latin; v2 normalises via unidecode on both sides"
+    "notes": "Cyrillic 'Vladimir Putin' — engine must transliterate before matching"
   },
   {
-    "case_id": "bench-016",
-    "transaction_id": "txn-b-016",
+    "case_id": "bench-007",
+    "transaction_id": "txn-b-007",
     "counterparty_name": "Сергей Шойгу",
     "counterparty_country": "RU",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35173",
     "category": "cyrillic_input",
-    "notes": "Cyrillic: Sergey Shoygu. Old engine fails raw fuzzy on Cyrillic; v2 handles via unidecode + vector fallback"
+    "notes": "Cyrillic 'Sergey Shoygu' — engine must transliterate before matching"
   },
   {
-    "case_id": "bench-017",
-    "transaction_id": "txn-b-017",
-    "counterparty_name": "Sergei Kuzhugetovich Shoigu",
-    "counterparty_country": "RU",
-    "label": "positive",
-    "expected_verdict": "MATCH",
-    "expected_entity_id": "OFAC_SDN:35173",
-    "category": "patronym_in_query",
-    "notes": "Full patronym form matches OFAC primary name exactly; both engines should handle"
-  },
-  {
-    "case_id": "bench-018",
-    "transaction_id": "txn-b-018",
+    "case_id": "bench-008",
+    "transaction_id": "txn-b-008",
     "counterparty_name": "Sergei Lavrov",
     "counterparty_country": "RU",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:35233",
     "category": "exact_match",
-    "notes": "OFAC primary: Sergei Viktorovich LAVROV; alias: Sergey LAVROV"
+    "notes": "OFAC alias 'Sergey LAVROV' matches; primary includes patronym Viktorovich"
   },
   {
-    "case_id": "bench-019",
-    "transaction_id": "txn-b-019",
-    "counterparty_name": "Alexander Lukashenko",
-    "counterparty_country": "BY",
-    "label": "positive",
-    "expected_verdict": "MATCH",
-    "expected_entity_id": "OFAC_SDN:9760",
-    "category": "alias_transliteration",
-    "notes": "OFAC alias: Aleksandr Grigorevich LUKASHENKO. v2 strips patronym from index, boosting score"
-  },
-  {
-    "case_id": "bench-020",
-    "transaction_id": "txn-b-020",
+    "case_id": "bench-009",
+    "transaction_id": "txn-b-009",
     "counterparty_name": "Osama Bin Laden",
     "counterparty_country": "SA",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:6365",
     "category": "alias_transliteration",
-    "notes": "OFAC alias: Usama BIN LADEN. Osama vs Usama is a common Arabic name transliteration variant"
+    "notes": "Osama vs Usama — common Arabic transliteration divergence; OFAC alias 'Usama BIN LADEN'"
   },
   {
-    "case_id": "bench-021",
-    "transaction_id": "txn-b-021",
+    "case_id": "bench-010",
+    "transaction_id": "txn-b-010",
     "counterparty_name": "Rosneft JSC",
     "counterparty_country": "RU",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:17022",
     "category": "entity_suffix_stripping",
-    "notes": "OFAC: OPEN JOINT-STOCK COMPANY ROSNEFT OIL COMPANY. v2 strips JSC suffix; old engine treats JSC as token"
+    "notes": "OFAC full name 'OPEN JOINT-STOCK COMPANY ROSNEFT OIL COMPANY'; v2 strips JSC suffix"
   },
   {
-    "case_id": "bench-022",
-    "transaction_id": "txn-b-022",
-    "counterparty_name": "Lavrov Sergei",
-    "counterparty_country": "RU",
-    "label": "positive",
-    "expected_verdict": "MATCH",
-    "expected_entity_id": "OFAC_SDN:35233",
-    "category": "token_reorder",
-    "notes": "Surname-first ordering of Sergei Lavrov"
-  },
-  {
-    "case_id": "bench-023",
-    "transaction_id": "txn-b-023",
+    "case_id": "bench-011",
+    "transaction_id": "txn-b-011",
     "counterparty_name": "Sergei Petrov",
     "counterparty_country": "RU",
     "label": "positive",
     "expected_verdict": "MATCH",
     "expected_entity_id": "OFAC_SDN:40917",
     "category": "patronym_strip",
-    "notes": "Matches OFAC_SDN:40917 'Sergei Valentinovich PETROV'; v2 strips patronym from index leaving 'sergei petrov'"
+    "notes": "Matches OFAC 'Sergei Valentinovich PETROV'; patronym stripped from watchlist index"
+  },
+  {
+    "case_id": "bench-012",
+    "transaction_id": "txn-b-012",
+    "counterparty_name": "Ramzan Kadyrov",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:23343",
+    "category": "exact_match",
+    "notes": "Chechen leader on both OFAC SDN and EU FSF; OFAC primary 'Ramzan Akhmatovich KADYROV'"
+  },
+  {
+    "case_id": "bench-013",
+    "transaction_id": "txn-b-013",
+    "counterparty_name": "Kadyrov Ramzan",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:23343",
+    "category": "token_reorder",
+    "notes": "Surname-first ordering; Kadyrov is on both OFAC and EU FSF"
+  },
+  {
+    "case_id": "bench-014",
+    "transaction_id": "txn-b-014",
+    "counterparty_name": "Евгений Пригожин",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "OFAC_SDN:21171",
+    "category": "cyrillic_input",
+    "notes": "Cyrillic 'Yevgeniy Prigozhin'; Wagner Group founder on both OFAC and EU FSF"
+  },
+  {
+    "case_id": "bench-015",
+    "transaction_id": "txn-b-015",
+    "counterparty_name": "Pak Hwa Song",
+    "counterparty_country": "KP",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2oH5jfdfjrYmaW2nx8HpPP",
+    "category": "eu_fsf_exact",
+    "notes": "EU FSF primary 'PAK Hwa Song'; tests Korean-surname-first name on EU-only list"
+  },
+  {
+    "case_id": "bench-016",
+    "transaction_id": "txn-b-016",
+    "counterparty_name": "U Than Swe",
+    "counterparty_country": "MM",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2enwi8xhjcMk8qMEbiND4U",
+    "category": "title_prefix",
+    "notes": "Burmese honorific 'U' prefix; exact alias 'U Than Swe' on EU FSF"
+  },
+  {
+    "case_id": "bench-017",
+    "transaction_id": "txn-b-017",
+    "counterparty_name": "Vitaly Kulikov",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2JGMQ2JcNmgm2Vhff5WocW",
+    "category": "eu_fsf_exact",
+    "notes": "EU FSF primary 'Vitaly KULIKOV'; only on EU FSF, not OFAC"
+  },
+  {
+    "case_id": "bench-018",
+    "transaction_id": "txn-b-018",
+    "counterparty_name": "Tarif Akhras",
+    "counterparty_country": "SY",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2Yynnq5prSoe8NX8Zjb8i4",
+    "category": "eu_fsf_exact",
+    "notes": "EU FSF primary 'Tarif AKHRAS'; Syrian businessman, EU-only list"
+  },
+  {
+    "case_id": "bench-019",
+    "transaction_id": "txn-b-019",
+    "counterparty_name": "Alexandr Markman",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2X8CK6KZKhQb5M3yhWQSRE",
+    "category": "patronym_strip",
+    "notes": "Matches EU FSF alias 'Alexandr Markman' (no patronym); primary is 'Alexander Matveevich MARKMAN'"
+  },
+  {
+    "case_id": "bench-020",
+    "transaction_id": "txn-b-020",
+    "counterparty_name": "OOO Molot Arms",
+    "counterparty_country": "RU",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2prrTYm97q4eUKFwVV3TaH",
+    "category": "entity_suffix_stripping",
+    "notes": "Russian OOO prefix variant; alias 'OOO Molot Arms' on EU FSF for arms manufacturer"
+  },
+  {
+    "case_id": "bench-021",
+    "transaction_id": "txn-b-021",
+    "counterparty_name": "Al-Quds Brigades",
+    "counterparty_country": "PS",
+    "label": "positive",
+    "expected_verdict": "MATCH",
+    "expected_entity_id": "EU_FSF:NK-2c4wZWM8NvGdwZXqoZuXYV",
+    "category": "eu_fsf_exact",
+    "notes": "Militant organization; exact primary name match on EU FSF"
+  },
+  {
+    "case_id": "bench-022",
+    "transaction_id": "txn-b-022",
+    "counterparty_name": "Narendra Modi",
+    "counterparty_country": "IN",
+    "label": "positive",
+    "expected_verdict": "REVIEW",
+    "expected_entity_id": "OPENSANCTIONS_PEPS:Q1058",
+    "category": "pep_review",
+    "notes": "Indian PM; PEP list only — must return REVIEW not MATCH"
+  },
+  {
+    "case_id": "bench-023",
+    "transaction_id": "txn-b-023",
+    "counterparty_name": "Modi Narendra",
+    "counterparty_country": "IN",
+    "label": "positive",
+    "expected_verdict": "REVIEW",
+    "expected_entity_id": "OPENSANCTIONS_PEPS:Q1058",
+    "category": "pep_token_reorder",
+    "notes": "Surname-first; alias 'Modi Narendra' exists on PEP record"
   },
   {
     "case_id": "bench-024",
     "transaction_id": "txn-b-024",
+    "counterparty_name": "James Biden",
+    "counterparty_country": "US",
+    "label": "positive",
+    "expected_verdict": "REVIEW",
+    "expected_entity_id": "OPENSANCTIONS_PEPS:Q100741820",
+    "category": "pep_review",
+    "notes": "US PEP; brother of former president Joe Biden"
+  },
+  {
+    "case_id": "bench-025",
+    "transaction_id": "txn-b-025",
+    "counterparty_name": "John Smith",
+    "counterparty_country": "GB",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Most common English name; not on any list"
+  },
+  {
+    "case_id": "bench-026",
+    "transaction_id": "txn-b-026",
+    "counterparty_name": "Vladimir Petrov",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares 'Vladimir' with Putin but different surname; common Russian name"
+  },
+  {
+    "case_id": "bench-027",
+    "transaction_id": "txn-b-027",
     "counterparty_name": "Lavrov Ivan",
     "counterparty_country": "RU",
     "label": "negative",
     "expected_verdict": "NO_MATCH",
     "category": "partial_name_trap",
-    "notes": "OFAC surname match but wrong first name; should not reach MATCH threshold"
+    "notes": "Shares 'Lavrov' surname with sanctioned Sergei Lavrov but different first name"
   },
   {
-    "case_id": "bench-025",
-    "transaction_id": "txn-b-025",
+    "case_id": "bench-028",
+    "transaction_id": "txn-b-028",
     "counterparty_name": "Vladimir Sorokin",
     "counterparty_country": "RU",
     "label": "negative",
     "expected_verdict": "NO_MATCH",
     "category": "clean_negative",
-    "notes": "Russian author, not on OFAC SDN; Vladimir is a common Russian first name"
+    "notes": "Russian author; Vladimir is common, Sorokin not on any list"
   },
   {
-    "case_id": "bench-026",
-    "transaction_id": "txn-b-026",
+    "case_id": "bench-029",
+    "transaction_id": "txn-b-029",
+    "counterparty_name": "Ramzan Isayev",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares first name Ramzan with Kadyrov; Isayev is a different Chechen surname"
+  },
+  {
+    "case_id": "bench-030",
+    "transaction_id": "txn-b-030",
+    "counterparty_name": "Vitaly Volkov",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares first name Vitaly with EU FSF Vitaly Kulikov; Volkov not sanctioned"
+  },
+  {
+    "case_id": "bench-031",
+    "transaction_id": "txn-b-031",
+    "counterparty_name": "Zhang Wei",
+    "counterparty_country": "CN",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "common_name_trap",
+    "notes": "One of the most common Chinese names; Zhang Shilong is on EU FSF but Zhang alone must not fire"
+  },
+  {
+    "case_id": "bench-032",
+    "transaction_id": "txn-b-032",
+    "counterparty_name": "Pak Seung Hyun",
+    "counterparty_country": "KR",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares Pak surname with EU FSF PAK Hwa Song; different first names, South Korea not North"
+  },
+  {
+    "case_id": "bench-033",
+    "transaction_id": "txn-b-033",
+    "counterparty_name": "Than Zaw",
+    "counterparty_country": "MM",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Myanmar name sharing 'Than' with EU FSF 'Than Swe'; Zaw is a common different surname"
+  },
+  {
+    "case_id": "bench-034",
+    "transaction_id": "txn-b-034",
+    "counterparty_name": "Narendra Singh",
+    "counterparty_country": "IN",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares 'Narendra' with PEP Narendra Modi; Singh is a very common Indian surname"
+  },
+  {
+    "case_id": "bench-035",
+    "transaction_id": "txn-b-035",
+    "counterparty_name": "Alexander Ivanov",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "common_name_trap",
+    "notes": "Very common Russian name; multiple Alexanders are sanctioned but Ivanov is not on any list"
+  },
+  {
+    "case_id": "bench-036",
+    "transaction_id": "txn-b-036",
+    "counterparty_name": "Kulikov Andrey",
+    "counterparty_country": "RU",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "partial_name_trap",
+    "notes": "Shares Kulikov surname with EU FSF Vitaly Kulikov; different first name"
+  },
+  {
+    "case_id": "bench-037",
+    "transaction_id": "txn-b-037",
     "counterparty_name": "Nordic Freight Solutions AS",
     "counterparty_country": "NO",
     "label": "negative",
     "expected_verdict": "NO_MATCH",
     "category": "clean_negative",
-    "notes": "Generic Norwegian freight company, not on OFAC SDN"
+    "notes": "Generic Norwegian freight company"
+  },
+  {
+    "case_id": "bench-038",
+    "transaction_id": "txn-b-038",
+    "counterparty_name": "Seoul Financial Group Co Ltd",
+    "counterparty_country": "KR",
+    "label": "negative",
+    "expected_verdict": "NO_MATCH",
+    "category": "clean_negative",
+    "notes": "Generic South Korean financial company; Korea United Development Bank (DPRK) is on EU FSF but this is unrelated"
   }
 ]
