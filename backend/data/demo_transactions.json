@@ -1144,5 +1144,149 @@
       "rules_fired": []
     },
     "ownership_risk": null
+  },
+  {
+    "id": 31,
+    "label": "Watchlist demo — fuzzy typo match",
+    "originator": "Belgrade Consulting DOO",
+    "beneficiary": "Aleksandar Vullin",
+    "amount": 32000.0,
+    "currency": "EUR",
+    "counterparty_country": "RS",
+    "verdict": "MATCH",
+    "confidence": 0.96,
+    "recommended_action": "BLOCK",
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
+    "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Belgrade Consulting DOO': clean. Beneficiary flagged — Fuzzy matching caught input 'Aleksandar Vullin' as a near-duplicate of watchlist name 'Aleksandar Vulin' with 96% confidence despite the extra letter. List: OFAC_SDN (sanctions). Verdict: MATCH. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.39,
+        "matched_name": "BELGRADE CONSULTING GROUP",
+        "matched_entity_id": "OFAC_SDN:DEMO-CLEAN-31"
+      },
+      "beneficiary": {
+        "verdict": "MATCH",
+        "confidence": 0.96,
+        "matched_name": "Aleksandar Vulin",
+        "matched_entity_id": "OFAC_SDN:DEMO-VULIN"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 32,
+    "label": "Watchlist demo — Cyrillic transliteration",
+    "originator": "Baltic Grain Traders",
+    "beneficiary": "Владимир Путин",
+    "amount": 125000.0,
+    "currency": "USD",
+    "counterparty_country": "RU",
+    "verdict": "MATCH",
+    "confidence": 0.99,
+    "recommended_action": "BLOCK",
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
+    "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Baltic Grain Traders': clean. Beneficiary flagged — Transliteration normalized Cyrillic input 'Владимир Путин' to the Latin watchlist form 'Vladimir Putin' with 99% confidence. List: OFAC_SDN (sanctions). Verdict: MATCH. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.41,
+        "matched_name": "BALTIC GRAIN EXPORT",
+        "matched_entity_id": "OFAC_SDN:DEMO-CLEAN-32"
+      },
+      "beneficiary": {
+        "verdict": "MATCH",
+        "confidence": 0.99,
+        "matched_name": "Vladimir Putin",
+        "matched_entity_id": "OFAC_SDN:DEMO-PUTIN"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 33,
+    "label": "Watchlist demo — phonetic Balkan name",
+    "originator": "Adriatic Components Ltd",
+    "beneficiary": "Slobodan Teshich",
+    "amount": 76000.0,
+    "currency": "EUR",
+    "counterparty_country": "RS",
+    "verdict": "MATCH",
+    "confidence": 0.94,
+    "recommended_action": "BLOCK",
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
+    "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Adriatic Components Ltd': clean. Beneficiary flagged — Phonetic matching connected 'Slobodan Teshich' to watchlist aliases 'Slobodan Tešić', 'Slobodan Tesic', and 'Slobodan Teshic' with 94% confidence. List: OFAC_SDN (sanctions). Verdict: MATCH. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.36,
+        "matched_name": "ADRIATIC COMPONENTS GROUP",
+        "matched_entity_id": "OFAC_SDN:DEMO-CLEAN-33"
+      },
+      "beneficiary": {
+        "verdict": "MATCH",
+        "confidence": 0.94,
+        "matched_name": "Slobodan Tešić",
+        "matched_entity_id": "OFAC_SDN:DEMO-TESIC"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 34,
+    "label": "Watchlist demo — vector context search",
+    "originator": "Global Metals Brokerage",
+    "beneficiary": "Russian aluminum oligarch Deripaska",
+    "amount": 210000.0,
+    "currency": "USD",
+    "counterparty_country": "RU",
+    "verdict": "MATCH",
+    "confidence": 0.92,
+    "recommended_action": "BLOCK",
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
+    "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Global Metals Brokerage': clean. Beneficiary flagged — Vector/context search linked payment text 'Russian aluminum oligarch Deripaska' to the watchlist record 'Oleg Vladimirovich Deripaska' using entity context such as aluminum, Rusal, En+ Group, and Russia. List: OFAC_SDN (sanctions). Verdict: MATCH. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.44,
+        "matched_name": "GLOBAL METALS TRADING",
+        "matched_entity_id": "OFAC_SDN:DEMO-CLEAN-34"
+      },
+      "beneficiary": {
+        "verdict": "MATCH",
+        "confidence": 0.92,
+        "matched_name": "Oleg Vladimirovich Deripaska",
+        "matched_entity_id": "OFAC_SDN:DEMO-DERIPASKA"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
   }
 ]
