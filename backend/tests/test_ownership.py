@@ -341,3 +341,106 @@ def test_exposure_endpoint(session_factory, monkeypatch):
     assert resp.status_code == 200
     body = resp.json()
     assert body["controls_count"] == 2
+
+
+# --------------------------------------------------------------------------- #
+# Curated real-leaf scenarios (Russia / B2B flavour)
+# --------------------------------------------------------------------------- #
+def test_direct_real_sanctioned_owner_blocks(session_factory):
+    # Northwind is clean by name, but is 60% owned by a real OFAC individual.
+    r = OwnershipRiskEngine(session_factory, engine=None).assess("Northwind Commodities DMCC")
+    assert r["verdict"] == "MATCH"
+    assert r["paths"][0]["risk"] == "SANCTIONS_MATCH"
+
+
+def test_real_pep_owner_reviews(session_factory):
+    r = OwnershipRiskEngine(session_factory, engine=None).assess("Adriatic Freight Forwarding doo")
+    assert r["verdict"] == "REVIEW"
+    assert r["paths"][0]["risk"] == "PEP_MATCH"
+
+
+def test_deep_real_sanctioned_chain_reviews(session_factory):
+    # Sanctioned UBO sits at depth 2 -> REVIEW, not auto-block.
+    r = OwnershipRiskEngine(session_factory, engine=None).assess("Lumen Trading FZE")
+    assert r["verdict"] == "REVIEW"
+    top = r["paths"][0]
+    assert top["depth"] == 2
+    assert top["effective_pct"] == pytest.approx(33.75)  # 45% * 75%
+
+
+def test_real_sanctioned_owner_reverse_exposure(session_factory):
+    # ROGOZIN stands behind three constructed shells.
+    r = OwnershipRiskEngine(session_factory, engine=None).exposure("Dmitry Olegovich ROGOZIN")
+    assert r["controls_count"] == 3
+    companies = {c["company"] for c in r["controls"]}
+    assert companies == {
+        "Northwind Commodities DMCC",
+        "Ural Metals Export OOO",
+        "Caspian Logistics Holding Ltd",
+    }
+
+
+def test_clean_real_control_no_match(session_factory):
+    r = OwnershipRiskEngine(session_factory, engine=None).assess("Alpine Precision Tools AG")
+    assert r["verdict"] == "NO_MATCH"
+
+
+# --------------------------------------------------------------------------- #
+# Bulk import of real OFAC "Linked To" relationships
+# --------------------------------------------------------------------------- #
+def _ofac_fixture(session):
+    """Minimal OFAC-like data: a sanctioned org + two entities linked to it."""
+    from app import models as m
+
+    sl = m.SourceList(code="OFAC_SDN", name="OFAC SDN", list_type="sanctions")
+    session.add(sl)
+    session.flush()
+
+    org = m.Entity(source_list_id=sl.id, source_uid="org1", entity_type="entity",
+                   primary_name="HEZBOLLAH FINANCE", raw={})
+    a = m.Entity(source_list_id=sl.id, source_uid="a", entity_type="entity",
+                 primary_name="Cedar Trading House", remarks="(Linked To: HEZBOLLAH FINANCE)", raw={})
+    b = m.Entity(source_list_id=sl.id, source_uid="b", entity_type="individual",
+                 primary_name="Karim Haddad",
+                 remarks="Owner; owned or controlled by HEZBOLLAH FINANCE.", raw={})
+    session.add_all([org, a, b])
+    session.flush()
+    for ent in (org, a, b):
+        session.add(m.EntityName(entity_id=ent.id, name_type="primary", full_name=ent.primary_name))
+    session.commit()
+
+
+def test_import_linked_to_builds_real_edges():
+    from app.ownership_ingest import import_linked_to
+
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False},
+                           poolclass=StaticPool, future=True)
+    Base.metadata.create_all(engine)
+    SL = sessionmaker(engine)
+    with SL() as s:
+        _ofac_fixture(s)
+        created = import_linked_to(s)
+        assert created == 2  # Cedar + Karim both linked to the org
+
+    # Tracing a linked entity surfaces the sanctioned org as the risky owner.
+    r = OwnershipRiskEngine(SL, engine=None).assess("Cedar Trading House")
+    assert r["verdict"] == "MATCH"
+    assert r["paths"][0]["path"][-1] == "HEZBOLLAH FINANCE"
+    assert r["paths"][0]["risk"] == "SANCTIONS_MATCH"
+
+    # Reverse exposure: the org stands behind both linked entities.
+    ex = OwnershipRiskEngine(SL, engine=None).exposure("HEZBOLLAH FINANCE")
+    assert ex["controls_count"] == 2
+
+
+def test_import_linked_to_respects_limit():
+    from app.ownership_ingest import import_linked_to
+
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False},
+                           poolclass=StaticPool, future=True)
+    Base.metadata.create_all(engine)
+    SL = sessionmaker(engine)
+    with SL() as s:
+        _ofac_fixture(s)
+        created = import_linked_to(s, limit=1)
+        assert created == 1

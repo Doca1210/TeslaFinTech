@@ -63,6 +63,7 @@ def cmd_seed_ownership(args: argparse.Namespace) -> None:
     from app.logging_config import configure_logging
     from app.models import OwnershipLink
     from app.ownership_fixtures import seed_demo_ownership
+    from app.ownership_ingest import import_linked_to
 
     configure_logging()
     Base.metadata.create_all(bind=engine)
@@ -74,9 +75,14 @@ def cmd_seed_ownership(args: argparse.Namespace) -> None:
             session.commit()
             print(f"Cleared {deleted} existing ownership links.")
         count = seed_demo_ownership(session)
+        print(f"Seeded {count} curated demo ownership links.")
+        if args.bulk:
+            print("Importing real OFAC 'Linked To' relationships (this may take a moment)…")
+            bulk = import_linked_to(session, limit=args.bulk_limit if args.bulk_limit > 0 else None)
+            print(f"Imported {bulk} real ownership links from OFAC remarks.")
     finally:
         session.close()
-    print(f"Seeded {count} demo ownership links. Try: GET /screen/ownership?name=Blue Horizon Trading LLC")
+    print("Try: GET /screen/ownership?name=Northwind Commodities DMCC")
 
 
 # --------------------------------------------------------------------------- #
@@ -299,6 +305,8 @@ def build_parser() -> argparse.ArgumentParser:
     # seed-ownership
     so = sub.add_parser("seed-ownership", help="Seed demo KYB / beneficial-ownership links into the DB.")
     so.add_argument("--reset", action="store_true", help="Delete existing ownership links before seeding.")
+    so.add_argument("--bulk", action="store_true", help="Also import real OFAC 'Linked To' relationships.")
+    so.add_argument("--bulk-limit", type=int, default=0, help="Cap bulk import (0 = no cap).")
 
     # screen
     s = sub.add_parser("screen", help="Screen one or more transactions against the watchlist.")

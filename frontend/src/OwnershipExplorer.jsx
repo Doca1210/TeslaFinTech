@@ -4,7 +4,13 @@ import './Ownership.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
-const DEMO_NAMES = ['Blue Horizon Trading LLC', 'Milan Textile GmbH']
+const DEMO_NAMES = [
+  'Northwind Commodities DMCC', // clean name, real sanctioned owner -> BLOCK
+  'Adriatic Freight Forwarding doo', // real PEP owner -> REVIEW
+  'Lumen Trading FZE', // deep chain, real sanctioned UBO -> REVIEW
+  'Hasan NASRALLAH', // real OFAC 'Linked To' relationship
+  'Alpine Precision Tools AG', // clean -> NO_MATCH
+]
 
 const VERDICT_LABEL = { MATCH: 'MATCH', REVIEW: 'REVIEW', NO_MATCH: 'NO MATCH' }
 const RISK_LABEL = {
