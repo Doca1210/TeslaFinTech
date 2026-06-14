@@ -11,3 +11,6 @@ graphify-out/
 
 # generated reports
 reports/
+
+# environment variables
+backend/.env
