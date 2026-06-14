@@ -2,7 +2,6 @@ from __future__ import annotations
 import logging
 import numpy as np
 from rapidfuzz.fuzz import token_set_ratio
-import jellyfish
 from .models import NormalizedInput, MatchCandidate, ScoreBreakdown, EntityProfile
 from .normalizer import Normalizer
 from .scoring import (
@@ -24,7 +23,7 @@ _embed_cache: dict[str, np.ndarray] = {}
 
 
 def _encode_query(model, text: str) -> np.ndarray:
-    """Encode text with a simple module-level LRU dict. Thread-safe under GIL."""
+    """Encode text, using a module-level cache to skip redundant model.encode() calls."""
     cached = _embed_cache.get(text)
     if cached is not None:
         return cached
