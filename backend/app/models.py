@@ -163,7 +163,12 @@ class EntityTransaction(Base):
 
     counterparty_name: Mapped[str | None] = mapped_column(Text, nullable=True)
     counterparty_account: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    counterparty_account_name: Mapped[str | None] = mapped_column(Text, nullable=True)
     counterparty_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+
+    initiated_from_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    entity_registered_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    usual_operating_countries: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
 
     status: Mapped[str] = mapped_column(String(16), default="pending")  # pending | cleared | flagged
     raw: Mapped[dict | None] = mapped_column(JSON, nullable=True)

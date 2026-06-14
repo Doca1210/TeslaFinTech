@@ -12,12 +12,14 @@ from app.ingestion.opensanctions import run_ingestion as run_opensanctions_inges
 from app.logging_config import configure_logging
 from app.models import Entity, EntityName
 from app.schemas import EntityNameOut, EntitySearchResult, IngestionResult
+from app.schema_upgrade import ensure_sqlite_schema
 
 configure_logging()
 logger = logging.getLogger("app")
 
 app = FastAPI(title="AML Sanctions Screening")
 
+ensure_sqlite_schema(engine)
 Base.metadata.create_all(bind=engine)
 
 

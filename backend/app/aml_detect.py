@@ -19,10 +19,17 @@ Run standalone (in-memory SQLite demo)::
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from statistics import mean, median
+import sys
 from typing import Iterable
 
+from rapidfuzz import fuzz
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.database import Base
 from app import models as tm
@@ -41,6 +48,13 @@ STRUCT_MIN, STRUCT_MAX = 9_000.0, 9_999.0
 STRUCT_MIN_COUNT = 3
 DORMANT_DAYS = 90
 DORMANT_REAWAKE_AMOUNT = 5_000.0
+BASELINE_LOOKBACK_DAYS = 90
+BASELINE_MIN_HISTORY = 3
+BASELINE_REVIEW_MULTIPLE = 5
+BASELINE_DECLINE_MULTIPLE = 10
+PASS_THROUGH_WINDOW_H = 48
+PASS_THROUGH_MAX_DELTA_PCT = 3.0
+ACCOUNT_NAME_SIMILARITY_THRESHOLD = 75.0
 
 THRESHOLDS = {"review": 30, "decline": 60, "block_and_review": 90}
 
@@ -79,6 +93,30 @@ def load_context(session: Session) -> Context:
 def _window(history: list, end: datetime, delta: timedelta) -> list:
     start = end - delta
     return [t for t in history if start <= t.occurred_at <= end]
+
+
+def _prior_window(history: list, end: datetime, delta: timedelta) -> list:
+    start = end - delta
+    return [t for t in history if start <= t.occurred_at < end]
+
+
+def _country(value: str | None) -> str | None:
+    if not value:
+        return None
+    cleaned = value.strip().upper()
+    return cleaned or None
+
+
+def _country_set(values) -> set[str]:
+    if not values:
+        return set()
+    if isinstance(values, str):
+        values = [values]
+    return {cc for cc in (_country(v) for v in values) if cc}
+
+
+def _is_blank(value: str | None) -> bool:
+    return value is None or not str(value).strip()
 
 
 # --------------------------------------------------------------------------- #
@@ -176,6 +214,162 @@ def _r_dormant(tx, hist: list) -> RuleHit | None:
     return None
 
 
+def _r_amount_vs_baseline(tx, hist: list) -> RuleHit | None:
+    prior = _prior_window(hist, tx.occurred_at, timedelta(days=BASELINE_LOOKBACK_DAYS))
+    amounts = [float(t.amount) for t in prior if getattr(t, "amount", 0) is not None]
+    if len(amounts) < BASELINE_MIN_HISTORY:
+        return None
+
+    avg_amount = mean(amounts)
+    if avg_amount <= 0:
+        return None
+
+    review_threshold = max(LARGE_AMOUNT_USD, avg_amount * BASELINE_REVIEW_MULTIPLE)
+    decline_threshold = max(25_000.0, avg_amount * BASELINE_DECLINE_MULTIPLE)
+    current_amount = float(tx.amount)
+    multiple = current_amount / avg_amount
+
+    if current_amount > decline_threshold:
+        severity = "critical"
+        score = 50
+        threshold = decline_threshold
+    elif current_amount > review_threshold:
+        severity = "high"
+        score = 35
+        threshold = review_threshold
+    else:
+        return None
+
+    return RuleHit(
+        "amount_vs_baseline", severity, score,
+        f"Amount is {multiple:.1f}x the 90-day average",
+        (
+            f"This payment of {current_amount:,.2f} {tx.currency} is materially above "
+            f"the entity's recent baseline average of {avg_amount:,.2f}. Large moves "
+            "relative to normal account behavior are more suspicious than large moves "
+            "in isolation and should be checked against the stated business purpose."
+        ),
+        {
+            "lookback_days": BASELINE_LOOKBACK_DAYS,
+            "history_count": len(amounts),
+            "avg_amount": round(avg_amount, 2),
+            "median_amount": round(median(amounts), 2),
+            "current_amount": current_amount,
+            "multiple_of_average": round(multiple, 2),
+            "threshold": round(threshold, 2),
+        },
+    )
+
+
+def _r_pass_through_money_in_out(tx, hist: list) -> RuleHit | None:
+    if (tx.direction or "").lower() != "out" or not tx.amount:
+        return None
+
+    prior = _prior_window(hist, tx.occurred_at, timedelta(hours=PASS_THROUGH_WINDOW_H))
+    incoming = [t for t in prior if (getattr(t, "direction", "") or "").lower() == "in"]
+    if not incoming:
+        return None
+
+    outgoing_amount = float(tx.amount)
+    matches = []
+    for candidate in incoming:
+        incoming_amount = float(candidate.amount)
+        delta_pct = abs(outgoing_amount - incoming_amount) / outgoing_amount * 100
+        if delta_pct <= PASS_THROUGH_MAX_DELTA_PCT:
+            time_delta = tx.occurred_at - candidate.occurred_at
+            matches.append((delta_pct, time_delta, candidate))
+
+    if not matches:
+        return None
+
+    delta_pct, time_delta, incoming_tx = sorted(matches, key=lambda item: (item[0], item[1]))[0]
+    minutes = int(time_delta.total_seconds() // 60)
+    incoming_amount = float(incoming_tx.amount)
+
+    return RuleHit(
+        "pass_through_money_in_out", "high", 40,
+        f"Outgoing transfer mirrors incoming funds from {minutes} minutes earlier",
+        (
+            f"The account received {incoming_amount:,.2f} {tx.currency} and sent "
+            f"{outgoing_amount:,.2f} {tx.currency} out {minutes} minutes later. "
+            "Rapid in-and-out movement with near-equal amounts is a classic layering "
+            "signal because the account may be acting as a temporary pass-through."
+        ),
+        {
+            "incoming_amount": incoming_amount,
+            "outgoing_amount": outgoing_amount,
+            "amount_delta_pct": round(delta_pct, 2),
+            "time_delta_minutes": minutes,
+            "incoming_transaction_id": getattr(incoming_tx, "id", None),
+        },
+    )
+
+
+def _r_geo_initiation_mismatch(tx) -> RuleHit | None:
+    initiated = _country(getattr(tx, "initiated_from_country", None))
+    if not initiated:
+        return None
+
+    registered = _country(getattr(tx, "entity_registered_country", None))
+    usual = _country_set(getattr(tx, "usual_operating_countries", None))
+    expected = set(usual)
+    if registered:
+        expected.add(registered)
+
+    if initiated in expected:
+        return None
+
+    high_risk = initiated in HIGH_RISK_COUNTRIES
+    severity = "high" if high_risk else "medium"
+    score = 35 if high_risk else 25
+
+    return RuleHit(
+        "geo_initiation_mismatch", severity, score,
+        f"Payment initiated from unexpected country {initiated}",
+        (
+            f"The payment order was initiated from {initiated}, which is outside the "
+            "entity's registered or usual operating countries. Location anomalies can "
+            "indicate account takeover, proxy operation, or activity that needs manual "
+            "KYB and ownership review."
+        ),
+        {
+            "initiated_from_country": initiated,
+            "entity_registered_country": registered,
+            "usual_operating_countries": sorted(usual),
+            "expected_countries": sorted(expected),
+            "high_risk_country": high_risk,
+        },
+    )
+
+
+def _r_beneficiary_account_name_mismatch(tx) -> RuleHit | None:
+    counterparty_name = getattr(tx, "counterparty_name", None)
+    account_name = getattr(tx, "counterparty_account_name", None)
+    if _is_blank(counterparty_name) or _is_blank(account_name):
+        return None
+
+    similarity = float(fuzz.token_set_ratio(counterparty_name, account_name))
+    if similarity >= ACCOUNT_NAME_SIMILARITY_THRESHOLD:
+        return None
+
+    return RuleHit(
+        "beneficiary_account_name_mismatch", "medium", 25,
+        f"Beneficiary name/account-name similarity is {similarity:.0f}",
+        (
+            f"The payment beneficiary name '{counterparty_name}' does not closely "
+            f"match the account name '{account_name}'. Verification-of-payee style "
+            "mismatches can indicate misdirection, mule accounts, or weak payment "
+            "instructions."
+        ),
+        {
+            "counterparty_name": counterparty_name,
+            "counterparty_account_name": account_name,
+            "similarity": round(similarity, 2),
+            "threshold": ACCOUNT_NAME_SIMILARITY_THRESHOLD,
+        },
+    )
+
+
 def evaluate(tx, ctx: Context) -> tuple[float, list[RuleHit]]:
     hist = ctx.history.get(tx.entity_id, [])
     hits = [
@@ -185,6 +379,10 @@ def evaluate(tx, ctx: Context) -> tuple[float, list[RuleHit]]:
             _r_structuring(tx, hist),
             _r_geo(tx),
             _r_dormant(tx, hist),
+            _r_amount_vs_baseline(tx, hist),
+            _r_pass_through_money_in_out(tx, hist),
+            _r_geo_initiation_mismatch(tx),
+            _r_beneficiary_account_name_mismatch(tx),
         ) if h is not None
     ]
     return sum(h.score for h in hits), hits
