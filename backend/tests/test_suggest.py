@@ -6,6 +6,8 @@ import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 
 SAMPLE_TX = {
     "id": 7,
@@ -44,33 +46,37 @@ def test_get_ai_suggestion_returns_verdict_and_reasoning():
     from app.suggest import get_ai_suggestion
 
     async def run():
-        with patch("app.suggest.AsyncOpenAI") as mock_cls:
-            mock_client = MagicMock()
-            mock_cls.return_value = mock_client
-            mock_client.chat.completions.create = AsyncMock(
-                return_value=_mock_openai_response(
-                    '{"verdict": "BLOCK", "reasoning": "Beneficiary matched OFAC SDN list with high confidence."}'
-                )
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(
+            return_value=_mock_openai_response(
+                '{"verdict": "BLOCK", "reasoning": "Beneficiary matched OFAC SDN list with high confidence."}'
             )
-            return await get_ai_suggestion(SAMPLE_TX)
+        )
+        with patch("app.suggest._client", mock_client):
+            result = await get_ai_suggestion(SAMPLE_TX)
+        return result, mock_client
 
-    result = asyncio.run(run())
+    result, mock_client = asyncio.run(run())
     assert result["verdict"] == "BLOCK"
     assert result["reasoning"] == "Beneficiary matched OFAC SDN list with high confidence."
+
+    # Fix 5: Assert that the prompt sent to the model contains key transaction data.
+    call_args = mock_client.chat.completions.create.call_args
+    messages = call_args.kwargs.get("messages") or call_args.args[0] if call_args.args else call_args.kwargs["messages"]
+    user_content = next(m["content"] for m in messages if m["role"] == "user")
+    assert "Caspian Oil Trading" in user_content
+    assert "geo_high_risk" in user_content
 
 
 def test_get_ai_suggestion_propagates_openai_exception():
     from app.suggest import get_ai_suggestion
 
+    # Fix 6: Use pytest.raises instead of bare assert False.
     async def run():
-        with patch("app.suggest.AsyncOpenAI") as mock_cls:
-            mock_client = MagicMock()
-            mock_cls.return_value = mock_client
-            mock_client.chat.completions.create = AsyncMock(side_effect=RuntimeError("API error"))
+        mock_client = MagicMock()
+        mock_client.chat.completions.create = AsyncMock(side_effect=RuntimeError("API error"))
+        with patch("app.suggest._client", mock_client):
             return await get_ai_suggestion(SAMPLE_TX)
 
-    try:
+    with pytest.raises(RuntimeError, match="API error"):
         asyncio.run(run())
-        assert False, "Should have raised"
-    except RuntimeError as e:
-        assert "API error" in str(e)

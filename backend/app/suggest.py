@@ -8,9 +8,25 @@ from openai import AsyncOpenAI
 
 load_dotenv()
 
+# Fix 3: Module-level singleton — created once at import time.
+_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+_VALID_VERDICTS = {"BLOCK", "RELEASE", "ESCALATE"}
+
 
 def _build_prompt(tx: dict) -> str:
+    # Fix 2: Validate required top-level keys.
+    for key in ("layer_a", "layer_b", "triggered_layers"):
+        if key not in tx:
+            raise KeyError(f"Transaction dict is missing required key: '{key}'")
+
     la = tx["layer_a"]
+
+    # Fix 2: Validate layer_a sub-keys.
+    for key in ("originator", "beneficiary"):
+        if key not in la:
+            raise KeyError(f"layer_a is missing required key: '{key}'")
+
     lb = tx["layer_b"]
     orig = la["originator"]
     bene = la["beneficiary"]
@@ -35,6 +51,9 @@ def _build_prompt(tx: dict) -> str:
         or "  None"
     )
 
+    # Fix 4: Safe access for triggered_layers.
+    triggered = tx.get("triggered_layers") or []
+
     return (
         f"Transaction under review:\n"
         f"- Label: {tx['label']}\n"
@@ -43,7 +62,7 @@ def _build_prompt(tx: dict) -> str:
         f"- Amount: {tx['amount']:,.2f} {tx['currency']}\n"
         f"- Counterparty country: {tx['counterparty_country']}\n"
         f"- Confidence: {tx['confidence'] * 100:.0f}%\n"
-        f"- Triggered layers: {', '.join(tx['triggered_layers']) or 'none'}\n\n"
+        f"- Triggered layers: {', '.join(triggered) or 'none'}\n\n"
         f"Layer A — Sanctions screening:\n"
         f"  Originator verdict: {orig['verdict']}{orig_match}\n"
         f"  Beneficiary verdict: {bene['verdict']}{bene_match}\n\n"
@@ -56,8 +75,7 @@ def _build_prompt(tx: dict) -> str:
 
 
 async def get_ai_suggestion(tx: dict) -> dict:
-    client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    response = await client.chat.completions.create(
+    response = await _client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {
@@ -75,4 +93,17 @@ async def get_ai_suggestion(tx: dict) -> dict:
         response_format={"type": "json_object"},
         temperature=0,
     )
-    return json.loads(response.choices[0].message.content)
+    result = json.loads(response.choices[0].message.content)
+
+    # Fix 1: Validate the returned JSON structure and verdict value.
+    if "verdict" not in result or "reasoning" not in result:
+        raise ValueError(
+            f"OpenAI response missing required keys ('verdict', 'reasoning'). Got: {list(result.keys())}"
+        )
+    if result["verdict"] not in _VALID_VERDICTS:
+        raise ValueError(
+            f"OpenAI returned invalid verdict '{result['verdict']}'. "
+            f"Expected one of: {sorted(_VALID_VERDICTS)}"
+        )
+
+    return result
