@@ -42,8 +42,8 @@ def test_normal_search_always_in_methods(engine):
 
 
 def test_vector_used_when_normal_below_threshold(engine):
-    # A name with no obvious watchlist entry should trigger vector search
-    result = engine.screen("Bartholomew Kingsborough", "individual")
+    # Pass use_vector=True — vector only runs when explicitly opted in
+    result = engine.screen("Bartholomew Kingsborough", "individual", use_vector=True)
     assert "vector" in result.search_methods
 
 

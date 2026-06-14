@@ -2,13 +2,15 @@ import pytest
 from app.database import SessionLocal
 from screening_v2.vector_search import VectorSearcher
 from screening_v2.normalizer import Normalizer
+from screening_v2.db_helpers import load_all_profiles
 
 _normalizer = Normalizer()
 
 
 @pytest.fixture(scope="module")
 def searcher():
-    return VectorSearcher(SessionLocal)
+    profile_cache = load_all_profiles(SessionLocal)
+    return VectorSearcher(SessionLocal, profile_cache=profile_cache)
 
 
 def test_finds_transliteration_variant(searcher):
