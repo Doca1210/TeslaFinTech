@@ -11,7 +11,7 @@ touching the existing evaluation infrastructure.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from screening.models import ScreeningVerdict, Transaction, WatchlistEntity
+from evaluation.models import ScreeningVerdict, Transaction, WatchlistEntity
 
 
 @dataclass

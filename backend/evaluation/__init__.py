@@ -1,13 +1,15 @@
+"""Sanctions screening evaluation framework."""
+
 from __future__ import annotations
 
-from screening.evaluation.metrics import ClassificationMetrics, compute_metrics
-from screening.evaluation.models import (
+from evaluation.metrics import ClassificationMetrics, compute_metrics
+from evaluation.models import (
     BenchmarkCase,
     BenchmarkReport,
     CasePrediction,
     VariantEvaluation,
 )
-from screening.evaluation.pipeline import ABTestPipeline, default_benchmark_path
+from evaluation.pipeline import ABTestPipeline, default_benchmark_path
 
 __all__ = [
     "ABTestPipeline",
