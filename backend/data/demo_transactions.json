@@ -13,10 +13,24 @@
     "triggered_layers": [],
     "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Alice Johnson': clean. Beneficiary 'Global Trade LLC': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.6677, "matched_name": "A. Johnson", "matched_entity_id": "OPENSANCTIONS_PEPS:Q101168868" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5760, "matched_name": "TRADE BRIDGE GLOBAL INC.", "matched_entity_id": "OFAC_SDN:56855" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.6677,
+        "matched_name": "A. Johnson",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q101168868"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.576,
+        "matched_name": "TRADE BRIDGE GLOBAL INC.",
+        "matched_entity_id": "OFAC_SDN:56855"
+      }
     },
-    "layer_b": { "score": 0, "outcome": "approve", "rules_fired": [] },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
     "ownership_risk": null
   },
   {
@@ -28,15 +42,39 @@
     "currency": "EUR",
     "counterparty_country": "DE",
     "verdict": "MATCH",
-    "confidence": 0.9810,
+    "confidence": 0.981,
     "recommended_action": "BLOCK",
-    "triggered_layers": ["layer_a_sanctions", "layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator flagged — Input 'Sergey Valeryevich AKSYONOV' matched 'Sergey Valeryevich AKSYONOV' (OFAC_SDN:22790) with 98% confidence using normal search. Subject to: UKRAINE-EO13660. List: OFAC_SDN (sanctions). Verdict: MATCH. Beneficiary 'Continental Supplies Inc': clean. Layer B (behavioral): outcome=review, score=35, rules fired=[amt_large].",
     "layer_a": {
-      "originator": { "verdict": "MATCH", "confidence": 0.9810, "matched_name": "Sergey Valeryevich AKSYONOV", "matched_entity_id": "OFAC_SDN:22790" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5104, "matched_name": "CONTINENTAL TRADING FZE", "matched_entity_id": "OFAC_SDN:33915" }
+      "originator": {
+        "verdict": "MATCH",
+        "confidence": 0.981,
+        "matched_name": "Sergey Valeryevich AKSYONOV",
+        "matched_entity_id": "OFAC_SDN:22790"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.5104,
+        "matched_name": "CONTINENTAL TRADING FZE",
+        "matched_entity_id": "OFAC_SDN:33915"
+      }
     },
-    "layer_b": { "score": 35, "outcome": "review", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 250000.00 EUR ≥ 10000" } ] },
+    "layer_b": {
+      "score": 35,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 250000.00 EUR ≥ 10000"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -50,13 +88,37 @@
     "verdict": "REVIEW",
     "confidence": 0.9402,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_a_sanctions", "layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator flagged — Input 'Saddam Hussein' matched 'Saddam HOSEIN' (OPENSANCTIONS_PEPS:Q107504675) with 94% confidence using normal search. Subject to: PEP position annotations by OpenSanctions, US CIA World Leaders. List: OPENSANCTIONS_PEPS (pep). Verdict: REVIEW. Beneficiary 'Crescent Holdings': clean. Layer B (behavioral): outcome=review, score=35, rules fired=[amt_large].",
     "layer_a": {
-      "originator": { "verdict": "REVIEW", "confidence": 0.9402, "matched_name": "Saddam HOSEIN", "matched_entity_id": "OPENSANCTIONS_PEPS:Q107504675" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5530, "matched_name": "CRESCENT PETROLEUM", "matched_entity_id": "OFAC_SDN:19042" }
+      "originator": {
+        "verdict": "REVIEW",
+        "confidence": 0.9402,
+        "matched_name": "Saddam HOSEIN",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q107504675"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.553,
+        "matched_name": "CRESCENT PETROLEUM",
+        "matched_entity_id": "OFAC_SDN:19042"
+      }
     },
-    "layer_b": { "score": 35, "outcome": "review", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 50000.00 EUR ≥ 10000" } ] },
+    "layer_b": {
+      "score": 35,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 50000.00 EUR ≥ 10000"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -70,13 +132,37 @@
     "verdict": "REVIEW",
     "confidence": 0.7637,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_a_sanctions", "layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator 'Carlos Mendez': clean. Beneficiary flagged — Input 'FastCash Ltd' matched 'JSC Astais' via alias 'JSC Astais' (EU_FSF:NK-4ukbAtcxFzEQhsdDF7ByZQ) with 76% confidence using normal search. Subject to: EU-UKR. List: EU_FSF (sanctions). Verdict: REVIEW. Layer B (behavioral): outcome=review, score=40, rules fired=[structuring_7d].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.7106, "matched_name": "ANTONIO CARLOS MENDES THAME", "matched_entity_id": "OPENSANCTIONS_PEPS:Q10328631" },
-      "beneficiary": { "verdict": "REVIEW", "confidence": 0.7637, "matched_name": "JSC Astais", "matched_entity_id": "EU_FSF:NK-4ukbAtcxFzEQhsdDF7ByZQ" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.7106,
+        "matched_name": "ANTONIO CARLOS MENDES THAME",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q10328631"
+      },
+      "beneficiary": {
+        "verdict": "REVIEW",
+        "confidence": 0.7637,
+        "matched_name": "JSC Astais",
+        "matched_entity_id": "EU_FSF:NK-4ukbAtcxFzEQhsdDF7ByZQ"
+      }
     },
-    "layer_b": { "score": 40, "outcome": "review", "rules_fired": [ { "rule_id": "structuring_7d", "severity": "high", "score": 40, "reason": "3 sub-threshold txns in 7d (smurfing)" } ] },
+    "layer_b": {
+      "score": 40,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "structuring_7d",
+          "severity": "high",
+          "score": 40,
+          "reason": "3 sub-threshold txns in 7d (smurfing)"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -90,13 +176,42 @@
     "verdict": "MATCH",
     "confidence": 0.7,
     "recommended_action": "BLOCK",
-    "triggered_layers": ["layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Jonathan Pierce': clean. Beneficiary 'Tehran Imports Co': clean. Layer B (behavioral): outcome=decline, score=65, rules fired=[amt_large, geo_high_risk].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4900, "matched_name": "J. PIERCE", "matched_entity_id": "OPENSANCTIONS_PEPS:Q77120043" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.6288, "matched_name": "TEHRAN INTERNATIONAL TRANSPORT CO", "matched_entity_id": "OFAC_SDN:30384" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.49,
+        "matched_name": "J. PIERCE",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q77120043"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.6288,
+        "matched_name": "TEHRAN INTERNATIONAL TRANSPORT CO",
+        "matched_entity_id": "OFAC_SDN:30384"
+      }
     },
-    "layer_b": { "score": 65, "outcome": "decline", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 15000.00 USD ≥ 10000" }, { "rule_id": "geo_high_risk", "severity": "high", "score": 30, "reason": "Counterparty in high-risk jurisdiction IR" } ] },
+    "layer_b": {
+      "score": 65,
+      "outcome": "decline",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 15000.00 USD ≥ 10000"
+        },
+        {
+          "rule_id": "geo_high_risk",
+          "severity": "high",
+          "score": 30,
+          "reason": "Counterparty in high-risk jurisdiction IR"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -113,10 +228,24 @@
     "triggered_layers": [],
     "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Northgate Logistics': clean. Beneficiary 'Packwell Materials GmbH': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4410, "matched_name": "NORTHGATE GROUP", "matched_entity_id": "OFAC_SDN:51120" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5302, "matched_name": "PACK WELL TRADING", "matched_entity_id": "OFAC_SDN:60155" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.441,
+        "matched_name": "NORTHGATE GROUP",
+        "matched_entity_id": "OFAC_SDN:51120"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.5302,
+        "matched_name": "PACK WELL TRADING",
+        "matched_entity_id": "OFAC_SDN:60155"
+      }
     },
-    "layer_b": { "score": 0, "outcome": "approve", "rules_fired": [] },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
     "ownership_risk": null
   },
   {
@@ -130,13 +259,36 @@
     "verdict": "REVIEW",
     "confidence": 0.9559,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_a_sanctions"],
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator flagged — Input 'Li Wei' matched '刘巍' (OPENSANCTIONS_PEPS:Q10897436) with 96% confidence using normal search. Subject to: PEP position annotations by OpenSanctions. List: OPENSANCTIONS_PEPS (pep). Verdict: REVIEW. Beneficiary 'Apex Brokers': clean. Layer B (behavioral): outcome=approve, score=25, rules fired=[velocity_24h].",
     "layer_a": {
-      "originator": { "verdict": "REVIEW", "confidence": 0.9559, "matched_name": "刘巍", "matched_entity_id": "OPENSANCTIONS_PEPS:Q10897436" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5525, "matched_name": "Asel Roberts", "matched_entity_id": "OPENSANCTIONS_PEPS:Q106555050" }
+      "originator": {
+        "verdict": "REVIEW",
+        "confidence": 0.9559,
+        "matched_name": "刘巍",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q10897436"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.5525,
+        "matched_name": "Asel Roberts",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q106555050"
+      }
     },
-    "layer_b": { "score": 25, "outcome": "approve", "rules_fired": [ { "rule_id": "velocity_24h", "severity": "medium", "score": 25, "reason": "6 txns in 24h (limit 5)" } ] },
+    "layer_b": {
+      "score": 25,
+      "outcome": "approve",
+      "rules_fired": [
+        {
+          "rule_id": "velocity_24h",
+          "severity": "medium",
+          "score": 25,
+          "reason": "6 txns in 24h (limit 5)"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -153,10 +305,24 @@
     "triggered_layers": [],
     "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Vertex Software Inc': clean. Beneficiary 'Daniel Okoro': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.3801, "matched_name": "VERTEX HOLDINGS", "matched_entity_id": "OFAC_SDN:47781" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.4115, "matched_name": "D. OKAFOR", "matched_entity_id": "OPENSANCTIONS_PEPS:Q92041337" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.3801,
+        "matched_name": "VERTEX HOLDINGS",
+        "matched_entity_id": "OFAC_SDN:47781"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4115,
+        "matched_name": "D. OKAFOR",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q92041337"
+      }
     },
-    "layer_b": { "score": 0, "outcome": "approve", "rules_fired": [] },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
     "ownership_risk": null
   },
   {
@@ -170,13 +336,42 @@
     "verdict": "MATCH",
     "confidence": 0.7,
     "recommended_action": "BLOCK",
-    "triggered_layers": ["layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Western Aggregate Co': clean. Beneficiary 'Damascus Trading House': clean. Layer B (behavioral): outcome=decline, score=65, rules fired=[amt_large, geo_high_risk].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4502, "matched_name": "WESTERN UNION", "matched_entity_id": "OFAC_SDN:12044" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.6610, "matched_name": "DAMASCUS GATEWAY CO", "matched_entity_id": "OFAC_SDN:28811" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4502,
+        "matched_name": "WESTERN UNION",
+        "matched_entity_id": "OFAC_SDN:12044"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.661,
+        "matched_name": "DAMASCUS GATEWAY CO",
+        "matched_entity_id": "OFAC_SDN:28811"
+      }
     },
-    "layer_b": { "score": 65, "outcome": "decline", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 88000.00 USD ≥ 10000" }, { "rule_id": "geo_high_risk", "severity": "high", "score": 30, "reason": "Counterparty in high-risk jurisdiction SY" } ] },
+    "layer_b": {
+      "score": 65,
+      "outcome": "decline",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 88000.00 USD ≥ 10000"
+        },
+        {
+          "rule_id": "geo_high_risk",
+          "severity": "high",
+          "score": 30,
+          "reason": "Counterparty in high-risk jurisdiction SY"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -193,10 +388,24 @@
     "triggered_layers": [],
     "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'CoinNova Exchange': clean. Beneficiary 'Tomasz Kowalski': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4203, "matched_name": "NOVA CAPITAL", "matched_entity_id": "OFAC_SDN:55410" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5044, "matched_name": "T. KOWALCZYK", "matched_entity_id": "OPENSANCTIONS_PEPS:Q81330122" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4203,
+        "matched_name": "NOVA CAPITAL",
+        "matched_entity_id": "OFAC_SDN:55410"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.5044,
+        "matched_name": "T. KOWALCZYK",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q81330122"
+      }
     },
-    "layer_b": { "score": 0, "outcome": "approve", "rules_fired": [] },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
     "ownership_risk": null
   },
   {
@@ -208,15 +417,44 @@
     "currency": "USD",
     "counterparty_country": "AE",
     "verdict": "REVIEW",
-    "confidence": 0.6200,
+    "confidence": 0.62,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator 'Priya Nair': clean. Beneficiary 'QuickRemit Services': clean. Layer B (behavioral): outcome=review, score=45, rules fired=[velocity_24h, structuring_7d].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4700, "matched_name": "P. NAIR", "matched_entity_id": "OPENSANCTIONS_PEPS:Q66012238" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.5210, "matched_name": "QUICK REMIT FZ-LLC", "matched_entity_id": "OFAC_SDN:62019" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.47,
+        "matched_name": "P. NAIR",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q66012238"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.521,
+        "matched_name": "QUICK REMIT FZ-LLC",
+        "matched_entity_id": "OFAC_SDN:62019"
+      }
     },
-    "layer_b": { "score": 45, "outcome": "review", "rules_fired": [ { "rule_id": "velocity_24h", "severity": "medium", "score": 25, "reason": "7 txns in 24h (limit 5)" }, { "rule_id": "structuring_7d", "severity": "high", "score": 20, "reason": "Repeated sub-threshold transfers in 7d" } ] },
+    "layer_b": {
+      "score": 45,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "velocity_24h",
+          "severity": "medium",
+          "score": 25,
+          "reason": "7 txns in 24h (limit 5)"
+        },
+        {
+          "rule_id": "structuring_7d",
+          "severity": "high",
+          "score": 20,
+          "reason": "Repeated sub-threshold transfers in 7d"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -228,15 +466,45 @@
     "currency": "USD",
     "counterparty_country": "RU",
     "verdict": "MATCH",
-    "confidence": 0.9700,
+    "confidence": 0.97,
     "recommended_action": "BLOCK",
-    "triggered_layers": ["layer_a_sanctions", "layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Harbor Freight Partners': clean. Beneficiary flagged — Input 'Rosoboronexport' matched 'ROSOBORONEKSPORT OJSC' via alias 'Rosoboronexport' (OFAC_SDN:9881) with 97% confidence using normal search. Subject to: RUSSIA-EO14024. List: OFAC_SDN (sanctions). Verdict: MATCH. Layer B (behavioral): outcome=decline, score=65, rules fired=[amt_large, geo_high_risk].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4015, "matched_name": "HARBOR GROUP", "matched_entity_id": "OFAC_SDN:50211" },
-      "beneficiary": { "verdict": "MATCH", "confidence": 0.9700, "matched_name": "ROSOBORONEKSPORT OJSC", "matched_entity_id": "OFAC_SDN:9881" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4015,
+        "matched_name": "HARBOR GROUP",
+        "matched_entity_id": "OFAC_SDN:50211"
+      },
+      "beneficiary": {
+        "verdict": "MATCH",
+        "confidence": 0.97,
+        "matched_name": "ROSOBORONEKSPORT OJSC",
+        "matched_entity_id": "OFAC_SDN:9881"
+      }
     },
-    "layer_b": { "score": 65, "outcome": "decline", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 410000.00 USD ≥ 10000" }, { "rule_id": "geo_high_risk", "severity": "high", "score": 30, "reason": "Counterparty in high-risk jurisdiction RU" } ] },
+    "layer_b": {
+      "score": 65,
+      "outcome": "decline",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 410000.00 USD ≥ 10000"
+        },
+        {
+          "rule_id": "geo_high_risk",
+          "severity": "high",
+          "score": 30,
+          "reason": "Counterparty in high-risk jurisdiction RU"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -248,15 +516,39 @@
     "currency": "EUR",
     "counterparty_country": "AZ",
     "verdict": "REVIEW",
-    "confidence": 0.7100,
+    "confidence": 0.71,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_a_sanctions", "layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator 'Precision Instruments Ltd': clean. Beneficiary flagged — Input 'Caspian Tech Trading' matched 'CASPIAN TECHNOLOGY LLC' (EU_FSF:NK-7yhT2qLmPn) with 79% confidence using normal search. Subject to: EU-RUS dual-use. List: EU_FSF (sanctions). Verdict: REVIEW. Layer B (behavioral): outcome=review, score=35, rules fired=[amt_large].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4604, "matched_name": "PRECISION CORP", "matched_entity_id": "OFAC_SDN:53400" },
-      "beneficiary": { "verdict": "REVIEW", "confidence": 0.7900, "matched_name": "CASPIAN TECHNOLOGY LLC", "matched_entity_id": "EU_FSF:NK-7yhT2qLmPn" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4604,
+        "matched_name": "PRECISION CORP",
+        "matched_entity_id": "OFAC_SDN:53400"
+      },
+      "beneficiary": {
+        "verdict": "REVIEW",
+        "confidence": 0.79,
+        "matched_name": "CASPIAN TECHNOLOGY LLC",
+        "matched_entity_id": "EU_FSF:NK-7yhT2qLmPn"
+      }
     },
-    "layer_b": { "score": 35, "outcome": "review", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 62000.00 EUR ≥ 10000" } ] },
+    "layer_b": {
+      "score": 35,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 62000.00 EUR ≥ 10000"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -268,15 +560,45 @@
     "currency": "USD",
     "counterparty_country": "IR",
     "verdict": "MATCH",
-    "confidence": 0.9650,
+    "confidence": 0.965,
     "recommended_action": "BLOCK",
-    "triggered_layers": ["layer_a_sanctions", "layer_b_behavioral"],
+    "triggered_layers": [
+      "layer_a_sanctions",
+      "layer_b_behavioral"
+    ],
     "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Atlas Petrochem Trading': clean. Beneficiary flagged — Input 'Bank Melli Iran' matched 'BANK MELLI IRAN' (OFAC_SDN:7984) with 97% confidence using normal search. Subject to: IRAN, SDGT. List: OFAC_SDN (sanctions). Verdict: MATCH. Layer B (behavioral): outcome=decline, score=65, rules fired=[amt_large, geo_high_risk].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4108, "matched_name": "ATLAS GROUP", "matched_entity_id": "OFAC_SDN:50880" },
-      "beneficiary": { "verdict": "MATCH", "confidence": 0.9650, "matched_name": "BANK MELLI IRAN", "matched_entity_id": "OFAC_SDN:7984" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4108,
+        "matched_name": "ATLAS GROUP",
+        "matched_entity_id": "OFAC_SDN:50880"
+      },
+      "beneficiary": {
+        "verdict": "MATCH",
+        "confidence": 0.965,
+        "matched_name": "BANK MELLI IRAN",
+        "matched_entity_id": "OFAC_SDN:7984"
+      }
     },
-    "layer_b": { "score": 65, "outcome": "decline", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 175000.00 USD ≥ 10000" }, { "rule_id": "geo_high_risk", "severity": "high", "score": 30, "reason": "Counterparty in high-risk jurisdiction IR" } ] },
+    "layer_b": {
+      "score": 65,
+      "outcome": "decline",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 175000.00 USD ≥ 10000"
+        },
+        {
+          "rule_id": "geo_high_risk",
+          "severity": "high",
+          "score": 30,
+          "reason": "Counterparty in high-risk jurisdiction IR"
+        }
+      ]
+    },
     "ownership_risk": null
   },
   {
@@ -288,15 +610,31 @@
     "currency": "EUR",
     "counterparty_country": "LV",
     "verdict": "REVIEW",
-    "confidence": 0.8400,
+    "confidence": 0.84,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_a_sanctions"],
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator flagged — Input 'Vladmir Petrov' matched 'Vladimir PETROV' (OPENSANCTIONS_PEPS:Q2629392) with 84% confidence using normal search. Subject to: PEP position annotations by OpenSanctions. List: OPENSANCTIONS_PEPS (pep). Verdict: REVIEW. Beneficiary 'Baltic Freight OU': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
     "layer_a": {
-      "originator": { "verdict": "REVIEW", "confidence": 0.8400, "matched_name": "Vladimir PETROV", "matched_entity_id": "OPENSANCTIONS_PEPS:Q2629392" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.4900, "matched_name": "BALTIC FREIGHT GROUP", "matched_entity_id": "OFAC_SDN:61204" }
+      "originator": {
+        "verdict": "REVIEW",
+        "confidence": 0.84,
+        "matched_name": "Vladimir PETROV",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q2629392"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.49,
+        "matched_name": "BALTIC FREIGHT GROUP",
+        "matched_entity_id": "OFAC_SDN:61204"
+      }
     },
-    "layer_b": { "score": 0, "outcome": "approve", "rules_fired": [] },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
     "ownership_risk": null
   },
   {
@@ -308,15 +646,31 @@
     "currency": "USD",
     "counterparty_country": "AE",
     "verdict": "REVIEW",
-    "confidence": 0.8900,
+    "confidence": 0.89,
     "recommended_action": "MANUAL_REVIEW",
-    "triggered_layers": ["layer_a_sanctions"],
+    "triggered_layers": [
+      "layer_a_sanctions"
+    ],
     "explanation": "Final verdict: REVIEW. Layer A (sanctions): Originator 'Westbridge Consulting': clean. Beneficiary flagged — Input 'Gulnara Karimova' matched 'Gulnora KARIMOVA' (OPENSANCTIONS_PEPS:Q230492) with 89% confidence using normal search. Subject to: PEP position annotations by OpenSanctions. List: OPENSANCTIONS_PEPS (pep). Verdict: REVIEW. Beneficiary flagged for analyst review. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.4007, "matched_name": "WEST BRIDGE LLC", "matched_entity_id": "OFAC_SDN:52210" },
-      "beneficiary": { "verdict": "REVIEW", "confidence": 0.8900, "matched_name": "Gulnora KARIMOVA", "matched_entity_id": "OPENSANCTIONS_PEPS:Q230492" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4007,
+        "matched_name": "WEST BRIDGE LLC",
+        "matched_entity_id": "OFAC_SDN:52210"
+      },
+      "beneficiary": {
+        "verdict": "REVIEW",
+        "confidence": 0.89,
+        "matched_name": "Gulnora KARIMOVA",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q230492"
+      }
     },
-    "layer_b": { "score": 0, "outcome": "approve", "rules_fired": [] },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
     "ownership_risk": null
   },
   {
@@ -330,13 +684,37 @@
     "verdict": "MATCH",
     "confidence": 0.9,
     "recommended_action": "BLOCK",
-    "triggered_layers": ["layer_b_behavioral", "layer_c_ownership"],
+    "triggered_layers": [
+      "layer_b_behavioral",
+      "layer_c_ownership"
+    ],
     "explanation": "Final verdict: MATCH. Layer A (sanctions): Originator 'Meridian Exports Ltd': clean. Beneficiary 'Northwind Commodities DMCC': clean. Layer B (behavioral): outcome=review, score=35, rules fired=[amt_large]. Layer C (ownership): verdict=MATCH, score=90. Beneficiary is 60% owned by Dmitry Olegovich ROGOZIN, a sanctioned party (seeded KYB record).",
     "layer_a": {
-      "originator": { "verdict": "NO_MATCH", "confidence": 0.3732, "matched_name": "RPF MERIDIAN JSC", "matched_entity_id": "OFAC_SDN:48555" },
-      "beneficiary": { "verdict": "NO_MATCH", "confidence": 0.6515, "matched_name": "RWR INTERNATIONAL COMMODITIES", "matched_entity_id": "OFAC_SDN:8416" }
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.3732,
+        "matched_name": "RPF MERIDIAN JSC",
+        "matched_entity_id": "OFAC_SDN:48555"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.6515,
+        "matched_name": "RWR INTERNATIONAL COMMODITIES",
+        "matched_entity_id": "OFAC_SDN:8416"
+      }
     },
-    "layer_b": { "score": 35, "outcome": "review", "rules_fired": [ { "rule_id": "amt_large", "severity": "high", "score": 35, "reason": "Amount 20000000.00 EUR ≥ 10000" } ] },
+    "layer_b": {
+      "score": 35,
+      "outcome": "review",
+      "rules_fired": [
+        {
+          "rule_id": "amt_large",
+          "severity": "high",
+          "score": 35,
+          "reason": "Amount 20000000.00 EUR ≥ 10000"
+        }
+      ]
+    },
     "ownership_risk": {
       "beneficiary": "Northwind Commodities DMCC",
       "verdict": "MATCH",
@@ -344,7 +722,10 @@
       "reason": "Beneficiary is 60% owned by Dmitry Olegovich ROGOZIN, a sanctioned party (seeded KYB record).",
       "paths": [
         {
-          "path": ["Northwind Commodities DMCC", "Dmitry Olegovich ROGOZIN"],
+          "path": [
+            "Northwind Commodities DMCC",
+            "Dmitry Olegovich ROGOZIN"
+          ],
           "relation": "beneficial_owner",
           "ownership_pct": 60.0,
           "effective_pct": 60.0,
@@ -360,15 +741,408 @@
       ],
       "graph": {
         "nodes": [
-          { "id": "Northwind Commodities DMCC", "name": "Northwind Commodities DMCC", "depth": 0, "risk": null, "is_flagged": false, "effective_pct": null },
-          { "id": "Dmitry Olegovich ROGOZIN", "name": "Dmitry Olegovich ROGOZIN", "depth": 1, "risk": "SANCTIONS_MATCH", "is_flagged": true, "effective_pct": 60.0 }
+          {
+            "id": "Northwind Commodities DMCC",
+            "name": "Northwind Commodities DMCC",
+            "depth": 0,
+            "risk": null,
+            "is_flagged": false,
+            "effective_pct": null
+          },
+          {
+            "id": "Dmitry Olegovich ROGOZIN",
+            "name": "Dmitry Olegovich ROGOZIN",
+            "depth": 1,
+            "risk": "SANCTIONS_MATCH",
+            "is_flagged": true,
+            "effective_pct": 60.0
+          }
         ],
         "edges": [
-          { "from": "Dmitry Olegovich ROGOZIN", "to": "Northwind Commodities DMCC", "relation": "beneficial_owner", "ownership_pct": 60.0 }
+          {
+            "from": "Dmitry Olegovich ROGOZIN",
+            "to": "Northwind Commodities DMCC",
+            "relation": "beneficial_owner",
+            "ownership_pct": 60.0
+          }
         ]
       },
       "related_parties_traced": 1,
       "duration_ms": 823
     }
+  },
+  {
+    "id": 20,
+    "label": "Office rent payment",
+    "originator": "Brightwave Media",
+    "beneficiary": "Hudson Property Group",
+    "amount": 3200.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "NO_MATCH",
+    "confidence": 0.41,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Brightwave Media': clean. Beneficiary 'Hudson Property Group': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.41,
+        "matched_name": "B. WAVE",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q70110021"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.36,
+        "matched_name": "HUDSON HOLDINGS",
+        "matched_entity_id": "OFAC_SDN:54110"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 21,
+    "label": "Cloud hosting invoice",
+    "originator": "Datapeak Analytics",
+    "beneficiary": "Cloudspan Hosting",
+    "amount": 540.0,
+    "currency": "EUR",
+    "counterparty_country": "IE",
+    "verdict": "NO_MATCH",
+    "confidence": 0.33,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Datapeak Analytics': clean. Beneficiary 'Cloudspan Hosting': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.33,
+        "matched_name": "DATA PEAK",
+        "matched_entity_id": "OFAC_SDN:55310"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.3,
+        "matched_name": "CLOUD SPAN LTD",
+        "matched_entity_id": "OFAC_SDN:55720"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 22,
+    "label": "Freelancer payout",
+    "originator": "Meridian Studios",
+    "beneficiary": "Sofia Almeida",
+    "amount": 1450.0,
+    "currency": "EUR",
+    "counterparty_country": "PT",
+    "verdict": "NO_MATCH",
+    "confidence": 0.47,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Meridian Studios': clean. Beneficiary 'Sofia Almeida': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.47,
+        "matched_name": "MERIDIAN ARTS",
+        "matched_entity_id": "OFAC_SDN:55901"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.39,
+        "matched_name": "S. ALMEIDA",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q66120044"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 23,
+    "label": "Utility bill",
+    "originator": "Greenfield Farms",
+    "beneficiary": "National Grid Utilities",
+    "amount": 880.0,
+    "currency": "GBP",
+    "counterparty_country": "GB",
+    "verdict": "NO_MATCH",
+    "confidence": 0.35,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Greenfield Farms': clean. Beneficiary 'National Grid Utilities': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.35,
+        "matched_name": "GREEN FIELD CO",
+        "matched_entity_id": "OFAC_SDN:56210"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.31,
+        "matched_name": "NATIONAL GRID PLC",
+        "matched_entity_id": "OFAC_SDN:56120"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 24,
+    "label": "Insurance premium",
+    "originator": "Lakeside Dental",
+    "beneficiary": "Sterling Insurance",
+    "amount": 2100.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "NO_MATCH",
+    "confidence": 0.38,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Lakeside Dental': clean. Beneficiary 'Sterling Insurance': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.38,
+        "matched_name": "LAKE SIDE LLC",
+        "matched_entity_id": "OFAC_SDN:56610"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.34,
+        "matched_name": "STERLING GROUP",
+        "matched_entity_id": "OFAC_SDN:56500"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 25,
+    "label": "Tuition deposit",
+    "originator": "Robert Tanaka",
+    "beneficiary": "Westfield University",
+    "amount": 9000.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "NO_MATCH",
+    "confidence": 0.49,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Robert Tanaka': clean. Beneficiary 'Westfield University': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.49,
+        "matched_name": "R. TANAKA",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q88123900"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.42,
+        "matched_name": "WESTFIELD CORP",
+        "matched_entity_id": "OFAC_SDN:56880"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 26,
+    "label": "E-commerce settlement",
+    "originator": "ShopHive Marketplace",
+    "beneficiary": "Lena Vogel",
+    "amount": 760.0,
+    "currency": "EUR",
+    "counterparty_country": "DE",
+    "verdict": "NO_MATCH",
+    "confidence": 0.4,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'ShopHive Marketplace': clean. Beneficiary 'Lena Vogel': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.4,
+        "matched_name": "SHOP HIVE LTD",
+        "matched_entity_id": "OFAC_SDN:57010"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.33,
+        "matched_name": "L. VOGEL",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q70220155"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 27,
+    "label": "Charity donation",
+    "originator": "Anna Schmidt",
+    "beneficiary": "Red Cross Foundation",
+    "amount": 250.0,
+    "currency": "EUR",
+    "counterparty_country": "DE",
+    "verdict": "NO_MATCH",
+    "confidence": 0.32,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Anna Schmidt': clean. Beneficiary 'Red Cross Foundation': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.32,
+        "matched_name": "A. SCHMIDT",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q70330166"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.29,
+        "matched_name": "RED CROSS INTL",
+        "matched_entity_id": "OFAC_SDN:57220"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 28,
+    "label": "Software license",
+    "originator": "Pinnacle Legal LLP",
+    "beneficiary": "DocuSign Inc",
+    "amount": 1190.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "NO_MATCH",
+    "confidence": 0.37,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Pinnacle Legal LLP': clean. Beneficiary 'DocuSign Inc': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.37,
+        "matched_name": "PINNACLE CORP",
+        "matched_entity_id": "OFAC_SDN:57610"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.35,
+        "matched_name": "DOCU GROUP",
+        "matched_entity_id": "OFAC_SDN:57500"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 29,
+    "label": "Equipment lease",
+    "originator": "Cedar Construction",
+    "beneficiary": "MachineRent Co",
+    "amount": 4300.0,
+    "currency": "CAD",
+    "counterparty_country": "CA",
+    "verdict": "NO_MATCH",
+    "confidence": 0.43,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'Cedar Construction': clean. Beneficiary 'MachineRent Co': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.43,
+        "matched_name": "CEDAR GROUP",
+        "matched_entity_id": "OFAC_SDN:57910"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.38,
+        "matched_name": "MACHINE RENTALS",
+        "matched_entity_id": "OFAC_SDN:57880"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
+  },
+  {
+    "id": 30,
+    "label": "Medical reimbursement",
+    "originator": "HealthFirst Clinic",
+    "beneficiary": "Marcus Bell",
+    "amount": 620.0,
+    "currency": "USD",
+    "counterparty_country": "US",
+    "verdict": "NO_MATCH",
+    "confidence": 0.36,
+    "recommended_action": "PASS",
+    "triggered_layers": [],
+    "explanation": "Final verdict: NO_MATCH. Layer A (sanctions): Originator 'HealthFirst Clinic': clean. Beneficiary 'Marcus Bell': clean. Layer B (behavioral): outcome=approve, score=0, rules fired=[none].",
+    "layer_a": {
+      "originator": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.36,
+        "matched_name": "HEALTH FIRST LLC",
+        "matched_entity_id": "OFAC_SDN:58110"
+      },
+      "beneficiary": {
+        "verdict": "NO_MATCH",
+        "confidence": 0.31,
+        "matched_name": "M. BELL",
+        "matched_entity_id": "OPENSANCTIONS_PEPS:Q70440177"
+      }
+    },
+    "layer_b": {
+      "score": 0,
+      "outcome": "approve",
+      "rules_fired": []
+    },
+    "ownership_risk": null
   }
 ]
