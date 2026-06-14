@@ -1,7 +1,6 @@
 from __future__ import annotations
 import logging
 from rapidfuzz.fuzz import token_set_ratio
-import jellyfish
 from .models import NormalizedInput, MatchCandidate, ScoreBreakdown, IndexEntry, EntityProfile
 from .normalizer import Normalizer
 from .db_helpers import load_all_profiles
@@ -128,7 +127,7 @@ class NormalSearcher:
             tsr = token_set_ratio(normalized.cleaned, entry.norm_name) / 100.0
             jw = reorder_resistant_similarity(normalized.cleaned, entry.norm_name)
 
-            if normalized.phonetic and normalized.entity_type == "individual":
+            if normalized.phonetic and normalized.entity_type == "individual" and entry.entity_type == "individual":
                 candidate_phonetic = entry.phonetic or ""
                 phonetic_score: float | None = 1.0 if normalized.phonetic == candidate_phonetic else 0.0
                 final = tsr * 0.40 + jw * 0.35 + phonetic_score * 0.25

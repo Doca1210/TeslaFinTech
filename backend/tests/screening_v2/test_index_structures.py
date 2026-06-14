@@ -2,6 +2,7 @@ import pytest
 from screening_v2.models import IndexEntry, EntityProfile
 from app.database import SessionLocal
 from screening_v2.db_helpers import load_all_profiles
+from screening_v2.normal_search import NormalSearcher
 
 
 def test_index_entry_fields():
@@ -65,11 +66,6 @@ def test_load_all_profiles_includes_known_entity(all_profiles):
 
 
 # ── Task 3: NormalSearcher index structure tests ──────────────────────────────
-
-import pytest
-from app.database import SessionLocal
-from screening_v2.normal_search import NormalSearcher
-from screening_v2.models import IndexEntry
 
 
 @pytest.fixture(scope="module")
