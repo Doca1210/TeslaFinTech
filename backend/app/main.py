@@ -4,7 +4,7 @@ import os
 import threading
 import time
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
@@ -18,6 +18,7 @@ from app.models import Entity, EntityName
 from app.ownership import OwnershipRiskEngine
 from app.schemas import EntityNameOut, EntitySearchResult, IngestionResult
 from app.schema_upgrade import ensure_sqlite_schema
+from app.suggest import get_ai_suggestion
 
 configure_logging()
 logger = logging.getLogger("app")
@@ -220,6 +221,20 @@ def list_transactions() -> list[dict]:
             except OSError:
                 logger.exception("Could not persist transaction cache")
     return _transactions_cache
+
+
+@app.post("/transactions/{tx_id}/suggest")
+async def suggest_transaction(tx_id: int) -> dict:
+    """Call OpenAI to suggest a compliance verdict for a flagged transaction."""
+    transactions = list_transactions()
+    tx = next((t for t in transactions if t["id"] == tx_id), None)
+    if tx is None:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    try:
+        return await get_ai_suggestion(tx)
+    except Exception:
+        logger.exception("AI suggestion failed for tx_id=%s", tx_id)
+        raise HTTPException(status_code=502, detail="AI suggestion unavailable")
 
 
 @app.get("/entities/search", response_model=list[EntitySearchResult])
