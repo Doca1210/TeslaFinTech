@@ -13,10 +13,10 @@ class ScreeningEngine:
     def __init__(self, session_factory):
         self._normalizer = Normalizer()
         self._normal = NormalSearcher(session_factory)
-        self._vector = VectorSearcher(session_factory)
+        self._vector = VectorSearcher(session_factory, profile_cache=self._normal.profile_cache)
         self._session_factory = session_factory
 
-    def screen(self, name: str, entity_type: str = "auto") -> ScreeningResult:
+    def screen(self, name: str, entity_type: str = "auto", use_vector: bool = False) -> ScreeningResult:
         start = time.perf_counter()
 
         if entity_type == "auto":
@@ -29,7 +29,7 @@ class ScreeningEngine:
         search_methods.append("normal")
 
         top_score = candidates[0].match_score if candidates else 0.0
-        if top_score < HIGH_CONFIDENCE:
+        if use_vector and top_score < HIGH_CONFIDENCE:
             vector_candidates = self._vector.search(normalized, candidates)
             search_methods.append("vector")
             candidates = self._merge(candidates, vector_candidates)
@@ -118,6 +118,5 @@ class ScreeningEngine:
         )
 
     def rebuild_indexes(self) -> None:
-        """Rebuild both in-memory indexes after a list ingest."""
         self._normal.rebuild()
-        self._vector.rebuild()
+        self._vector.rebuild(profile_cache=self._normal.profile_cache)
